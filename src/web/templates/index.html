@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - ASI Core{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="display-4">
+                <i class="fas fa-brain text-primary me-3"></i>
+                Willkommen bei ASI Core
+            </h1>
+        </div>
+        
+        <p class="lead mb-4">
+            Dein persönliches System für Selbstreflexion und Wachstum. 
+            Erfasse deine Gedanken, erhalte Erkenntnisse und entwickle dich weiter.
+        </p>
+
+        <!-- Quick Actions -->
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-pen fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Neue Reflexion</h5>
+                        <p class="card-text">Erfasse deine aktuellen Gedanken und Gefühle</p>
+                        <a href="{{ url_for('reflect') }}" class="btn btn-asi-primary">
+                            <i class="fas fa-plus me-2"></i>Reflexion starten
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-search fa-3x text-info mb-3"></i>
+                        <h5 class="card-title">Suche & Entdecke</h5>
+                        <p class="card-text">Finde Muster und Erkenntnisse in deinen Reflexionen</p>
+                        <a href="{{ url_for('search') }}" class="btn btn-outline-info">
+                            <i class="fas fa-search me-2"></i>Jetzt suchen
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-clock me-2"></i>Letzte Aktivität
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <i class="fas fa-calendar-day fa-2x text-success mb-2"></i>
+                        <h6>Heute</h6>
+                        <p class="text-muted">Noch keine Reflexion heute</p>
+                        <a href="{{ url_for('reflect') }}" class="btn btn-sm btn-success">Jetzt starten</a>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <i class="fas fa-chart-line fa-2x text-warning mb-2"></i>
+                        <h6>Diese Woche</h6>
+                        <p class="text-muted">{{ stats.reflections_last_7_days if stats else 0 }} Reflexionen</p>
+                        <a href="{{ url_for('insights') }}" class="btn btn-sm btn-warning">Wochenbericht</a>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <i class="fas fa-lightbulb fa-2x text-info mb-2"></i>
+                        <h6>Erkenntnisse</h6>
+                        <p class="text-muted">Neue Muster entdeckt</p>
+                        <a href="{{ url_for('insights') }}" class="btn btn-sm btn-info">Ansehen</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Statistics -->
+        {% if stats %}
+        <div class="card stat-card mb-4">
+            <div class="card-body">
+                <h5 class="card-title text-white">
+                    <i class="fas fa-chart-bar me-2"></i>Deine Statistiken
+                </h5>
+                <div class="row text-center">
+                    <div class="col-4">
+                        <h3 class="text-white">{{ stats.total_reflections }}</h3>
+                        <small>Reflexionen</small>
+                    </div>
+                    <div class="col-4">
+                        <h3 class="text-white">{{ stats.total_words | default(0) | int }}</h3>
+                        <small>Wörter</small>
+                    </div>
+                    <div class="col-4">
+                        <h3 class="text-white">{{ stats.reflections_last_7_days }}</h3>
+                        <small>Diese Woche</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- System Status -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-server me-2"></i>System-Status
+                </h6>
+            </div>
+            <div class="card-body">
+                <div id="system-status">
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Lädt...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Privacy Info -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-shield-alt me-2"></i>Privacy & Sicherheit
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <small>Daten bleiben lokal</small>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <small>Automatische Anonymisierung</small>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <small>Dezentrale Speicherung</small>
+                    </li>
+                    <li class="mb-0">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <small>Du behältst die Kontrolle</small>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // System-Status laden
+    loadSystemStatus();
+    
+    // Status alle 30 Sekunden aktualisieren
+    setInterval(loadSystemStatus, 30000);
+});
+
+async function loadSystemStatus() {
+    try {
+        const response = await fetch('/api/stats');
+        const data = await response.json();
+        
+        if (data.success) {
+            updateSystemStatus(data);
+        } else {
+            showSystemError();
+        }
+    } catch (error) {
+        console.error('Fehler beim Laden des System-Status:', error);
+        showSystemError();
+    }
+}
+
+function updateSystemStatus(data) {
+    const statusDiv = document.getElementById('system-status');
+    
+    const ipfsStatus = data.ipfs_running ? 
+        '<i class="fas fa-check-circle text-success"></i> IPFS' : 
+        '<i class="fas fa-times-circle text-secondary"></i> IPFS';
+        
+    const arweaveStatus = data.arweave_status === 'connected' ? 
+        '<i class="fas fa-check-circle text-success"></i> Arweave' : 
+        '<i class="fas fa-times-circle text-secondary"></i> Arweave';
+        
+    const blockchainStatus = data.blockchain_connected ? 
+        '<i class="fas fa-check-circle text-success"></i> Blockchain' : 
+        '<i class="fas fa-times-circle text-secondary"></i> Blockchain';
+    
+    statusDiv.innerHTML = `
+        <div class="row text-center">
+            <div class="col-4 mb-2">
+                <small>Datenbank</small><br>
+                <i class="fas fa-check-circle text-success"></i>
+            </div>
+            <div class="col-4 mb-2">
+                <small>IPFS</small><br>
+                ${data.ipfs_running ? '<i class="fas fa-check-circle text-success"></i>' : '<i class="fas fa-times-circle text-secondary"></i>'}
+            </div>
+            <div class="col-4 mb-2">
+                <small>Arweave</small><br>
+                ${data.arweave_status === 'connected' ? '<i class="fas fa-check-circle text-success"></i>' : '<i class="fas fa-times-circle text-secondary"></i>'}
+            </div>
+        </div>
+        <div class="text-center">
+            <small class="text-muted">Letztes Update: ${new Date().toLocaleTimeString('de-DE')}</small>
+        </div>
+    `;
+}
+
+function showSystemError() {
+    const statusDiv = document.getElementById('system-status');
+    statusDiv.innerHTML = `
+        <div class="text-center">
+            <i class="fas fa-exclamation-triangle text-warning"></i>
+            <small class="text-muted d-block">Status nicht verfügbar</small>
+        </div>
+    `;
+}
+</script>
+{% endblock %}

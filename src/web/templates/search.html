@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% block title %}Suche - ASI Core{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="text-center mb-4">
+            <h1 class="display-5">
+                <i class="fas fa-search text-primary me-3"></i>
+                Reflexionen durchsuchen
+            </h1>
+            <p class="lead text-muted">
+                Entdecke Muster und Erkenntnisse in deinen bisherigen Reflexionen
+            </p>
+        </div>
+
+        <!-- Suchfeld -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form id="search-form">
+                    <div class="input-group mb-3">
+                        <input 
+                            type="text" 
+                            class="form-control form-control-lg" 
+                            id="search-query" 
+                            placeholder="Wonach suchst du? (z.B. 'Arbeit und Stress', 'Familie', 'Ziele')"
+                            required
+                        >
+                        <button class="btn btn-asi-primary" type="submit" id="search-btn">
+                            <i class="fas fa-search me-2"></i>Suchen
+                        </button>
+                    </div>
+                    
+                    <!-- Erweiterte Optionen -->
+                    <div class="collapse" id="advanced-options">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="result-limit" class="form-label">Anzahl Ergebnisse</label>
+                                <select class="form-select" id="result-limit">
+                                    <option value="5">5 Ergebnisse</option>
+                                    <option value="10" selected>10 Ergebnisse</option>
+                                    <option value="20">20 Ergebnisse</option>
+                                    <option value="50">50 Ergebnisse</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Such-Typ</label>
+                                <div>
+                                    <input type="radio" class="btn-check" name="search-type" id="semantic" value="semantic" checked>
+                                    <label class="btn btn-outline-primary btn-sm" for="semantic">Semantisch</label>
+                                    
+                                    <input type="radio" class="btn-check" name="search-type" id="themes" value="themes">
+                                    <label class="btn btn-outline-secondary btn-sm" for="themes">Themen</label>
+                                    
+                                    <input type="radio" class="btn-check" name="search-type" id="sentiment" value="sentiment">
+                                    <label class="btn btn-outline-info btn-sm" for="sentiment">Sentiment</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button 
+                            class="btn btn-outline-secondary btn-sm" 
+                            type="button" 
+                            data-bs-toggle="collapse" 
+                            data-bs-target="#advanced-options"
+                        >
+                            <i class="fas fa-cog me-1"></i>Erweiterte Optionen
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Beispiel-Suchanfragen -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>Beispiel-Suchanfragen
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-outline-primary btn-sm search-example" data-query="Arbeit und Stress">
+                        Arbeit und Stress
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm search-example" data-query="Familie und Beziehungen">
+                        Familie und Beziehungen
+                    </button>
+                    <button class="btn btn-outline-success btn-sm search-example" data-query="Persönliches Wachstum">
+                        Persönliches Wachstum
+                    </button>
+                    <button class="btn btn-outline-info btn-sm search-example" data-query="Zukunft und Ziele">
+                        Zukunft und Ziele
+                    </button>
+                    <button class="btn btn-outline-warning btn-sm search-example" data-query="Emotionen und Gefühle">
+                        Emotionen und Gefühle
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Suchergebnisse -->
+        <div id="search-results" style="display: none;">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Suchergebnisse
+                    </h5>
+                    <span id="results-count" class="badge bg-primary"></span>
+                </div>
+                <div class="card-body">
+                    <div id="results-container">
+                        <!-- Ergebnisse werden hier eingefügt -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Keine Ergebnisse -->
+        <div id="no-results" style="display: none;">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h5>Keine Ergebnisse gefunden</h5>
+                    <p class="text-muted">
+                        Versuche es mit anderen Suchbegriffen oder erstelle 
+                        <a href="{{ url_for('reflect') }}">eine neue Reflexion</a>.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="search-loading" style="display: none;">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Suche läuft...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Durchsuche deine Reflexionen...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Such-Form Event Listener
+    document.getElementById('search-form').addEventListener('submit', performSearch);
+    
+    // Beispiel-Suchanfragen
+    document.querySelectorAll('.search-example').forEach(button => {
+        button.addEventListener('click', function() {
+            const query = this.getAttribute('data-query');
+            document.getElementById('search-query').value = query;
+            performSearch();
+        });
+    });
+    
+    // Enter-Taste in Suchfeld
+    document.getElementById('search-query').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            performSearch();
+        }
+    });
+});
+
+async function performSearch(e) {
+    if (e) e.preventDefault();
+    
+    const query = document.getElementById('search-query').value.trim();
+    const limit = document.getElementById('result-limit').value;
+    
+    if (!query) {
+        showToast('Bitte gib einen Suchbegriff ein.', 'warning');
+        return;
+    }
+    
+    // UI States
+    showSearchLoading();
+    hideResults();
+    
+    const submitBtn = document.getElementById('search-btn');
+    const originalText = submitBtn.innerHTML;
+    showLoading('search-btn');
+    
+    try {
+        const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=${limit}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            displayResults(data);
+        } else {
+            showToast('Suchfehler: ' + data.error, 'danger');
+            hideSearchLoading();
+        }
+        
+    } catch (error) {
+        console.error('Suchfehler:', error);
+        showToast('Verbindungsfehler bei der Suche.', 'danger');
+        hideSearchLoading();
+    } finally {
+        hideLoading('search-btn', originalText);
+    }
+}
+
+function showSearchLoading() {
+    document.getElementById('search-loading').style.display = 'block';
+    document.getElementById('search-results').style.display = 'none';
+    document.getElementById('no-results').style.display = 'none';
+}
+
+function hideSearchLoading() {
+    document.getElementById('search-loading').style.display = 'none';
+}
+
+function hideResults() {
+    document.getElementById('search-results').style.display = 'none';
+    document.getElementById('no-results').style.display = 'none';
+}
+
+function displayResults(data) {
+    hideSearchLoading();
+    
+    if (data.results.length === 0) {
+        document.getElementById('no-results').style.display = 'block';
+        return;
+    }
+    
+    // Ergebnisse anzeigen
+    document.getElementById('search-results').style.display = 'block';
+    document.getElementById('results-count').textContent = `${data.count} Ergebnis${data.count !== 1 ? 'se' : ''}`;
+    
+    const container = document.getElementById('results-container');
+    container.innerHTML = '';
+    
+    data.results.forEach((result, index) => {
+        const resultCard = createResultCard(result, index + 1);
+        container.appendChild(resultCard);
+    });
+}
+
+function createResultCard(result, index) {
+    const card = document.createElement('div');
+    card.className = 'card reflection-card mb-3';
+    
+    // Similarity Score Badge
+    let scoreColor = 'secondary';
+    if (result.similarity >= 0.8) scoreColor = 'success';
+    else if (result.similarity >= 0.6) scoreColor = 'warning';
+    else if (result.similarity >= 0.4) scoreColor = 'info';
+    
+    // Privacy Level Icon
+    let privacyIcon = 'fa-lock';
+    let privacyColor = 'text-secondary';
+    if (result.privacy_level === 'anonymous') {
+        privacyIcon = 'fa-user-secret';
+        privacyColor = 'text-warning';
+    } else if (result.privacy_level === 'public') {
+        privacyIcon = 'fa-globe';
+        privacyColor = 'text-success';
+    }
+    
+    card.innerHTML = `
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="card-title mb-0">
+                    <span class="badge bg-light text-dark me-2">#${index}</span>
+                    Reflexion vom ${result.timestamp}
+                </h6>
+                <div>
+                    <span class="badge bg-${scoreColor} me-2">
+                        ${Math.round(result.similarity * 100)}% Ähnlichkeit
+                    </span>
+                    <i class="fas ${privacyIcon} ${privacyColor}"></i>
+                </div>
+            </div>
+            
+            <p class="card-text">${result.preview}</p>
+            
+            ${result.themes.length > 0 ? `
+                <div class="mb-2">
+                    <small class="text-muted me-2">Passende Themen:</small>
+                    ${result.themes.map(theme => `<span class="badge bg-primary me-1">${theme}</span>`).join('')}
+                </div>
+            ` : ''}
+            
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">
+                    <i class="fas fa-clock me-1"></i>${result.timestamp}
+                </small>
+                <a href="/reflection/${result.hash}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-eye me-1"></i>Details ansehen
+                </a>
+            </div>
+        </div>
+    `;
+    
+    return card;
+}
+
+// Auto-Complete für Suchvorschläge (vereinfacht)
+let searchTimeout;
+document.getElementById('search-query').addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    const query = this.value.trim();
+    
+    if (query.length >= 2) {
+        searchTimeout = setTimeout(() => {
+            // Hier könnten Suchvorschläge implementiert werden
+            // loadSearchSuggestions(query);
+        }, 300);
+    }
+});
+</script>
+{% endblock %}

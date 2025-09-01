@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+
+{% block title %}Reflexion - ASI Core{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="text-center mb-4">
+            <h1 class="display-5">
+                <i class="fas fa-pen-fancy text-primary me-3"></i>
+                Neue Reflexion
+            </h1>
+            <p class="lead text-muted">
+                Nimm dir einen Moment Zeit für dich. Was beschäftigt dich gerade?
+            </p>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <form id="reflection-form">
+                    <!-- Reflexionsinhalt -->
+                    <div class="mb-4">
+                        <label for="content" class="form-label">
+                            <i class="fas fa-heart me-2"></i>Deine Reflexion
+                        </label>
+                        <textarea 
+                            class="form-control" 
+                            id="content" 
+                            name="content" 
+                            rows="8" 
+                            placeholder="Schreibe hier deine Gedanken, Gefühle oder Erlebnisse auf..."
+                            required
+                        ></textarea>
+                        <div class="form-text">
+                            Sei ehrlich zu dir selbst. Deine Gedanken werden automatisch anonymisiert.
+                        </div>
+                    </div>
+
+                    <!-- Tags -->
+                    <div class="mb-4">
+                        <label for="tags" class="form-label">
+                            <i class="fas fa-tags me-2"></i>Tags (optional)
+                        </label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="tags" 
+                            name="tags" 
+                            placeholder="z.B. arbeit, familie, persönlichkeit (durch Komma getrennt)"
+                        >
+                        <div class="form-text">
+                            Tags helfen dir später beim Wiederfinden und Analysieren deiner Reflexionen.
+                        </div>
+                    </div>
+
+                    <!-- Privacy Level -->
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="fas fa-shield-alt me-2"></i>Privacy-Level
+                        </label>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="card h-100">
+                                    <div class="card-body text-center">
+                                        <input type="radio" class="btn-check" name="privacy_level" id="private" value="private" checked>
+                                        <label class="btn btn-outline-secondary w-100" for="private">
+                                            <i class="fas fa-lock fa-2x d-block mb-2"></i>
+                                            <strong>Privat</strong>
+                                            <small class="d-block text-muted">Nur lokal gespeichert</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card h-100">
+                                    <div class="card-body text-center">
+                                        <input type="radio" class="btn-check" name="privacy_level" id="anonymous" value="anonymous">
+                                        <label class="btn btn-outline-warning w-100" for="anonymous">
+                                            <i class="fas fa-user-secret fa-2x d-block mb-2"></i>
+                                            <strong>Anonym</strong>
+                                            <small class="d-block text-muted">Anonymisiert teilbar</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card h-100">
+                                    <div class="card-body text-center">
+                                        <input type="radio" class="btn-check" name="privacy_level" id="public" value="public">
+                                        <label class="btn btn-outline-success w-100" for="public">
+                                            <i class="fas fa-globe fa-2x d-block mb-2"></i>
+                                            <strong>Öffentlich</strong>
+                                            <small class="d-block text-muted">Permanent verfügbar</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-text mt-2">
+                            <strong>Privat:</strong> Nur auf diesem Gerät gespeichert. 
+                            <strong>Anonym:</strong> Anonymisiert und optional in IPFS. 
+                            <strong>Öffentlich:</strong> Permanent auf Arweave Blockchain.
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Zurück
+                        </a>
+                        <button type="submit" class="btn btn-asi-primary btn-lg" id="submit-btn">
+                            <i class="fas fa-save me-2"></i>Reflexion speichern
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Guided Reflection -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-compass me-2"></i>Braucht du Inspiration?
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Hier sind einige Leitfragen, die dir beim Reflektieren helfen können:</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-question-circle text-primary me-2"></i>
+                                Was hat mich heute bewegt?
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-question-circle text-primary me-2"></i>
+                                Welche Gefühle nehme ich wahr?
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-question-circle text-primary me-2"></i>
+                                Was habe ich gelernt?
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-question-circle text-primary me-2"></i>
+                                Wofür bin ich dankbar?
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-question-circle text-primary me-2"></i>
+                                Was möchte ich ändern?
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-question-circle text-primary me-2"></i>
+                                Wie kann ich wachsen?
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-outline-primary" onclick="startGuidedReflection()">
+                    <i class="fas fa-magic me-2"></i>Geführte Reflexion starten
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    Reflexion gespeichert
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="success-content">
+                    <!-- Wird dynamisch gefüllt -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                <a href="{{ url_for('reflect') }}" class="btn btn-primary">Neue Reflexion</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('reflection-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const submitBtn = document.getElementById('submit-btn');
+    const originalText = submitBtn.innerHTML;
+    
+    // Loading state
+    showLoading('submit-btn');
+    
+    try {
+        // Form-Daten sammeln
+        const formData = new FormData(this);
+        const content = formData.get('content').trim();
+        const tagsString = formData.get('tags').trim();
+        const privacyLevel = formData.get('privacy_level');
+        
+        if (!content) {
+            showToast('Bitte gib eine Reflexion ein.', 'warning');
+            hideLoading('submit-btn', originalText);
+            return;
+        }
+        
+        // Tags verarbeiten
+        const tags = tagsString ? tagsString.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
+        
+        // API-Request
+        const response = await fetch('/api/reflect', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                content: content,
+                tags: tags,
+                privacy_level: privacyLevel
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Erfolg anzeigen
+            showSuccessModal(result);
+            
+            // Form zurücksetzen
+            this.reset();
+            document.getElementById('private').checked = true;
+            
+        } else {
+            showToast('Fehler: ' + result.error, 'danger');
+        }
+        
+    } catch (error) {
+        console.error('Fehler beim Speichern:', error);
+        showToast('Verbindungsfehler. Bitte versuche es erneut.', 'danger');
+    } finally {
+        hideLoading('submit-btn', originalText);
+    }
+});
+
+function showSuccessModal(result) {
+    const successContent = document.getElementById('success-content');
+    
+    successContent.innerHTML = `
+        <div class="alert alert-success">
+            <h6><i class="fas fa-check me-2"></i>Deine Reflexion wurde erfolgreich verarbeitet!</h6>
+            <hr>
+            <p><strong>Reflexions-ID:</strong> ${result.reflection_id}</p>
+            <p><strong>Identifizierte Themen:</strong> ${result.themes.join(', ') || 'Keine'}</p>
+            <p><strong>Sentiment:</strong> ${result.sentiment || 'Nicht analysiert'}</p>
+            ${result.insights > 0 ? `<p><strong>Neue Erkenntnisse:</strong> ${result.insights} generiert</p>` : ''}
+        </div>
+        <p class="text-muted">
+            <i class="fas fa-info-circle me-2"></i>
+            Deine Reflexion wurde lokal gespeichert und kann über die Suche gefunden werden.
+        </p>
+    `;
+    
+    const modal = new bootstrap.Modal(document.getElementById('successModal'));
+    modal.show();
+}
+
+function startGuidedReflection() {
+    const questions = [
+        "Was beschäftigt dich gerade am meisten?",
+        "Welche Gefühle nimmst du in dir wahr?", 
+        "Was hast du heute oder kürzlich gelernt?",
+        "Wofür bist du dankbar?",
+        "Was möchtest du in naher Zukunft ändern oder verbessern?"
+    ];
+    
+    let currentQuestion = 0;
+    let responses = [];
+    
+    function askNextQuestion() {
+        if (currentQuestion < questions.length) {
+            const answer = prompt(questions[currentQuestion]);
+            if (answer && answer.trim()) {
+                responses.push(`${questions[currentQuestion]} ${answer.trim()}`);
+            }
+            currentQuestion++;
+            askNextQuestion();
+        } else {
+            // Antworten in Textarea einfügen
+            if (responses.length > 0) {
+                document.getElementById('content').value = responses.join('\n\n');
+                showToast('Geführte Reflexion abgeschlossen! Du kannst den Text noch anpassen.', 'success');
+            }
+        }
+    }
+    
+    if (confirm('Möchtest du eine geführte Reflexion durchführen? Du wirst durch 5 Leitfragen geführt.')) {
+        askNextQuestion();
+    }
+}
+
+// Zeichen-Zähler für Textarea
+document.getElementById('content').addEventListener('input', function() {
+    const length = this.value.length;
+    const wordCount = this.value.trim() ? this.value.trim().split(/\s+/).length : 0;
+    
+    // Zeichen-Info anzeigen
+    let info = this.parentNode.querySelector('.char-info');
+    if (!info) {
+        info = document.createElement('small');
+        info.className = 'char-info text-muted';
+        this.parentNode.appendChild(info);
+    }
+    
+    info.textContent = `${length} Zeichen, ${wordCount} Wörter`;
+});
+</script>
+{% endblock %}
