@@ -12,6 +12,7 @@
   "dependencies": {
     "@bundlr-network/client": "^0.11.17",
     "@heroicons/react": "^2.2.0",
+    "@storacha/client": "^1.7.9",
     "@walletconnect/web3-provider": "^1.8.0",
     "@web3-onboard/core": "^2.24.1",
     "@web3-onboard/injected-wallets": "^2.11.3",
