@@ -1,6 +1,7 @@
 """
 ASI Core - Processor Module
 Strukturierung, Anonymisierung und Aufbereitung von Reflexionen
+Erweitert mit HRM (Hierarchical Reasoning Model) Integration
 """
 
 import re
@@ -9,6 +10,15 @@ import json
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
 from datetime import datetime
+
+# HRM Integration
+try:
+    from src.ai.hrm.high_level.planner import Planner
+    from src.ai.hrm.low_level.executor import Executor
+    HRM_AVAILABLE = True
+except ImportError:
+    print("HRM Module nicht verfügbar - läuft ohne erweiterte KI-Funktionen")
+    HRM_AVAILABLE = False
 
 
 @dataclass
@@ -26,7 +36,7 @@ class ProcessedEntry:
 
 
 class ReflectionProcessor:
-    """Hauptklasse für die Verarbeitung von Reflexionen"""
+    """Hauptklasse für die Verarbeitung von Reflexionen mit HRM-Integration"""
 
     def __init__(self):
         self.anonymization_patterns = {
@@ -39,9 +49,20 @@ class ReflectionProcessor:
 
         self.emotion_keywords = {
             "positive": ["glücklich", "froh", "dankbar", "stolz", "begeistert"],
-            "negative": ["traurig", "ängstlich", "wütend", "frustriert", "enttäuscht"],
+            "negative": ["traurig", "ängstlich", "wütend", "frustriert", 
+                        "enttäuscht"],
             "neutral": ["ruhig", "entspannt", "nachdenklich", "müde"],
         }
+
+        # HRM-Integration: Initialisiere KI-Module
+        if HRM_AVAILABLE:
+            self.hrm_planner = Planner()
+            self.hrm_executor = Executor()
+            print("✅ HRM (Hierarchical Reasoning Model) aktiviert")
+        else:
+            self.hrm_planner = None
+            self.hrm_executor = None
+            print("⚠️  HRM nicht verfügbar - Standard-Verarbeitung aktiv")
 
     def anonymize_content(self, content: str) -> str:
         """
@@ -170,20 +191,20 @@ class ReflectionProcessor:
 
     def process_reflection(self, reflection_data: Dict) -> ProcessedEntry:
         """
-        Verarbeitet eine komplette Reflexion
+        Verarbeitet eine komplette Reflexion mit HRM-Integration
 
         Args:
             reflection_data: Rohdaten der Reflexion
 
         Returns:
-            ProcessedEntry: Verarbeitete Reflexion
+            ProcessedEntry: Verarbeitete Reflexion mit HRM-Insights
         """
         original_content = reflection_data["content"]
 
         # Hash für Originalinhalt erstellen
-        original_hash = hashlib.sha256(original_content.encode("utf-8")).hexdigest()[
-            :16
-        ]
+        original_hash = hashlib.sha256(
+            original_content.encode("utf-8")
+        ).hexdigest()[:16]
 
         # Anonymisierung
         anonymized_content = self.anonymize_content(original_content)
@@ -196,6 +217,54 @@ class ReflectionProcessor:
 
         # Themen-Extraktion
         themes = self.extract_themes(anonymized_content)
+
+        # 🧠 HRM-Integration: Hierarchical Reasoning Model
+        hrm_insights = None
+        if self.hrm_planner and self.hrm_executor:
+            try:
+                # Bereite Kontext für HRM vor
+                hrm_context = {
+                    'content': anonymized_content,
+                    'tags': reflection_data.get("tags", []),
+                    'timestamp': datetime.now().isoformat(),
+                    'emotion': emotion,
+                    'themes': themes,
+                    'privacy_level': reflection_data.get("privacy_level", "private")
+                }
+
+                # High-Level: Erstelle abstrakten Plan
+                abstract_plan = self.hrm_planner.create_abstract_plan(hrm_context)
+
+                # Low-Level: Generiere konkrete Aktion
+                concrete_action = self.hrm_executor.execute_concrete_step(
+                    abstract_plan,
+                    hrm_context
+                )
+
+                # Kombiniere HRM-Ergebnisse
+                hrm_insights = {
+                    'abstract_plan': abstract_plan,
+                    'concrete_action': concrete_action,
+                    'processing_timestamp': datetime.now().isoformat(),
+                    'confidence': abstract_plan.get('confidence_score', 0.5),
+                    'recommendations': self._extract_hrm_recommendations(
+                        abstract_plan, concrete_action
+                    )
+                }
+
+                print(f"✅ HRM-Analyse abgeschlossen - Konfidenz: "
+                      f"{hrm_insights['confidence']:.2f}")
+
+            except Exception as e:
+                print(f"⚠️  HRM-Verarbeitung fehlgeschlagen: {e}")
+                hrm_insights = {
+                    'error': str(e),
+                    'fallback_used': True
+                }
+
+        # Erweitere strukturierte Daten um HRM
+        if hrm_insights:
+            structured_data['hrm'] = hrm_insights
 
         # Verarbeitete Reflexion erstellen
         processed = ProcessedEntry(
@@ -210,6 +279,46 @@ class ReflectionProcessor:
         )
 
         return processed
+
+    def _extract_hrm_recommendations(
+        self, 
+        abstract_plan: Dict, 
+        concrete_action: Dict
+    ) -> List[str]:
+        """
+        Extrahiert praktische Empfehlungen aus HRM-Ergebnissen
+        
+        Args:
+            abstract_plan: Abstrakter Plan vom High-Level Planner
+            concrete_action: Konkrete Aktion vom Low-Level Executor
+            
+        Returns:
+            Liste von praktischen Empfehlungen
+        """
+        recommendations = []
+        
+        # Empfehlungen aus abstraktem Plan
+        if abstract_plan.get('strategic_recommendations'):
+            for rec in abstract_plan['strategic_recommendations'][:2]:
+                recommendations.append(f"📋 {rec.get('title', 'Strategisch')}: "
+                                     f"{rec.get('description', 'Keine Details')}")
+        
+        # Empfehlungen aus konkreter Aktion
+        if concrete_action and concrete_action.get('suggestion'):
+            recommendations.append(f"🎯 Nächster Schritt: "
+                                 f"{concrete_action['suggestion']}")
+        
+        # Langfristige Einsichten
+        if abstract_plan.get('long_term_insights'):
+            for insight in abstract_plan['long_term_insights'][:2]:
+                recommendations.append(f"💡 Einsicht: {insight}")
+        
+        # Fallback wenn keine Empfehlungen
+        if not recommendations:
+            recommendations.append("🔄 Setze deine Reflexionspraxis fort für "
+                                 "tiefere Einsichten")
+        
+        return recommendations[:5]  # Maximal 5 Empfehlungen
 
     def batch_process(self, reflections: List[Dict]) -> List[ProcessedEntry]:
         """

@@ -1,0 +1,428 @@
+{% extends "base.html" %}
+
+{% block title %}Erweiterte Reflexion - ASI Core{% endblock %}
+
+{% block extra_head %}
+<style>
+    .hrm-insight-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .hrm-insight-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    }
+    
+    .abstract-plan {
+        background: rgba(52, 152, 219, 0.1);
+        border-left: 4px solid #3498db;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+    }
+    
+    .concrete-action {
+        background: rgba(39, 174, 96, 0.1);
+        border-left: 4px solid #27ae60;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+    }
+    
+    .pattern-badge {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.85em;
+        margin: 3px;
+        display: inline-block;
+    }
+    
+    .confidence-bar {
+        background: rgba(255, 255, 255, 0.2);
+        height: 8px;
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 10px 0;
+    }
+    
+    .confidence-fill {
+        background: linear-gradient(90deg, #f39c12, #27ae60);
+        height: 100%;
+        transition: width 0.8s ease;
+    }
+    
+    .recommendation-item {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 12px;
+        margin: 8px 0;
+        border-radius: 8px;
+        border-left: 3px solid #f39c12;
+    }
+    
+    .brain-animation {
+        display: inline-block;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+    }
+    
+    .processing-indicator {
+        display: none;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .processing-spinner {
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top: 3px solid #3498db;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-brain brain-animation"></i>
+                        Erweiterte Reflexion mit HRM
+                    </h3>
+                    <small>Hierarchical Reasoning Model für intelligente Einsichten</small>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Reflexions-Eingabe -->
+                    <form id="enhanced-reflection-form">
+                        <div class="mb-3">
+                            <label for="reflection-content" class="form-label">
+                                <i class="fas fa-pen-fancy"></i> Deine Reflexion
+                            </label>
+                            <textarea class="form-control" id="reflection-content" 
+                                    rows="6" placeholder="Teile deine Gedanken, Gefühle und Erfahrungen...
+                                    
+Beispiele:
+• Wie war dein Tag? Was ist dir wichtig gewesen?
+• Welche Herausforderungen hattest du?
+• Was hast du gelernt oder erkannt?
+• Wie fühlst du dich gerade?"></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="reflection-tags" class="form-label">
+                                        <i class="fas fa-tags"></i> Tags (optional)
+                                    </label>
+                                    <input type="text" class="form-control" id="reflection-tags" 
+                                           placeholder="arbeit, gesundheit, beziehungen, lernen...">
+                                    <small class="text-muted">Durch Kommas getrennt</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="privacy-level" class="form-label">
+                                        <i class="fas fa-shield-alt"></i> Privacy Level
+                                    </label>
+                                    <select class="form-select" id="privacy-level">
+                                        <option value="private">🔒 Privat (nur lokal)</option>
+                                        <option value="anonymous">👤 Anonym (anonymisiert)</option>
+                                        <option value="public">🌐 Öffentlich</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-brain"></i> Mit HRM analysieren
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <!-- Processing Indicator -->
+                    <div id="processing-indicator" class="processing-indicator">
+                        <div class="processing-spinner"></div>
+                        <h5>🧠 HRM analysiert deine Reflexion...</h5>
+                        <p class="text-muted">High-Level Mustererkennung und Low-Level Aktionsplanung</p>
+                    </div>
+                    
+                    <!-- HRM Insights Container -->
+                    <div id="hrm-insights-container" style="display: none;" class="mt-4">
+                        <hr>
+                        <h4 class="text-center mb-4">
+                            <i class="fas fa-lightbulb"></i> HRM-Insights
+                            <small class="text-muted d-block">Intelligente Analyse deiner Reflexion</small>
+                        </h4>
+                        
+                        <!-- Confidence Score -->
+                        <div class="card hrm-insight-card">
+                            <div class="card-body">
+                                <h5><i class="fas fa-chart-line"></i> Analyse-Konfidenz</h5>
+                                <div class="confidence-bar">
+                                    <div id="confidence-fill" class="confidence-fill" style="width: 0%"></div>
+                                </div>
+                                <span id="confidence-text">Berechne...</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Abstract Plan -->
+                        <div class="card hrm-insight-card">
+                            <div class="card-body">
+                                <h5><i class="fas fa-sitemap"></i> Abstrakte Planung</h5>
+                                <div id="abstract-patterns" class="mb-3">
+                                    <h6>Erkannte Muster:</h6>
+                                    <div id="patterns-container"></div>
+                                </div>
+                                <div id="suggested-goals" class="abstract-plan">
+                                    <h6><i class="fas fa-bullseye"></i> Empfohlene Ziele:</h6>
+                                    <ul id="goals-list"></ul>
+                                </div>
+                                <div id="long-term-insights" class="abstract-plan">
+                                    <h6><i class="fas fa-telescope"></i> Langzeit-Einsichten:</h6>
+                                    <ul id="insights-list"></ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Concrete Action -->
+                        <div class="card hrm-insight-card">
+                            <div class="card-body">
+                                <h5><i class="fas fa-play-circle"></i> Konkrete Aktion</h5>
+                                <div id="action-container" class="concrete-action">
+                                    <h6 id="action-type"><i class="fas fa-cog"></i> Aktionstyp</h6>
+                                    <p id="action-suggestion" class="mb-3"></p>
+                                    <div id="implementation-steps">
+                                        <h6><i class="fas fa-list-ol"></i> Umsetzungsschritte:</h6>
+                                        <ol id="steps-list"></ol>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Strategic Recommendations -->
+                        <div class="card hrm-insight-card">
+                            <div class="card-body">
+                                <h5><i class="fas fa-chess"></i> Strategische Empfehlungen</h5>
+                                <div id="recommendations-container"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4">
+                            <button id="implement-action" class="btn btn-success btn-lg me-3">
+                                <i class="fas fa-rocket"></i> Aktion umsetzen
+                            </button>
+                            <button id="save-insights" class="btn btn-info btn-lg">
+                                <i class="fas fa-save"></i> Insights speichern
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('enhanced-reflection-form');
+    const processingIndicator = document.getElementById('processing-indicator');
+    const insightsContainer = document.getElementById('hrm-insights-container');
+    
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const content = document.getElementById('reflection-content').value.trim();
+        if (!content) {
+            alert('Bitte gib deine Reflexion ein.');
+            return;
+        }
+        
+        // Zeige Processing Indicator
+        processingIndicator.style.display = 'block';
+        insightsContainer.style.display = 'none';
+        
+        // Sammle Formulardaten
+        const tags = document.getElementById('reflection-tags').value
+            .split(',')
+            .map(tag => tag.trim())
+            .filter(tag => tag.length > 0);
+        
+        const privacyLevel = document.getElementById('privacy-level').value;
+        
+        const reflectionData = {
+            content: content,
+            tags: tags,
+            privacy_level: privacyLevel,
+            timestamp: new Date().toISOString(),
+            hrm_enabled: true
+        };
+        
+        try {
+            // Sende an erweiterten Endpoint
+            const response = await fetch('/api/reflection/hrm', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(reflectionData)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const result = await response.json();
+            
+            // Verstecke Processing Indicator
+            processingIndicator.style.display = 'none';
+            
+            // Zeige HRM Insights
+            displayHRMInsights(result);
+            insightsContainer.style.display = 'block';
+            
+            // Scroll zu Insights
+            insightsContainer.scrollIntoView({ behavior: 'smooth' });
+            
+        } catch (error) {
+            console.error('Fehler bei HRM-Analyse:', error);
+            processingIndicator.style.display = 'none';
+            alert('Fehler bei der HRM-Analyse: ' + error.message);
+        }
+    });
+    
+    function displayHRMInsights(data) {
+        const hrm = data.structured_data?.hrm;
+        if (!hrm) {
+            console.warn('Keine HRM-Daten erhalten');
+            return;
+        }
+        
+        // Confidence Score
+        const confidence = hrm.confidence || 0.5;
+        const confidenceFill = document.getElementById('confidence-fill');
+        const confidenceText = document.getElementById('confidence-text');
+        
+        setTimeout(() => {
+            confidenceFill.style.width = (confidence * 100) + '%';
+        }, 500);
+        confidenceText.textContent = `${(confidence * 100).toFixed(0)}% - ${getConfidenceLabel(confidence)}`;
+        
+        // Abstract Plan - Patterns
+        if (hrm.abstract_plan?.patterns) {
+            const patternsContainer = document.getElementById('patterns-container');
+            patternsContainer.innerHTML = '';
+            
+            hrm.abstract_plan.patterns.slice(0, 5).forEach(pattern => {
+                const badge = document.createElement('span');
+                badge.className = 'pattern-badge';
+                badge.textContent = `${pattern.type}: ${pattern.tag || pattern.theme || 'Unbekannt'}`;
+                patternsContainer.appendChild(badge);
+            });
+        }
+        
+        // Suggested Goals
+        if (hrm.abstract_plan?.suggested_goals) {
+            const goalsList = document.getElementById('goals-list');
+            goalsList.innerHTML = '';
+            
+            hrm.abstract_plan.suggested_goals.forEach(goal => {
+                const li = document.createElement('li');
+                li.textContent = goal;
+                goalsList.appendChild(li);
+            });
+        }
+        
+        // Long-term Insights
+        if (hrm.abstract_plan?.long_term_insights) {
+            const insightsList = document.getElementById('insights-list');
+            insightsList.innerHTML = '';
+            
+            hrm.abstract_plan.long_term_insights.forEach(insight => {
+                const li = document.createElement('li');
+                li.textContent = insight;
+                insightsList.appendChild(li);
+            });
+        }
+        
+        // Concrete Action
+        if (hrm.concrete_action) {
+            const action = hrm.concrete_action;
+            
+            document.getElementById('action-type').innerHTML = 
+                `<i class="fas fa-cog"></i> ${action.type || 'Allgemein'} (${action.priority || 'Medium'} Priorität)`;
+            
+            document.getElementById('action-suggestion').textContent = 
+                action.suggestion || 'Keine spezifische Empfehlung verfügbar';
+            
+            // Implementation Steps
+            if (action.implementation) {
+                const stepsList = document.getElementById('steps-list');
+                stepsList.innerHTML = '';
+                
+                action.implementation.forEach(step => {
+                    const li = document.createElement('li');
+                    li.textContent = step;
+                    stepsList.appendChild(li);
+                });
+            }
+        }
+        
+        // Strategic Recommendations
+        if (hrm.recommendations) {
+            const recsContainer = document.getElementById('recommendations-container');
+            recsContainer.innerHTML = '';
+            
+            hrm.recommendations.forEach(rec => {
+                const div = document.createElement('div');
+                div.className = 'recommendation-item';
+                div.innerHTML = `<strong>${rec}</strong>`;
+                recsContainer.appendChild(div);
+            });
+        }
+    }
+    
+    function getConfidenceLabel(confidence) {
+        if (confidence >= 0.8) return 'Sehr hoch';
+        if (confidence >= 0.6) return 'Hoch';
+        if (confidence >= 0.4) return 'Mittel';
+        if (confidence >= 0.2) return 'Niedrig';
+        return 'Sehr niedrig';
+    }
+    
+    // Action Buttons
+    document.getElementById('implement-action').addEventListener('click', function() {
+        // Hier könnte Integration mit Kalender/Aufgaben-Apps erfolgen
+        alert('🚀 Aktion zur Umsetzung markiert! In einem vollständigen System würde dies in deinen Kalender oder Task-Manager integriert.');
+    });
+    
+    document.getElementById('save-insights').addEventListener('click', function() {
+        // Hier könnte Export-Funktionalität implementiert werden
+        alert('💾 Insights gespeichert! In einem vollständigen System würde dies in deiner persönlichen Wissensdatenbank gespeichert.');
+    });
+});
+</script>
+{% endblock %}

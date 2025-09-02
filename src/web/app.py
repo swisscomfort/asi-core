@@ -278,6 +278,129 @@ def insights():
         return redirect(url_for("index"))
 
 
+@app.route("/hrm")
+def hrm_reflection():
+    """HRM-erweiterte Reflexionsseite"""
+    if not asi_system:
+        flash("ASI System nicht verfügbar", "error")
+        return redirect(url_for("index"))
+    
+    return render_template("hrm_reflection.html")
+
+
+@app.route("/api/reflection/hrm", methods=["POST"])
+def process_reflection_hrm():
+    """API-Endpoint für HRM-erweiterte Reflexionsverarbeitung"""
+    if not asi_system:
+        return jsonify({"error": "ASI System nicht verfügbar"}), 503
+
+    try:
+        data = request.get_json()
+
+        if not data or not data.get("content"):
+            return jsonify({"error": "Reflexionsinhalt erforderlich"}), 400
+
+        # Verarbeite mit HRM-Integration
+        processor = asi_system["processor"]
+        local_db = asi_system["local_db"]
+
+        # Reflexionsdaten vorbereiten
+        reflection_data = {
+            "content": data["content"],
+            "tags": data.get("tags", []),
+            "privacy_level": data.get("privacy_level", "private"),
+            "timestamp": data.get("timestamp", datetime.now().isoformat()),
+            "hrm_enabled": data.get("hrm_enabled", True)
+        }
+
+        # Verarbeitung mit erweiterten HRM-Features
+        processed = processor.process_reflection(reflection_data)
+
+        # In Datenbank speichern
+        reflection_id = local_db.store_reflection(
+            content=processed.anonymized_content,
+            tags=processed.tags,
+            privacy_level=processed.privacy_level,
+            metadata={
+                "original_hash": processed.original_hash,
+                "structured_data": processed.structured_data,
+                "sentiment": processed.sentiment,
+                "themes": processed.key_themes,
+                "hrm_enhanced": True
+            }
+        )
+
+        # Erweiterte Antwort mit HRM-Daten
+        response = {
+            "status": "success",
+            "message": "Reflexion erfolgreich mit HRM analysiert",
+            "reflection_id": reflection_id,
+            "original_hash": processed.original_hash,
+            "structured_data": processed.structured_data,
+            "sentiment": processed.sentiment,
+            "themes": processed.key_themes,
+            "hrm_available": bool(processed.structured_data.get("hrm")),
+            "processing_timestamp": processed.processing_timestamp.isoformat()
+        }
+
+        # Füge Upload-Status hinzu falls verfügbar
+        hrm_data = processed.structured_data.get("hrm")
+        if hrm_data and not hrm_data.get("error"):
+            response["hrm_insights"] = {
+                "confidence": hrm_data.get("confidence", 0.5),
+                "abstract_plan_available": bool(hrm_data.get("abstract_plan")),
+                "concrete_action_available": bool(hrm_data.get("concrete_action")),
+                "recommendations_count": len(hrm_data.get("recommendations", []))
+            }
+
+        return jsonify(response)
+
+    except Exception as e:
+        error_msg = f"Fehler bei HRM-Verarbeitung: {str(e)}"
+        print(error_msg)  # Für Debugging
+        return jsonify({"error": error_msg}), 500
+
+
+@app.route("/api/hrm/analytics")
+def hrm_analytics():
+    """API-Endpoint für HRM-Analytics"""
+    if not asi_system:
+        return jsonify({"error": "ASI System nicht verfügbar"}), 503
+
+    try:
+        processor = asi_system["processor"]
+        
+        analytics = {
+            "hrm_available": hasattr(processor, 'hrm_planner') and processor.hrm_planner is not None,
+            "system_status": "active" if processor.hrm_planner else "basic",
+            "features": {
+                "pattern_recognition": hasattr(processor, 'hrm_planner'),
+                "abstract_planning": hasattr(processor, 'hrm_planner'),
+                "concrete_execution": hasattr(processor, 'hrm_executor'),
+                "detail_analysis": hasattr(processor, 'hrm_executor')
+            }
+        }
+        
+        # Wenn HRM verfügbar ist, hole zusätzliche Analytics
+        if processor.hrm_planner and hasattr(processor.hrm_planner, 'get_planning_history'):
+            planning_history = processor.hrm_planner.get_planning_history()
+            analytics["planning_history_count"] = len(planning_history)
+            
+            if len(planning_history) > 0:
+                analytics["average_confidence"] = sum(
+                    plan.get("confidence_score", 0.5) for plan in planning_history[-10:]
+                ) / min(len(planning_history), 10)
+        
+        if processor.hrm_executor and hasattr(processor.hrm_executor, 'get_action_analytics'):
+            action_analytics = processor.hrm_executor.get_action_analytics()
+            analytics["action_analytics"] = action_analytics
+
+        return jsonify(analytics)
+
+    except Exception as e:
+        return jsonify({"error": f"Analytics-Fehler: {str(e)}"}), 500
+
+
 @app.route("/api/stats")
 def api_stats():
     """API-Endpoint für Statistiken"""

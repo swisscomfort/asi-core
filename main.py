@@ -344,12 +344,19 @@ def main():
             elif command == "search" and len(sys.argv) > 2:
                 query = " ".join(sys.argv[2:])
                 asi.search_reflections(query)
+            elif command == "hrm" and len(sys.argv) > 2:
+                content = " ".join(sys.argv[2:])
+                asi.hrm_demo(content)
+            elif command == "hrm-test":
+                asi.hrm_interactive_test()
             else:
                 print("Verwendung:")
                 print("  python main.py                    # Interaktiver Modus")
                 print("  python main.py stats              # Statistiken anzeigen")
                 print("  python main.py process <text>     # Reflexion verarbeiten")
                 print("  python main.py search <query>     # Suche")
+                print("  python main.py hrm <text>         # HRM-Analyse")
+                print("  python main.py hrm-test           # HRM-Demo")
         else:
             # Interaktiver Modus
             asi.interactive_mode()
