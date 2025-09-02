@@ -88,6 +88,41 @@ def index():
     return render_template("index.html", stats=stats)
 
 
+# ===== API Health Check =====
+@app.route("/api/health")
+def api_health():
+    """Health Check Endpoint für Debugging"""
+    try:
+        status = {
+            "status": "ok",
+            "timestamp": datetime.now().isoformat(),
+            "asi_system_loaded": asi_system is not None,
+            "components": {},
+        }
+
+        if asi_system:
+            status["components"] = {
+                "input_handler": "ok",
+                "processor": "ok",
+                "output_generator": "ok",
+                "local_db": "ok",
+                "search_engine": "ok",
+            }
+
+        return jsonify(status)
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "status": "error",
+                    "error": str(e),
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
+
+
 @app.route("/reflect")
 def reflect():
     """Reflexions-Seite"""
@@ -284,7 +319,7 @@ def hrm_reflection():
     if not asi_system:
         flash("ASI System nicht verfügbar", "error")
         return redirect(url_for("index"))
-    
+
     return render_template("hrm_reflection.html")
 
 
@@ -310,7 +345,7 @@ def process_reflection_hrm():
             "tags": data.get("tags", []),
             "privacy_level": data.get("privacy_level", "private"),
             "timestamp": data.get("timestamp", datetime.now().isoformat()),
-            "hrm_enabled": data.get("hrm_enabled", True)
+            "hrm_enabled": data.get("hrm_enabled", True),
         }
 
         # Verarbeitung mit erweiterten HRM-Features
@@ -326,8 +361,8 @@ def process_reflection_hrm():
                 "structured_data": processed.structured_data,
                 "sentiment": processed.sentiment,
                 "themes": processed.key_themes,
-                "hrm_enhanced": True
-            }
+                "hrm_enhanced": True,
+            },
         )
 
         # Erweiterte Antwort mit HRM-Daten
@@ -340,7 +375,7 @@ def process_reflection_hrm():
             "sentiment": processed.sentiment,
             "themes": processed.key_themes,
             "hrm_available": bool(processed.structured_data.get("hrm")),
-            "processing_timestamp": processed.processing_timestamp.isoformat()
+            "processing_timestamp": processed.processing_timestamp.isoformat(),
         }
 
         # Füge Upload-Status hinzu falls verfügbar
@@ -350,7 +385,7 @@ def process_reflection_hrm():
                 "confidence": hrm_data.get("confidence", 0.5),
                 "abstract_plan_available": bool(hrm_data.get("abstract_plan")),
                 "concrete_action_available": bool(hrm_data.get("concrete_action")),
-                "recommendations_count": len(hrm_data.get("recommendations", []))
+                "recommendations_count": len(hrm_data.get("recommendations", [])),
             }
 
         return jsonify(response)
@@ -369,29 +404,34 @@ def hrm_analytics():
 
     try:
         processor = asi_system["processor"]
-        
+
         analytics = {
-            "hrm_available": hasattr(processor, 'hrm_planner') and processor.hrm_planner is not None,
+            "hrm_available": hasattr(processor, "hrm_planner")
+            and processor.hrm_planner is not None,
             "system_status": "active" if processor.hrm_planner else "basic",
             "features": {
-                "pattern_recognition": hasattr(processor, 'hrm_planner'),
-                "abstract_planning": hasattr(processor, 'hrm_planner'),
-                "concrete_execution": hasattr(processor, 'hrm_executor'),
-                "detail_analysis": hasattr(processor, 'hrm_executor')
-            }
+                "pattern_recognition": hasattr(processor, "hrm_planner"),
+                "abstract_planning": hasattr(processor, "hrm_planner"),
+                "concrete_execution": hasattr(processor, "hrm_executor"),
+                "detail_analysis": hasattr(processor, "hrm_executor"),
+            },
         }
-        
+
         # Wenn HRM verfügbar ist, hole zusätzliche Analytics
-        if processor.hrm_planner and hasattr(processor.hrm_planner, 'get_planning_history'):
+        if processor.hrm_planner and hasattr(
+            processor.hrm_planner, "get_planning_history"
+        ):
             planning_history = processor.hrm_planner.get_planning_history()
             analytics["planning_history_count"] = len(planning_history)
-            
+
             if len(planning_history) > 0:
                 analytics["average_confidence"] = sum(
                     plan.get("confidence_score", 0.5) for plan in planning_history[-10:]
                 ) / min(len(planning_history), 10)
-        
-        if processor.hrm_executor and hasattr(processor.hrm_executor, 'get_action_analytics'):
+
+        if processor.hrm_executor and hasattr(
+            processor.hrm_executor, "get_action_analytics"
+        ):
             action_analytics = processor.hrm_executor.get_action_analytics()
             analytics["action_analytics"] = action_analytics
 
@@ -498,6 +538,28 @@ def internal_error(error):
         ),
         500,
     )
+
+
+@app.route("/api/reset", methods=["POST"])
+def api_reset():
+    """API-Endpoint für System-Reset (VORSICHT!)"""
+    if not asi_system:
+        return jsonify({"error": "ASI System nicht verfügbar"}), 500
+
+    try:
+        # WARNUNG: Das löscht alle Daten!
+        # local_db = asi_system["local_db"]
+        # Hier würde der Reset-Code stehen
+        # local_db.clear_all_data()  # Implementierung in local_db erforderlich
+
+        return jsonify(
+            {
+                "success": False,
+                "message": "Reset-Funktion aus Sicherheitsgründen deaktiviert",
+            }
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == "__main__":

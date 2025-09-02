@@ -39,7 +39,7 @@ class StorachaUploader:
             result = subprocess.run(
                 ["storacha", "--version"], capture_output=True, text=True, check=True
             )
-            self.logger.info(f"Storacha CLI verfügbar: {result.stdout.strip()}")
+            self.logger.info("Storacha CLI verfügbar: %s", result.stdout.strip())
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
             self.logger.error("Storacha CLI nicht verfügbar")
@@ -48,11 +48,11 @@ class StorachaUploader:
     def upload_file(self, file_path: str) -> Optional[str]:
         """Upload a single file to Storacha"""
         if not os.path.exists(file_path):
-            self.logger.error(f"Datei nicht gefunden: {file_path}")
+            self.logger.error("Datei nicht gefunden: %s", file_path)
             return None
 
         try:
-            self.logger.info(f"Uploading {file_path}...")
+            self.logger.info("Uploading %s...", file_path)
             result = subprocess.run(
                 ["storacha", "up", file_path],
                 capture_output=True,
@@ -63,26 +63,26 @@ class StorachaUploader:
             # Extract URL from output
             for line in result.stdout.split("\n"):
                 if "storacha.link" in line:
-                    url = line.strip().replace("🐔 ", "")
-                    self.logger.info(f"Upload erfolgreich: {url}")
-                    self._log_upload(file_path, url)
-                    return url
+                    upload_url = line.strip().replace("🐔 ", "")
+                    self.logger.info("Upload erfolgreich: %s", upload_url)
+                    self._log_upload(file_path, upload_url)
+                    return upload_url
 
-        except subprocess.CalledProcessError as e:
-            self.logger.error(f"Upload fehlgeschlagen: {e}")
-            self.logger.error(f"Output: {e.stdout}")
-            self.logger.error(f"Error: {e.stderr}")
+        except subprocess.CalledProcessError as error:
+            self.logger.error("Upload fehlgeschlagen: %s", error)
+            self.logger.error("Output: %s", error.stdout)
+            self.logger.error("Error: %s", error.stderr)
 
         return None
 
     def upload_directory(self, dir_path: str) -> Optional[str]:
         """Upload an entire directory to Storacha"""
         if not os.path.isdir(dir_path):
-            self.logger.error(f"Verzeichnis nicht gefunden: {dir_path}")
+            self.logger.error("Verzeichnis nicht gefunden: %s", dir_path)
             return None
 
         try:
-            self.logger.info(f"Uploading directory {dir_path}...")
+            self.logger.info("Uploading directory %s...", dir_path)
             result = subprocess.run(
                 ["storacha", "up", dir_path], capture_output=True, text=True, check=True
             )
@@ -90,15 +90,15 @@ class StorachaUploader:
             # Extract URL from output
             for line in result.stdout.split("\n"):
                 if "storacha.link" in line:
-                    url = line.strip().replace("🐔 ", "")
-                    self.logger.info(f"Directory upload erfolgreich: {url}")
-                    self._log_upload(dir_path, url)
-                    return url
+                    upload_url = line.strip().replace("🐔 ", "")
+                    self.logger.info("Directory upload erfolgreich: %s", upload_url)
+                    self._log_upload(dir_path, upload_url)
+                    return upload_url
 
-        except subprocess.CalledProcessError as e:
-            self.logger.error(f"Directory upload fehlgeschlagen: {e}")
-            self.logger.error(f"Output: {e.stdout}")
-            self.logger.error(f"Error: {e.stderr}")
+        except subprocess.CalledProcessError as error:
+            self.logger.error("Directory upload fehlgeschlagen: %s", error)
+            self.logger.error("Output: %s", error.stdout)
+            self.logger.error("Error: %s", error.stderr)
 
         return None
 
@@ -130,33 +130,37 @@ class StorachaUploader:
                     subprocess.run(["cp", "-r", dir_name, snapshot_dir], check=True)
 
             # Upload snapshot
-            url = self.upload_directory(snapshot_dir)
+            snapshot_url = self.upload_directory(snapshot_dir)
 
             # Cleanup
             subprocess.run(["rm", "-rf", snapshot_dir], check=True)
 
-            return url
+            return snapshot_url
 
-        except Exception as e:
-            self.logger.error(f"Snapshot creation failed: {e}")
+        except subprocess.CalledProcessError as error:
+            self.logger.error("Snapshot creation failed: %s", error)
             # Cleanup on error
             if os.path.exists(snapshot_dir):
                 subprocess.run(["rm", "-rf", snapshot_dir], check=True)
             return None
 
-    def _log_upload(self, path: str, url: str):
+    def _log_upload(self, path: str, upload_url: str):
         """Log upload details to file"""
-        log_entry = {"timestamp": datetime.now().isoformat(), "path": path, "url": url}
+        log_entry = {
+            "timestamp": datetime.now().isoformat(),
+            "path": path,
+            "url": upload_url,
+        }
 
-        with open(self.log_file, "a") as f:
-            f.write(f"{json.dumps(log_entry)}\n")
+        with open(self.log_file, "a", encoding="utf-8") as log_file:
+            log_file.write(f"{json.dumps(log_entry)}\n")
 
     def list_uploads(self) -> List[Dict]:
         """List all previous uploads"""
         uploads = []
         if os.path.exists(self.log_file):
-            with open(self.log_file, "r") as f:
-                for line in f:
+            with open(self.log_file, "r", encoding="utf-8") as log_file:
+                for line in log_file:
                     line = line.strip()
                     if line:
                         try:
@@ -164,12 +168,12 @@ class StorachaUploader:
                         except json.JSONDecodeError:
                             # Handle old format (timestamp: url)
                             if ": " in line:
-                                timestamp, url = line.split(": ", 1)
+                                timestamp, upload_url = line.split(": ", 1)
                                 uploads.append(
                                     {
                                         "timestamp": timestamp,
                                         "path": "unknown",
-                                        "url": url,
+                                        "url": upload_url,
                                     }
                                 )
         return uploads
@@ -193,21 +197,21 @@ if __name__ == "__main__":
 
     if choice == "1":
         # Create test file
-        with open("test-python-upload.txt", "w") as f:
-            f.write(f"Python Storacha Integration Test - {datetime.now()}")
-        url = uploader.upload_file("test-python-upload.txt")
-        if url:
-            print(f"✅ Test upload erfolgreich: {url}")
+        with open("test-python-upload.txt", "w", encoding="utf-8") as test_file:
+            test_file.write(f"Python Storacha Integration Test - " f"{datetime.now()}")
+        test_url = uploader.upload_file("test-python-upload.txt")
+        if test_url:
+            print(f"✅ Test upload erfolgreich: {test_url}")
 
     elif choice == "2":
-        url = uploader.upload_file("README.md")
-        if url:
-            print(f"✅ README.md upload erfolgreich: {url}")
+        readme_url = uploader.upload_file("README.md")
+        if readme_url:
+            print(f"✅ README.md upload erfolgreich: {readme_url}")
 
     elif choice == "3":
-        url = uploader.upload_asi_core_snapshot()
-        if url:
-            print(f"✅ Snapshot upload erfolgreich: {url}")
+        snapshot_url = uploader.upload_asi_core_snapshot()
+        if snapshot_url:
+            print(f"✅ Snapshot upload erfolgreich: {snapshot_url}")
 
     elif choice == "4":
         uploads = uploader.list_uploads()

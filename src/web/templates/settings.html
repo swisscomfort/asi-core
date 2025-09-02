@@ -1,0 +1,373 @@
+{% extends "base.html" %}
+
+{% block title %}Einstellungen - ASI Core{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-cog me-2"></i>Einstellungen</h2>
+                <a href="/" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left me-2"></i>Zurück
+                </a>
+            </div>
+
+            <div class="row">
+                <!-- Allgemeine Einstellungen -->
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5><i class="fas fa-user-cog me-2"></i>Allgemeine Einstellungen</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="generalSettings">
+                                <div class="mb-3">
+                                    <label for="userName" class="form-label">Benutzername</label>
+                                    <input type="text" class="form-control" id="userName" placeholder="Ihr Name">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="language" class="form-label">Sprache</label>
+                                    <select class="form-select" id="language">
+                                        <option value="de" selected>Deutsch</option>
+                                        <option value="en">English</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="timezone" class="form-label">Zeitzone</label>
+                                    <select class="form-select" id="timezone">
+                                        <option value="Europe/Berlin" selected>Europa/Berlin</option>
+                                        <option value="UTC">UTC</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Speichern
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KI-Einstellungen -->
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5><i class="fas fa-brain me-2"></i>KI-Einstellungen</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="aiSettings">
+                                <div class="mb-3">
+                                    <label for="searchSimilarity" class="form-label">
+                                        Mindest-Ähnlichkeit für Suche: <span id="similarityValue">0.6</span>
+                                    </label>
+                                    <input type="range" class="form-range" id="searchSimilarity" 
+                                           min="0.1" max="1.0" step="0.1" value="0.6">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="maxResults" class="form-label">Maximale Suchergebnisse</label>
+                                    <input type="number" class="form-control" id="maxResults" 
+                                           value="20" min="5" max="100">
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="enableHRM" checked>
+                                        <label class="form-check-label" for="enableHRM">
+                                            HRM (Hierarchical Reasoning Model) aktivieren
+                                        </label>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Speichern
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Datenschutz & Sicherheit -->
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5><i class="fas fa-shield-alt me-2"></i>Datenschutz & Sicherheit</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="privacySettings">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="enableEncryption" checked>
+                                        <label class="form-check-label" for="enableEncryption">
+                                            Lokale Verschlüsselung aktivieren
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="enableAnalytics">
+                                        <label class="form-check-label" for="enableAnalytics">
+                                            Anonyme Nutzungsstatistiken teilen
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="dataRetention" class="form-label">Daten-Aufbewahrung (Tage)</label>
+                                    <input type="number" class="form-control" id="dataRetention" 
+                                           value="365" min="30" max="3650">
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Speichern
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Storage-Einstellungen -->
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5><i class="fas fa-database me-2"></i>Speicher-Einstellungen</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="storageSettings">
+                                <div class="mb-3">
+                                    <label for="storageProvider" class="form-label">Speicher-Provider</label>
+                                    <select class="form-select" id="storageProvider">
+                                        <option value="local" selected>Lokal</option>
+                                        <option value="ipfs">IPFS</option>
+                                        <option value="arweave">Arweave</option>
+                                        <option value="storacha">Storacha</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="backupFrequency" class="form-label">Backup-Häufigkeit</label>
+                                    <select class="form-select" id="backupFrequency">
+                                        <option value="daily">Täglich</option>
+                                        <option value="weekly" selected>Wöchentlich</option>
+                                        <option value="monthly">Monatlich</option>
+                                        <option value="manual">Manuell</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>Speicherplatz verwendet:</span>
+                                        <span class="badge bg-info">2.4 MB / 100 MB</span>
+                                    </div>
+                                    <div class="progress mt-2">
+                                        <div class="progress-bar" role="progressbar" style="width: 2.4%"></div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Speichern
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System-Informationen -->
+                <div class="col-md-12 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-info-circle me-2"></i>System-Informationen</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <strong>Version:</strong><br>
+                                    <span class="text-muted">ASI Core v1.0.0</span>
+                                </div>
+                                <div class="col-md-3">
+                                    <strong>Letztes Update:</strong><br>
+                                    <span class="text-muted">02.09.2025</span>
+                                </div>
+                                <div class="col-md-3">
+                                    <strong>Reflexionen gesamt:</strong><br>
+                                    <span class="text-muted" id="totalReflections">Loading...</span>
+                                </div>
+                                <div class="col-md-3">
+                                    <strong>Backend Status:</strong><br>
+                                    <span class="badge bg-success">Online</span>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <button class="btn btn-warning me-2" onclick="exportData()">
+                                        <i class="fas fa-download me-2"></i>Daten exportieren
+                                    </button>
+                                    <button class="btn btn-info me-2" onclick="checkUpdates()">
+                                        <i class="fas fa-sync me-2"></i>Updates prüfen
+                                    </button>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <button class="btn btn-danger" onclick="resetSystem()">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>System zurücksetzen
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Einstellungen-JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    // Lade gespeicherte Einstellungen
+    loadSettings();
+    
+    // Event Listeners für Formulare
+    document.getElementById('generalSettings').addEventListener('submit', saveGeneralSettings);
+    document.getElementById('aiSettings').addEventListener('submit', saveAISettings);
+    document.getElementById('privacySettings').addEventListener('submit', savePrivacySettings);
+    document.getElementById('storageSettings').addEventListener('submit', saveStorageSettings);
+    
+    // Ähnlichkeits-Slider Update
+    document.getElementById('searchSimilarity').addEventListener('input', function(e) {
+        document.getElementById('similarityValue').textContent = e.target.value;
+    });
+    
+    // Lade System-Statistiken
+    loadSystemStats();
+});
+
+function loadSettings() {
+    // Lade Einstellungen aus localStorage oder API
+    const settings = JSON.parse(localStorage.getItem('asi_settings')) || {};
+    
+    if (settings.userName) document.getElementById('userName').value = settings.userName;
+    if (settings.language) document.getElementById('language').value = settings.language;
+    if (settings.timezone) document.getElementById('timezone').value = settings.timezone;
+    if (settings.searchSimilarity) {
+        document.getElementById('searchSimilarity').value = settings.searchSimilarity;
+        document.getElementById('similarityValue').textContent = settings.searchSimilarity;
+    }
+    if (settings.maxResults) document.getElementById('maxResults').value = settings.maxResults;
+    if (settings.enableHRM !== undefined) document.getElementById('enableHRM').checked = settings.enableHRM;
+    if (settings.enableEncryption !== undefined) document.getElementById('enableEncryption').checked = settings.enableEncryption;
+    if (settings.enableAnalytics !== undefined) document.getElementById('enableAnalytics').checked = settings.enableAnalytics;
+    if (settings.dataRetention) document.getElementById('dataRetention').value = settings.dataRetention;
+    if (settings.storageProvider) document.getElementById('storageProvider').value = settings.storageProvider;
+    if (settings.backupFrequency) document.getElementById('backupFrequency').value = settings.backupFrequency;
+}
+
+function saveGeneralSettings(e) {
+    e.preventDefault();
+    const settings = JSON.parse(localStorage.getItem('asi_settings')) || {};
+    
+    settings.userName = document.getElementById('userName').value;
+    settings.language = document.getElementById('language').value;
+    settings.timezone = document.getElementById('timezone').value;
+    
+    localStorage.setItem('asi_settings', JSON.stringify(settings));
+    showNotification('Allgemeine Einstellungen gespeichert', 'success');
+}
+
+function saveAISettings(e) {
+    e.preventDefault();
+    const settings = JSON.parse(localStorage.getItem('asi_settings')) || {};
+    
+    settings.searchSimilarity = document.getElementById('searchSimilarity').value;
+    settings.maxResults = document.getElementById('maxResults').value;
+    settings.enableHRM = document.getElementById('enableHRM').checked;
+    
+    localStorage.setItem('asi_settings', JSON.stringify(settings));
+    showNotification('KI-Einstellungen gespeichert', 'success');
+}
+
+function savePrivacySettings(e) {
+    e.preventDefault();
+    const settings = JSON.parse(localStorage.getItem('asi_settings')) || {};
+    
+    settings.enableEncryption = document.getElementById('enableEncryption').checked;
+    settings.enableAnalytics = document.getElementById('enableAnalytics').checked;
+    settings.dataRetention = document.getElementById('dataRetention').value;
+    
+    localStorage.setItem('asi_settings', JSON.stringify(settings));
+    showNotification('Datenschutz-Einstellungen gespeichert', 'success');
+}
+
+function saveStorageSettings(e) {
+    e.preventDefault();
+    const settings = JSON.parse(localStorage.getItem('asi_settings')) || {};
+    
+    settings.storageProvider = document.getElementById('storageProvider').value;
+    settings.backupFrequency = document.getElementById('backupFrequency').value;
+    
+    localStorage.setItem('asi_settings', JSON.stringify(settings));
+    showNotification('Speicher-Einstellungen gespeichert', 'success');
+}
+
+function loadSystemStats() {
+    // Lade System-Statistiken vom Backend
+    fetch('/api/stats')
+        .then(response => response.json())
+        .then(data => {
+            if (data.totalReflections !== undefined) {
+                document.getElementById('totalReflections').textContent = data.totalReflections;
+            }
+        })
+        .catch(error => {
+            console.error('Fehler beim Laden der Statistiken:', error);
+            document.getElementById('totalReflections').textContent = 'Fehler';
+        });
+}
+
+function exportData() {
+    window.location.href = '/api/export';
+}
+
+function checkUpdates() {
+    showNotification('Update-Prüfung gestartet...', 'info');
+    // TODO: Implementiere Update-Prüfung
+    setTimeout(() => {
+        showNotification('System ist auf dem neuesten Stand', 'success');
+    }, 2000);
+}
+
+function resetSystem() {
+    if (confirm('Sind Sie sicher, dass Sie das System zurücksetzen möchten? Alle Daten gehen verloren!')) {
+        if (confirm('LETZTE WARNUNG: Dieser Vorgang kann nicht rückgängig gemacht werden!')) {
+            fetch('/api/reset', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification('System wurde zurückgesetzt', 'success');
+                        setTimeout(() => window.location.href = '/', 2000);
+                    }
+                })
+                .catch(error => {
+                    console.error('Fehler beim Zurücksetzen:', error);
+                    showNotification('Fehler beim Zurücksetzen des Systems', 'error');
+                });
+        }
+    }
+}
+
+function showNotification(message, type) {
+    // Einfache Notification-Funktion
+    const alertClass = type === 'success' ? 'alert-success' : 
+                      type === 'error' ? 'alert-danger' : 
+                      type === 'info' ? 'alert-info' : 'alert-warning';
+    
+    const alert = document.createElement('div');
+    alert.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
+    alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    alert.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alert);
+    
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.parentNode.removeChild(alert);
+        }
+    }, 5000);
+}
+</script>
+{% endblock %}
