@@ -143,3 +143,7 @@ data/temp/
 Thumbs.db
 asi-core/
 secrets.json
+
+# Build artifacts
+web/dist/
+web/build/
