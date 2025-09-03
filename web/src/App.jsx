@@ -1,15 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import NewReflectionModal from "./components/NewReflectionModal";
 import AISearch from "./components/AISearch";
 import ReflectionsList from "./components/ReflectionsList";
 import AIInsights from "./components/AIInsights";
 import DebugPanel from "./components/DebugPanel";
+import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
+import { ConnectionStatus } from "./components/ConnectionStatus";
+import { OfflineStats } from "./components/OfflineStats";
+import { TodoList } from "./components/TodoList";
+import { TodoStats } from "./components/TodoStats";
+import { localStorageService } from "./services/localStorage";
+import { syncService } from "./services/syncService";
+import { NOTE_TYPES } from "./core/data-model";
 
 export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchResults, setSearchResults] = useState(null);
   const [selectedReflection, setSelectedReflection] = useState(null);
-  const [activeTab, setActiveTab] = useState("search"); // 'search', 'insights'
+  const [activeTab, setActiveTab] = useState("search"); // 'search', 'insights', 'todos'
+
+  useEffect(() => {
+    localStorageService.init();
+  }, []);
 
   const handleSearchResults = (results) => {
     setSearchResults(results);
@@ -21,9 +33,21 @@ export default function App() {
     setActiveTab("insights");
   };
 
-  const handleReflectionCreated = (newReflection) => {
-    setSelectedReflection(newReflection);
+  const handleTodoSelect = (todo) => {
+    setSelectedReflection(todo);
     setActiveTab("insights");
+  };
+
+  const handleReflectionCreated = async (newItem) => {
+    // Save to local storage based on type
+    if (newItem.type === NOTE_TYPES.TODO) {
+      await localStorageService.saveTodo(newItem);
+    } else {
+      await localStorageService.saveReflection(newItem);
+    }
+
+    setSelectedReflection(newItem);
+    setActiveTab(newItem.type === NOTE_TYPES.TODO ? "todos" : "insights");
     // Refresh der Liste durch Zurücksetzen der Suchergebnisse
     setSearchResults(null);
   };
@@ -37,7 +61,7 @@ export default function App() {
             onClick={() => setIsModalOpen(true)}
             className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg transition"
           >
-            Neue Reflexion
+            Neu erstellen
           </button>
         </div>
       </header>
@@ -64,6 +88,16 @@ export default function App() {
                     📚 Reflexionen
                   </button>
                   <button
+                    onClick={() => setActiveTab("todos")}
+                    className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                      activeTab === "todos"
+                        ? "border-indigo-500 text-indigo-600"
+                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    }`}
+                  >
+                    ✅ To-Dos
+                  </button>
+                  <button
                     onClick={() => setActiveTab("insights")}
                     className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
                       activeTab === "insights"
@@ -83,6 +117,9 @@ export default function App() {
                     onReflectionSelect={handleReflectionSelect}
                   />
                 )}
+                {activeTab === "todos" && (
+                  <TodoList onTodoSelect={handleTodoSelect} />
+                )}
                 {activeTab === "insights" && selectedReflection && (
                   <AIInsights currentReflection={selectedReflection} />
                 )}
@@ -90,11 +127,11 @@ export default function App() {
                   <div className="text-center py-8">
                     <div className="text-gray-400 text-4xl mb-4">🧠</div>
                     <h3 className="text-lg font-medium text-gray-900 mb-2">
-                      Wähle eine Reflexion aus
+                      Wähle ein Item aus
                     </h3>
                     <p className="text-gray-600">
-                      Klicke auf eine Reflexion, um KI-Insights und
-                      Mustererkennungen zu sehen.
+                      Klicke auf eine Reflexion oder ein To-Do, um KI-Insights
+                      und Mustererkennungen zu sehen.
                     </p>
                   </div>
                 )}
@@ -104,6 +141,12 @@ export default function App() {
 
           {/* Rechte Spalte: Zusätzliche Info */}
           <div className="space-y-6">
+            {/* Todo Stats Card */}
+            <TodoStats />
+
+            {/* Offline Stats Card */}
+            <OfflineStats />
+
             {/* Welcome Card */}
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <h2 className="text-lg font-semibold mb-4">
@@ -115,6 +158,10 @@ export default function App() {
                 selbst besser kennenzulernen.
               </p>
               <div className="space-y-2 text-sm">
+                <div className="flex items-center text-gray-600">
+                  <span className="text-green-500 mr-2">✓</span>
+                  Offline-First & PWA
+                </div>
                 <div className="flex items-center text-gray-600">
                   <span className="text-green-500 mr-2">✓</span>
                   Lokal & dezentral gespeichert
@@ -159,6 +206,12 @@ export default function App() {
                       {selectedReflection.shared ? "🌐 Geteilt" : "🔒 Privat"}
                     </span>
                   </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Sync:</span>
+                    <span className="font-medium">
+                      {selectedReflection.synced ? "✅ Sync" : "⏳ Wartend"}
+                    </span>
+                  </div>
                 </div>
               </div>
             )}
@@ -167,7 +220,7 @@ export default function App() {
       </main>
 
       <footer className="bg-white border-t px-6 py-4 text-center text-sm text-gray-500">
-        ASI Core v2.0.0 • Dezentral & KI-gestützt • Made with ❤️
+        ASI Core v2.0.0 PWA • Offline-First & Dezentral • Made with ❤️
       </footer>
 
       <NewReflectionModal
@@ -177,6 +230,8 @@ export default function App() {
       />
 
       <DebugPanel />
+      <PWAInstallPrompt />
+      <ConnectionStatus />
     </div>
   );
 }

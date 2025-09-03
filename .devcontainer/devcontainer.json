@@ -1,9 +1,18 @@
 {
-  "name": "ASI Core Development",
-  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "name": "ASI Core Development Environment",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
   "features": {
     "ghcr.io/devcontainers/features/git:1": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {}
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18",
+      "nodeGypDependencies": true,
+      "installYarnUsingApt": true
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "moby": true,
+      "dockerDashComposeVersion": "v2"
+    }
   },
   "customizations": {
     "vscode": {
@@ -12,16 +21,82 @@
         "ms-python.pylint",
         "ms-python.black-formatter",
         "ms-toolsai.jupyter",
-        "redhat.vscode-yaml"
-      ]
+        "redhat.vscode-yaml",
+        "ms-vscode.vscode-typescript-next",
+        "bradlc.vscode-tailwindcss",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-json",
+        "formulahendry.auto-rename-tag",
+        "ms-vscode.vscode-eslint",
+        "ms-vscode.vscode-css-peek",
+        "christian-kohler.path-intellisense",
+        "ms-vscode.vscode-docker",
+        "ms-vscode.vscode-git-graph",
+        "gruntfuggly.todo-tree"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "./.venv/bin/python",
+        "python.terminal.activateEnvironment": true,
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit",
+          "source.organizeImports": "explicit"
+        },
+        "tailwindCSS.includeLanguages": {
+          "javascript": "javascript",
+          "html": "HTML"
+        },
+        "emmet.includeLanguages": {
+          "javascript": "javascriptreact"
+        }
+      }
     }
   },
-  "postCreateCommand": "pip install -r requirements.txt",
-  "forwardPorts": [8000, 8080],
+  "postCreateCommand": "python3 -m venv .venv && source .venv/bin/activate && pip install --upgrade pip setuptools wheel && pip install -r requirements.txt && cd web && npm install",
+  "postStartCommand": "echo 'ASI Core Development Environment bereit!'",
+  "forwardPorts": [
+    8000,
+    8080,
+    3000,
+    5173,
+    5001,
+    8545
+  ],
   "portsAttributes": {
     "8000": {
-      "label": "ASI Core API",
+      "label": "ASI Core Flask API",
       "onAutoForward": "notify"
+    },
+    "8080": {
+      "label": "ASI Core Alternative API",
+      "onAutoForward": "silent"
+    },
+    "3000": {
+      "label": "React Dev Server",
+      "onAutoForward": "notify"
+    },
+    "5173": {
+      "label": "Vite Dev Server",
+      "onAutoForward": "notify"
+    },
+    "5001": {
+      "label": "IPFS API",
+      "onAutoForward": "silent"
+    },
+    "8545": {
+      "label": "Hardhat Network",
+      "onAutoForward": "silent"
     }
-  }
+  },
+  "remoteUser": "vscode",
+  "mounts": [
+    "source=${localWorkspaceFolder}/.git,target=/workspaces/asi-core/.git,type=bind,consistency=cached",
+    "source=${localWorkspaceFolder}/.venv,target=/workspaces/asi-core/.venv,type=volume"
+  ],
+  "containerEnv": {
+    "PYTHONPATH": "/workspaces/asi-core/src",
+    "NODE_ENV": "development",
+    "FLASK_ENV": "development"
+  },
+  "shutdownAction": "stopContainer"
 }

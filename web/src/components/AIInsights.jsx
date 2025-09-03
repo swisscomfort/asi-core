@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   ChartBarIcon,
   LightBulbIcon,
-  TrendingUpIcon,
+  ArrowTrendingUpIcon,
   ClockIcon,
 } from "@heroicons/react/24/outline";
 import AIApiService from "../services/aiApiService";
@@ -154,7 +154,7 @@ const AIInsights = ({ currentReflection }) => {
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-medium text-gray-800">{pattern.name}</h3>
                   <div className="flex items-center text-sm text-gray-500">
-                    <TrendingUpIcon className="h-4 w-4 mr-1" />
+                    <ArrowTrendingUpIcon className="h-4 w-4 mr-1" />
                     {Math.round(pattern.confidence * 100)}% Wahrscheinlichkeit
                   </div>
                 </div>

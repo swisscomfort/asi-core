@@ -7,6 +7,7 @@ import {
   ChatBubbleLeftIcon,
 } from "@heroicons/react/24/outline";
 import AIApiService from "../services/aiApiService";
+import { localStorage } from "../services/localStorage";
 
 const ReflectionsList = ({ searchResults, onReflectionSelect }) => {
   const [reflections, setReflections] = useState([]);
@@ -25,10 +26,29 @@ const ReflectionsList = ({ searchResults, onReflectionSelect }) => {
     setIsLoading(true);
 
     try {
-      const data = await AIApiService.loadRecentReflections(20);
-      setReflections(data.reflections || []);
+      // Try to load from local storage first
+      const localReflections = await localStorageService.getAllReflections();
+
+      if (localReflections && localReflections.length > 0) {
+        // Sort by timestamp, newest first
+        const sortedLocal = localReflections
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+          .slice(0, 20);
+        setReflections(sortedLocal);
+      } else {
+        // Fallback to API if no local data
+        const data = await AIApiService.loadRecentReflections(20);
+        setReflections(data.reflections || []);
+      }
     } catch (error) {
       console.error("Fehler beim Laden der Reflexionen:", error);
+      // Try local storage as fallback
+      try {
+        const localReflections = await localStorageService.getAllReflections();
+        setReflections(localReflections || []);
+      } catch (localError) {
+        console.error("Auch lokaler Speicher fehlgeschlagen:", localError);
+      }
     } finally {
       setIsLoading(false);
     }

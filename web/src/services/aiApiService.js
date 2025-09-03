@@ -1,9 +1,20 @@
 // API Service für ASI Core KI-Funktionen
+import { ethers } from "ethers";
 
 const API_BASE_URL =
   process.env.NODE_ENV === "production"
     ? "https://your-api-domain.com"
     : "http://localhost:8000";
+
+const MEMORY_INDEX_ABI = [
+  "function addMemory(string memory _cid, string[] memory _tags, int256[768] memory _embedding) external",
+  "function getMemory(uint256 index) external view returns (string memory cid, string[] memory tags, int256[768] memory embedding, uint256 timestamp, address owner, bool shared)",
+  "function getTotalMemories() external view returns (uint256)",
+  "function getUserMemoryCount(address user) external view returns (uint256)",
+  "event MemoryStored(address indexed owner, string cid, string[] tags)",
+];
+
+const MEMORY_INDEX_ADDRESS = "0x1234567890123456789012345678901234567890"; // Replace with deployed Mumbai address
 
 class AIApiService {
   // Semantische Suche
@@ -272,6 +283,140 @@ class AIApiService {
       localStorage.setItem("asi-reflections", JSON.stringify(trimmed));
     } catch (error) {
       console.error("LocalStorage saving error:", error);
+    }
+  }
+
+  // Blockchain-Integration für Memory Index
+  static async indexToBlockchain(cid, tags, embedding) {
+    try {
+      if (!window.ethereum) {
+        console.warn("No wallet connected, skipping blockchain indexing");
+        return null;
+      }
+
+      await window.ethereum.request({ method: "eth_requestAccounts" });
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const network = await provider.getNetwork();
+
+      // Switch to Polygon Mumbai if not already
+      if (network.chainId !== 80001n) {
+        try {
+          await window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: "0x13881" }], // Mumbai testnet
+          });
+        } catch (switchError) {
+          if (switchError.code === 4902) {
+            await window.ethereum.request({
+              method: "wallet_addEthereumChain",
+              params: [
+                {
+                  chainId: "0x13881",
+                  chainName: "Polygon Mumbai",
+                  nativeCurrency: {
+                    name: "MATIC",
+                    symbol: "MATIC",
+                    decimals: 18,
+                  },
+                  rpcUrls: ["https://rpc-mumbai.maticvigil.com/"],
+                  blockExplorerUrls: ["https://mumbai.polygonscan.com/"],
+                },
+              ],
+            });
+          } else {
+            throw switchError;
+          }
+        }
+      }
+
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(
+        MEMORY_INDEX_ADDRESS,
+        MEMORY_INDEX_ABI,
+        signer
+      );
+
+      // Convert embedding to int256 array
+      const embeddingInt256 = embedding.map((val) => Math.round(val * 1000000));
+
+      // Ensure exactly 768 dimensions
+      while (embeddingInt256.length < 768) {
+        embeddingInt256.push(0);
+      }
+      embeddingInt256.length = 768;
+
+      const tx = await contract.addMemory(cid, tags, embeddingInt256);
+      await tx.wait();
+
+      console.log("Indexed:", tx.hash);
+      return tx.hash;
+    } catch (error) {
+      console.error("Blockchain indexing error:", error);
+      return null;
+    }
+  }
+
+  // Storacha Upload mit Blockchain-Integration
+  static async uploadToStorachaWithIndex(content, tags, embedding) {
+    try {
+      // Upload to Storacha first
+      const storachaResponse = await this.uploadToStoracha(content);
+
+      if (storachaResponse && storachaResponse.cid) {
+        // Index to blockchain
+        const txHash = await this.indexToBlockchain(
+          storachaResponse.cid,
+          tags,
+          embedding
+        );
+
+        return {
+          ...storachaResponse,
+          txHash,
+        };
+      }
+
+      return storachaResponse;
+    } catch (error) {
+      console.error("Upload with indexing error:", error);
+      throw error;
+    }
+  }
+
+  // Neue Reflexion erstellen
+  static async createReflection(reflectionData) {
+    try {
+      console.log("📝 Erstelle neue Reflexion:", reflectionData);
+
+      const response = await fetch(`${API_BASE_URL}/api/reflection/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          cid: reflectionData.cid,
+          title: reflectionData.title,
+          tags: reflectionData.tags || [],
+          shared: reflectionData.shared || false,
+          timestamp: reflectionData.timestamp,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ API Error: ${response.status}`, errorText);
+        throw new Error(
+          `Reflexion erstellen fehlgeschlagen: ${response.status} - ${errorText}`
+        );
+      }
+
+      const result = await response.json();
+      console.log("✅ Reflexion erstellt:", result);
+      return result;
+    } catch (error) {
+      console.error("❌ Fehler beim Erstellen der Reflexion:", error);
+      throw error;
     }
   }
 

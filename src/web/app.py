@@ -3,27 +3,27 @@ ASI Core - Web Interface
 Flask-basierte Web-Anwendung für ASI Core
 """
 
-from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
-import sys
-import os
-from pathlib import Path
 import json
+import os
+import sys
 from datetime import datetime
+from pathlib import Path
+
+from flask import Flask, flash, jsonify, redirect, render_template, request, url_for
 
 # ASI Core Module importieren
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
-from src.core.input import InputHandler
-from src.core.processor import ReflectionProcessor
-from src.core.output import OutputGenerator
-from src.storage.local_db import LocalDatabase
-from src.storage.ipfs_client import IPFSClient
-from src.storage.arweave_client import ArweaveClient
 from src.ai.embedding import ReflectionEmbedding
 from src.ai.search import SemanticSearchEngine
 from src.blockchain.contract import ASISmartContract
 from src.blockchain.wallet import CryptoWallet
-
+from src.core.input import InputHandler
+from src.core.output import OutputGenerator
+from src.core.processor import ReflectionProcessor
+from src.storage.arweave_client import ArweaveClient
+from src.storage.ipfs_client import IPFSClient
+from src.storage.local_db import LocalDatabase
 
 # Flask App initialisieren
 app = Flask(__name__)
@@ -36,11 +36,6 @@ app.secret_key = (
 def init_asi_system():
     """Initialisiert das ASI Core System"""
     try:
-        # Core-Module
-        input_handler = InputHandler()
-        processor = ReflectionProcessor()
-        output_generator = OutputGenerator()
-
         # Storage-Module
         local_db = LocalDatabase("data/asi_local.db")
         ipfs_client = IPFSClient()
@@ -49,6 +44,11 @@ def init_asi_system():
         # AI-Module
         embedding_system = ReflectionEmbedding()
         search_engine = SemanticSearchEngine(embedding_system, local_db)
+
+        # Core-Module
+        input_handler = InputHandler()
+        processor = ReflectionProcessor(embedding_system, local_db)
+        output_generator = OutputGenerator()
 
         # Blockchain-Module
         smart_contract = ASISmartContract()
@@ -186,6 +186,55 @@ def api_reflect():
         return jsonify({"error": f"Fehler beim Verarbeiten: {str(e)}"}), 500
 
 
+@app.route("/api/reflection/create", methods=["POST"])
+def api_create_reflection():
+    """API-Endpoint für neue Reflexion mit CID"""
+    if not asi_system:
+        return jsonify({"error": "ASI System nicht verfügbar"}), 500
+
+    try:
+        data = request.get_json()
+        cid = data.get("cid", "").strip()
+        title = data.get("title", "").strip()
+        tags = data.get("tags", [])
+        shared = data.get("shared", False)
+        timestamp = data.get("timestamp", datetime.now().isoformat())
+
+        if not cid or not title:
+            return jsonify({"error": "CID und Titel sind erforderlich"}), 400
+
+        # Lokale Datenbank für Indexierung verwenden
+        local_db = asi_system["local_db"]
+
+        # Reflexionsdaten für lokale Speicherung vorbereiten
+        reflection_data = {
+            "content": title,  # Verwende Titel als Content für lokale Suche
+            "timestamp": timestamp,
+            "tags": tags,
+            "cid": cid,
+            "shared": shared,
+            "privacy_level": "public" if shared else "private",
+        }
+
+        # In lokale Datenbank speichern
+        reflection_id = local_db.store_reflection(reflection_data)
+
+        print(f"✅ Reflexion erstellt: ID={reflection_id}, CID={cid}")
+
+        return jsonify(
+            {
+                "success": True,
+                "reflection_id": reflection_id,
+                "cid": cid,
+                "message": "Reflexion erfolgreich erstellt und indexiert",
+            }
+        )
+
+    except Exception as e:
+        print(f"❌ Fehler beim Erstellen der Reflexion: {str(e)}")
+        return jsonify({"error": f"Fehler beim Erstellen: {str(e)}"}), 500
+
+
 @app.route("/search")
 def search():
     """Such-Seite"""
@@ -232,7 +281,66 @@ def api_search():
         )
 
     except Exception as e:
-        return jsonify({"error": f"Suchfehler: {str(e)}"}), 500
+        print(f"Suchfehler: {e}")
+        # Fallback: Einfache Textsuche
+        try:
+            local_db = asi_system["local_db"]
+            all_reflections = local_db.get_reflections(limit=100)
+
+            search_results = []
+            query_lower = query.lower()
+
+            for reflection in all_reflections:
+                content = local_db.get_reflection_by_hash(reflection.hash).get(
+                    "content", ""
+                )
+                content_lower = content.lower()
+
+                # Einfache Textübereinstimmung
+                if query_lower in content_lower:
+                    similarity = 0.8
+                else:
+                    query_words = set(query_lower.split())
+                    content_words = set(content_lower.split())
+                    common_words = query_words.intersection(content_words)
+                    similarity = (
+                        len(common_words) / len(query_words) if query_words else 0
+                    )
+
+                if similarity > 0.3:
+                    search_results.append(
+                        {
+                            "hash": reflection.hash,
+                            "preview": (
+                                content[:200] + "..." if len(content) > 200 else content
+                            ),
+                            "similarity": round(similarity, 3),
+                            "themes": reflection.themes or [],
+                            "timestamp": reflection.timestamp.strftime(
+                                "%Y-%m-%d %H:%M"
+                            ),
+                            "privacy_level": reflection.privacy_level,
+                        }
+                    )
+
+            search_results.sort(key=lambda x: x["similarity"], reverse=True)
+            search_results = search_results[:limit]
+
+            return jsonify(
+                {
+                    "success": True,
+                    "query": query,
+                    "results": search_results,
+                    "count": len(search_results),
+                    "fallback": True,
+                }
+            )
+
+        except Exception as fallback_error:
+            return (
+                jsonify({"error": f"Fehler bei der Suche: {str(fallback_error)}"}),
+                500,
+            )
 
 
 @app.route("/reflections")

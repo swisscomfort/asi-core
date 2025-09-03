@@ -6,25 +6,25 @@ Autonomous Self-Improvement System
 Ein System für persönliche Reflexion, Anonymisierung und dezentrale Speicherung.
 """
 
-import sys
 import json
 import os
+import sys
 from datetime import datetime
 from pathlib import Path
 
 # ASI Core Module importieren
 sys.path.append(str(Path(__file__).parent))
 
-from src.core.input import InputHandler
-from src.core.processor import ReflectionProcessor
-from src.core.output import OutputGenerator
-from src.storage.local_db import LocalDatabase
-from src.storage.ipfs_client import IPFSClient
-from src.storage.arweave_client import ArweaveClient
 from src.ai.embedding import ReflectionEmbedding
 from src.ai.search import SemanticSearchEngine
 from src.blockchain.contract import ASISmartContract
 from src.blockchain.wallet import CryptoWallet
+from src.core.input import InputHandler
+from src.core.output import OutputGenerator
+from src.core.processor import ReflectionProcessor
+from src.storage.arweave_client import ArweaveClient
+from src.storage.ipfs_client import IPFSClient
+from src.storage.local_db import LocalDatabase
 
 
 class ASICore:
@@ -49,11 +49,6 @@ class ASICore:
         """Initialisiert alle System-Komponenten"""
         print("Initialisiere ASI Core System...")
 
-        # Core-Module
-        self.input_handler = InputHandler()
-        self.processor = ReflectionProcessor()
-        self.output_generator = OutputGenerator()
-
         # Storage-Module
         self.local_db = LocalDatabase(
             self.config.get("database_path", "data/asi_local.db")
@@ -65,9 +60,32 @@ class ASICore:
         self.embedding_system = ReflectionEmbedding()
         self.search_engine = SemanticSearchEngine(self.embedding_system, self.local_db)
 
+        # Core-Module
+        self.input_handler = InputHandler()
+        self.processor = ReflectionProcessor(self.embedding_system, self.local_db)
+        self.output_generator = OutputGenerator()
+
         # Blockchain-Module
         self.smart_contract = ASISmartContract()
         self.wallet = CryptoWallet()
+
+        # HRM-Module (Hierarchical Reasoning Model)
+        try:
+            from src.ai.hrm.high_level.pattern_recognition import PatternRecognizer
+            from src.ai.hrm.high_level.planner import Planner
+            from src.ai.hrm.low_level.detail_analysis import DetailAnalyzer
+            from src.ai.hrm.low_level.executor import Executor
+
+            self.hrm_planner = Planner(self.embedding_system, self.local_db)
+            self.hrm_pattern_recognizer = PatternRecognizer(
+                self.embedding_system, self.local_db
+            )
+            self.hrm_executor = Executor()
+            self.hrm_detail_analyzer = DetailAnalyzer()
+            print("✅ HRM (Hierarchical Reasoning Model) aktiviert")
+        except ImportError as e:
+            print(f"⚠️ HRM-Module nicht verfügbar: {e}")
+            self.hrm_planner = None
 
         print("✓ Alle Komponenten initialisiert")
 
@@ -322,6 +340,64 @@ class ASICore:
 
         if report.get("next_prompt"):
             print(f"\nNächste Reflexion: {report['next_prompt']}")
+
+    def hrm_demo(self, content: str):
+        """HRM-Demo mit gegebenem Text"""
+        print(f"\n=== HRM-Analyse: '{content}' ===")
+
+        if not self.hrm_planner:
+            print("⚠️ HRM-Module nicht verfügbar")
+            return
+
+        try:
+            # High-Level Analyse
+            user_context = {
+                "content": content,
+                "tags": [],
+                "timestamp": datetime.now().isoformat(),
+            }
+            plan = self.hrm_planner.create_plan(user_context)
+            patterns = self.hrm_pattern_recognizer.analyze_patterns(user_context)
+
+            # Low-Level Analyse
+            details = self.hrm_detail_analyzer.analyze_details(user_context)
+            execution = self.hrm_executor.execute_analysis(plan, user_context)
+
+            print(f"📋 Plan: {plan.get('summary', 'Keine Planung verfügbar')}")
+            print(f"🔍 Muster: {len(patterns)} erkannt")
+            details_conf = details.get("confidence_score", 0.0)
+            print(f"⚙️ Details: {details_conf:.2f} Konfidenz")
+            if execution:
+                exec_status = execution.get(
+                    "status", execution.get("action", "Unbekannt")
+                )
+                print(f"✅ Ausführung: {exec_status}")
+            else:
+                print("✅ Ausführung: Keine Aktion erforderlich")
+
+        except Exception as e:
+            print(f"❌ HRM-Fehler: {e}")
+
+    def hrm_interactive_test(self):
+        """Interaktiver HRM-Test"""
+        print("\n🧠 HRM Interactive Test")
+        print("=" * 30)
+
+        if not self.hrm_planner:
+            print("⚠️ HRM-Module nicht verfügbar")
+            return
+
+        test_cases = [
+            "Ich fühle mich heute müde und unmotiviert",
+            "Das Meeting war sehr produktiv und inspirierend",
+            "Ich habe einen wichtigen Durchbruch in meinem Projekt erzielt",
+        ]
+
+        for i, test_case in enumerate(test_cases, 1):
+            print(f"\n--- Test {i}: {test_case} ---")
+            self.hrm_demo(test_case)
+
+        print("\n✅ HRM-Test abgeschlossen")
 
 
 def main():

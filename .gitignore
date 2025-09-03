@@ -142,3 +142,4 @@ data/temp/
 .DS_Store
 Thumbs.db
 asi-core/
+secrets.json
