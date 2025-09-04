@@ -1,0 +1,19 @@
+{
+  "asi_version": "0.1.0",
+  "environment": "development",
+  "features": {
+    "local_storage": true,
+    "ipfs_enabled": false,
+    "arweave_enabled": false,
+    "blockchain_enabled": false
+  },
+  "privacy": {
+    "anonymize_content": true,
+    "local_encryption": true,
+    "no_personal_data": true
+  },
+  "storage": {
+    "local_path": "./data/reflections",
+    "backup_path": "./data/backups"
+  }
+}

@@ -1,0 +1,58 @@
+name: ASI System - Codespace Backup
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 2 * * *" # Täglich um 2:00 UTC
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Validate ASI System
+        run: |
+          echo "🧠 Validating ASI System in Codespace environment..."
+
+          # Check documentation
+          if [ -f "ASI_System_Dokumentation.md" ]; then
+            echo "✅ Core documentation found ($(wc -l < ASI_System_Dokumentation.md) lines)"
+          else
+            echo "❌ ASI documentation missing"
+            exit 1
+          fi
+
+          # Check .gitignore
+          if [ -f ".gitignore" ]; then
+            echo "✅ Security .gitignore configured"
+          fi
+
+      - name: Create Codespace Backup
+        run: |
+          DATE=$(date +%Y%m%d-%H%M%S)
+          echo "🔄 Creating ASI system backup from Codespace..."
+
+          tar -czf "asi-codespace-backup-${DATE}.tar.gz" \
+            --exclude='.git' \
+            --exclude='__pycache__' \
+            --exclude='node_modules' \
+            --exclude='venv' \
+            --exclude='*.log' \
+            --exclude='data/temp' \
+            --exclude='.env*' \
+            .
+            
+          echo "✅ Backup created: asi-codespace-backup-${DATE}.tar.gz"
+          ls -lh asi-codespace-backup-*.tar.gz
+
+      - name: Upload Backup Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: asi-system-backup
+          path: asi-codespace-backup-*.tar.gz
+          retention-days: 90

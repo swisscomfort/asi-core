@@ -1,8 +1,8 @@
 /**
- * Storacha Service - Dezentrale Speicherung mit w3up Client
+ * Storacha Service - Dezentrale Speicherung mit Storacha Client
  */
 
-import { create } from "@w3up/client";
+import { create } from "@storacha/client";
 
 class StorachaService {
   constructor() {
@@ -13,7 +13,7 @@ class StorachaService {
   }
 
   /**
-   * Initialisiert den w3up Client und lädt den Space
+   * Initialisiert den Storacha Client und lädt den Space
    */
   async initialize() {
     if (this.isInitialized && this.client) {

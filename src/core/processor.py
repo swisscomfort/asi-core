@@ -354,6 +354,151 @@ class ReflectionProcessor:
         }
 
 
+def detect_cognitive_biases(content: str) -> List[Dict]:
+    """
+    Erkennt kognitive Verzerrungen und Denkfallen in Text
+
+    Args:
+        content: Der zu analysierende Text
+
+    Returns:
+        Liste von erkannten Denkfallen mit Details
+    """
+    biases = []
+
+    # Absolute Begriffe
+    absolute_pattern = r"\b(immer|nie|niemals|alle|niemand|jeder|keiner|stets|ständig|dauernd|komplett|völlig|total|absolut|definitiv|garantiert)\b"
+    absolute_matches = list(re.finditer(absolute_pattern, content, re.IGNORECASE))
+
+    if absolute_matches:
+        instances = [match.group() for match in absolute_matches]
+        positions = [[match.start(), match.end()] for match in absolute_matches]
+        biases.append(
+            {
+                "type": "absolute_terms",
+                "instances": instances,
+                "positions": positions,
+                "suggestion": "Könntest du präzisieren, wie oft das wirklich zutrifft? Vielleicht 'oft', 'meist' oder 'in vielen Fällen'?",
+            }
+        )
+
+    # Übergeneralisierungen
+    generalization_patterns = [
+        r"\b(jeder denkt|alle denken|alle sagen|niemand versteht|keiner mag|alle hassen|jeder weiß)\b",
+        r"\b(das passiert ständig|das ist immer so|das funktioniert nie)\b",
+        r"\b(typisch für|so sind alle|wie alle anderen)\b",
+    ]
+
+    for pattern in generalization_patterns:
+        gen_matches = list(re.finditer(pattern, content, re.IGNORECASE))
+        if gen_matches:
+            instances = [match.group() for match in gen_matches]
+            positions = [[match.start(), match.end()] for match in gen_matches]
+            biases.append(
+                {
+                    "type": "overgeneralization",
+                    "instances": instances,
+                    "positions": positions,
+                    "suggestion": "Könntest du spezifischer werden? Welche konkreten Personen oder Situationen meinst du?",
+                }
+            )
+            break
+
+    # Kreisdenken (Zirkelschlüsse)
+    circular_patterns = [
+        r"\b(weil das so ist|das ist so, weil|es ist richtig, weil es richtig ist)\b",
+        r"\b(das funktioniert, weil es funktioniert|das ist gut, weil es gut ist)\b",
+        r"\b(ich habe recht, weil|das stimmt, weil das stimmt)\b",
+    ]
+
+    for pattern in circular_patterns:
+        circular_matches = list(re.finditer(pattern, content, re.IGNORECASE))
+        if circular_matches:
+            instances = [match.group() for match in circular_matches]
+            positions = [[match.start(), match.end()] for match in circular_matches]
+            biases.append(
+                {
+                    "type": "circular_reasoning",
+                    "instances": instances,
+                    "positions": positions,
+                    "suggestion": "Könntest du eine unabhängige Begründung finden? Was sind die konkreten Gründe oder Belege?",
+                }
+            )
+            break
+
+    # Emotionale Übertreibungen
+    emotional_pattern = r"\b(katastrophal|schrecklich|furchtbar|grauenhaft|wundervoll|perfekt|fantastisch|unglaublich|unmöglich|unerträglich)\b"
+    emotional_matches = list(re.finditer(emotional_pattern, content, re.IGNORECASE))
+
+    if emotional_matches:
+        instances = [match.group() for match in emotional_matches]
+        positions = [[match.start(), match.end()] for match in emotional_matches]
+        biases.append(
+            {
+                "type": "emotional_extremes",
+                "instances": instances,
+                "positions": positions,
+                "suggestion": "Könntest du beschreiben, was genau dich so bewegt? Vielleicht mit konkreten Beispielen?",
+            }
+        )
+
+    return biases
+
+
+def generate_refinement_suggestions(biases: List[Dict]) -> Dict:
+    """
+    Generiert sanfte Vorschläge zur Präzisierung basierend auf erkannten Denkfallen
+
+    Args:
+        biases: Liste von erkannten Denkfallen
+
+    Returns:
+        Strukturierte Verbesserungsvorschläge
+    """
+    suggestions = {"summary": "", "alternatives": [], "questions": []}
+
+    if not biases:
+        suggestions["summary"] = "Dein Text ist klar und ausgewogen formuliert."
+        return suggestions
+
+    bias_types = [bias["type"] for bias in biases]
+
+    # Zusammenfassung generieren
+    if "absolute_terms" in bias_types:
+        suggestions["summary"] = "Ich bemerke einige absolute Begriffe. "
+    if "overgeneralization" in bias_types:
+        suggestions["summary"] += "Möglicherweise könntest du spezifischer werden. "
+    if "circular_reasoning" in bias_types:
+        suggestions["summary"] += "Die Begründung könnte konkreter sein. "
+
+    # Alternative Formulierungen
+    for bias in biases:
+        if bias["type"] == "absolute_terms":
+            suggestions["alternatives"].extend(
+                [
+                    "Statt 'immer' → 'oft' oder 'meistens'",
+                    "Statt 'nie' → 'selten' oder 'bisher nicht'",
+                    "Statt 'alle' → 'viele' oder 'die meisten'",
+                ]
+            )
+        elif bias["type"] == "overgeneralization":
+            suggestions["alternatives"].extend(
+                [
+                    "Statt 'jeder denkt' → 'in meinem Umfeld denken manche'",
+                    "Statt 'das passiert ständig' → 'das ist mir schon mehrmals aufgefallen'",
+                ]
+            )
+
+    # Reflexionsfragen
+    suggestions["questions"] = [
+        "Gibt es Ausnahmen zu dieser Aussage?",
+        "Welche konkreten Beispiele fallen dir ein?",
+        "Wie könntest du das präziser ausdrücken?",
+    ]
+
+    return suggestions
+
+
 if __name__ == "__main__":
     # Beispiel-Nutzung
     processor = ReflectionProcessor()

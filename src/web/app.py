@@ -670,6 +670,52 @@ def api_reset():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/api/cognitive-insights", methods=["POST"])
+def api_cognitive_insights():
+    """API-Endpoint für kognitive Einblicke und Denkfallen-Erkennung"""
+    try:
+        data = request.get_json()
+        if not data or "content" not in data:
+            return jsonify({"error": "Kein Textinhalt bereitgestellt"}), 400
+
+        content = data["content"]
+        if not content.strip():
+            return jsonify({"biases": []}), 200
+
+        # Importiere detect_cognitive_biases aus processor
+        from src.core.processor import (
+            detect_cognitive_biases,
+            generate_refinement_suggestions,
+        )
+
+        # Erkenne Denkfallen
+        biases = detect_cognitive_biases(content)
+
+        # Begrenze auf erste 3 Denkfallen für bessere UX
+        if len(biases) > 3:
+            biases = biases[:3]
+
+        # Generiere Verbesserungsvorschläge
+        suggestions = generate_refinement_suggestions(biases)
+
+        return jsonify(
+            {
+                "success": True,
+                "biases": biases,
+                "suggestions": suggestions,
+                "total_found": len(biases),
+            }
+        )
+
+    except Exception as e:
+        return (
+            jsonify(
+                {"error": f"Fehler bei kognitiver Analyse: {str(e)}", "success": False}
+            ),
+            500,
+        )
+
+
 if __name__ == "__main__":
     print("Starte ASI Core Web-Interface...")
 

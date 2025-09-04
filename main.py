@@ -12,6 +12,14 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+# Flask für API-Integration
+try:
+    from flask import Flask, jsonify, request
+
+    FLASK_AVAILABLE = True
+except ImportError:
+    FLASK_AVAILABLE = False
+
 # ASI Core Module importieren
 sys.path.append(str(Path(__file__).parent))
 
@@ -448,3 +456,36 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# Flask API für Web-Interface
+if FLASK_AVAILABLE:
+    app = Flask(__name__)
+    asi_instance = None
+
+    def get_asi_instance():
+        global asi_instance
+        if asi_instance is None:
+            asi_instance = ASICore()
+        return asi_instance
+
+    # Registriere cognitive insights Blueprint
+    from src.modules.cognitive_insights import cognitive_insights_bp
+
+    app.register_blueprint(cognitive_insights_bp)
+
+    @app.route("/api/health", methods=["GET"])
+    def health_check():
+        """Gesundheitscheck für die API"""
+        return jsonify(
+            {
+                "status": "ok",
+                "timestamp": datetime.now().isoformat(),
+                "features": ["cognitive_insights"],
+            }
+        )
+
+    # Nur starten wenn direkt ausgeführt
+    if __name__ == "__main__" and len(sys.argv) > 1 and sys.argv[1] == "serve":
+        print("Starte Flask API Server...")
+        app.run(host="0.0.0.0", port=5000, debug=True)

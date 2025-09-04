@@ -1,0 +1,63 @@
+name: ASI System Backup & Validation
+
+on:
+  push:
+    branches: [main, develop]
+  schedule:
+    - cron: "0 2 * * *" # Täglich um 2:00 UTC
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Validate ASI Documentation
+        run: |
+          echo "🧠 Validating ASI System Documentation..."
+          if [ -f "ASI_System_Dokumentation.md" ]; then
+            echo "✅ Core documentation found ($(wc -l < ASI_System_Dokumentation.md) lines)"
+          else
+            echo "❌ Core documentation missing"
+            exit 1
+          fi
+
+      - name: Validate Project Structure
+        run: |
+          echo "🏗️ Validating project structure..."
+          for dir in src tests config docs; do
+            if [ -d "$dir" ]; then
+              echo "✅ $dir/ exists"
+            else
+              echo "⚠️ $dir/ missing"
+            fi
+          done
+
+      - name: Create System Backup
+        run: |
+          DATE=$(date +%Y%m%d-%H%M%S)
+          echo "🔄 Creating backup archive..."
+          tar -czf "asi-backup-${DATE}.tar.gz" \
+            --exclude='.git' \
+            --exclude='__pycache__' \
+            --exclude='venv' \
+            --exclude='node_modules' \
+            --exclude='*.log' \
+            --exclude='data/temp' \
+            .
+          echo "✅ Backup created: asi-backup-${DATE}.tar.gz"
+
+      - name: Upload Backup
+        uses: actions/upload-artifact@v4
+        with:
+          name: asi-system-backup
+          path: asi-backup-*.tar.gz
+          retention-days: 90
