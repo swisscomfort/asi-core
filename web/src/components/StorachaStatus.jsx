@@ -1,122 +1,116 @@
 import React, { useState, useEffect } from "react";
-import {
-  CloudIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-} from "@heroicons/react/24/outline";
-import StorachaService from "../services/storachaService";
+import { CloudIcon, WifiIcon, XCircleIcon } from "@heroicons/react/24/outline";
+import StorachaService from "../services/storacha.js";
 
 const StorachaStatus = () => {
-  const [isAvailable, setIsAvailable] = useState(null);
-  const [spaceDid, setSpaceDid] = useState("");
-  const [lastUpload, setLastUpload] = useState(null);
+  const [status, setStatus] = useState({ connected: false, checking: true });
+  const [storedCIDs, setStoredCIDs] = useState([]);
 
   useEffect(() => {
-    checkStorachaStatus();
-    setSpaceDid(StorachaService.spaceDid);
+    checkStatus();
+    loadStoredCIDs();
   }, []);
 
-  const checkStorachaStatus = async () => {
+  const checkStatus = async () => {
     try {
-      const available = await StorachaService.isAvailable();
-      setIsAvailable(available);
+      const connectionStatus = await StorachaService.getConnectionStatus();
+      setStatus({ ...connectionStatus, checking: false });
     } catch (error) {
-      setIsAvailable(false);
+      setStatus({
+        connected: false,
+        reason: "Fehler beim Status-Check",
+        checking: false,
+      });
     }
   };
 
-  const testUpload = async () => {
-    try {
-      const testData = {
-        test: true,
-        timestamp: new Date().toISOString(),
-        message: "Storacha Service Test",
-      };
+  const loadStoredCIDs = () => {
+    const cids = StorachaService.getStoredCIDs();
+    setStoredCIDs(cids);
+  };
 
-      const cid = await StorachaService.uploadReflection(testData);
-      const url = StorachaService.getPublicUrl(cid);
-
-      setLastUpload({ cid, url, timestamp: new Date().toISOString() });
-      alert(`✅ Test erfolgreich!\n\nCID: ${cid}\nURL: ${url}`);
-    } catch (error) {
-      alert(`❌ Test fehlgeschlagen:\n\n${error.message}`);
+  const getStatusIcon = () => {
+    if (status.checking) {
+      return <CloudIcon className="w-4 h-4 animate-pulse text-gray-400" />;
     }
+
+    if (status.connected) {
+      return <WifiIcon className="w-4 h-4 text-green-500" />;
+    }
+
+    return <XCircleIcon className="w-4 h-4 text-red-500" />;
+  };
+
+  const getStatusText = () => {
+    if (status.checking) return "Prüfe Verbindung...";
+    if (status.connected) return "Verbunden";
+    return status.reason || "Getrennt";
+  };
+
+  const getStatusColor = () => {
+    if (status.checking) return "text-gray-500";
+    if (status.connected) return "text-green-600";
+    return "text-red-600";
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center">
-          <CloudIcon className="h-5 w-5 text-blue-600 mr-2" />
-          <h3 className="text-lg font-medium text-gray-900">Storacha Status</h3>
-        </div>
+    <div className="bg-white rounded-lg border p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-medium text-gray-900">Storacha Status</h3>
         <button
-          onClick={checkStorachaStatus}
-          className="text-sm text-blue-600 hover:text-blue-800"
+          onClick={checkStatus}
+          className="text-xs text-gray-500 hover:text-gray-700 transition"
         >
           Aktualisieren
         </button>
       </div>
 
-      <div className="space-y-3">
-        {/* Service Status */}
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-600">Service verfügbar:</span>
-          <div className="flex items-center">
-            {isAvailable === null ? (
-              <span className="text-gray-400">Prüfe...</span>
-            ) : isAvailable ? (
-              <>
-                <CheckCircleIcon className="h-4 w-4 text-green-500 mr-1" />
-                <span className="text-green-600 text-sm">Online</span>
-              </>
-            ) : (
-              <>
-                <XCircleIcon className="h-4 w-4 text-red-500 mr-1" />
-                <span className="text-red-600 text-sm">Offline</span>
-              </>
-            )}
-          </div>
+      <div className="space-y-2">
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-gray-600">Space:</span>
+          <span className="text-sm font-mono text-gray-900">asi-core</span>
         </div>
 
-        {/* Space DID */}
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-600">Space DID:</span>
-          <span className="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded">
-            {spaceDid.substring(0, 20)}...
+        <div className="flex items-center space-x-2">
+          {getStatusIcon()}
+          <span className={`text-sm ${getStatusColor()}`}>
+            {getStatusText()}
           </span>
         </div>
 
-        {/* Letzter Upload */}
-        {lastUpload && (
-          <div className="bg-green-50 border border-green-200 rounded p-3">
-            <div className="text-sm text-green-800 font-medium mb-1">
-              Letzter Upload erfolgreich:
-            </div>
-            <div className="text-xs text-green-600 space-y-1">
-              <div>CID: {lastUpload.cid.substring(0, 30)}...</div>
-              <div>Zeit: {new Date(lastUpload.timestamp).toLocaleString()}</div>
-              <a
-                href={lastUpload.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:underline"
-              >
-                Öffentliche URL →
-              </a>
-            </div>
-          </div>
-        )}
-
-        {/* Test Button */}
-        <button
-          onClick={testUpload}
-          disabled={!isAvailable}
-          className="w-full mt-3 px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-        >
-          Test Upload durchführen
-        </button>
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-gray-600">Gespeicherte CIDs:</span>
+          <span className="text-sm font-semibold text-indigo-600">
+            {storedCIDs.length}
+          </span>
+        </div>
       </div>
+
+      {storedCIDs.length > 0 && (
+        <div className="pt-2 border-t">
+          <details className="group">
+            <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-700">
+              CID-Liste anzeigen
+            </summary>
+            <div className="mt-2 space-y-1 max-h-32 overflow-y-auto">
+              {storedCIDs.slice(-5).map((item, index) => (
+                <div key={index} className="text-xs text-gray-600 font-mono">
+                  <div className="truncate">{item.cid}</div>
+                  <div className="text-gray-400">
+                    {item.filename} •{" "}
+                    {new Date(item.timestamp).toLocaleDateString()}
+                  </div>
+                </div>
+              ))}
+              {storedCIDs.length > 5 && (
+                <div className="text-xs text-gray-400">
+                  ... und {storedCIDs.length - 5} weitere
+                </div>
+              )}
+            </div>
+          </details>
+        </div>
+      )}
     </div>
   );
 };

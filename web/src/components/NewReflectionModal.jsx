@@ -4,9 +4,11 @@ import {
   CloudArrowUpIcon,
   TagIcon,
   CalendarIcon,
+  ExclamationTriangleIcon,
+  WifiSlashIcon,
 } from "@heroicons/react/24/outline";
 import AIApiService from "../services/aiApiService";
-import StorachaService from "../services/storachaService";
+import StorachaService from "../services/storacha";
 import {
   createReflection,
   createNote,
@@ -14,7 +16,12 @@ import {
   TODO_PRIORITIES,
 } from "../core/data-model";
 
-const NewReflectionModal = ({ isOpen, onClose, onReflectionCreated }) => {
+const NewReflectionModal = ({
+  isOpen,
+  onClose,
+  onReflectionCreated,
+  onStorachaUpdate,
+}) => {
   const [activeTab, setActiveTab] = useState("reflection");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -23,6 +30,11 @@ const NewReflectionModal = ({ isOpen, onClose, onReflectionCreated }) => {
   const [isPublic, setIsPublic] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadStatus, setUploadStatus] = useState("");
+  const [uploadingToStoracha, setUploadingToStoracha] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const [isOfflineMode, setIsOfflineMode] = useState(false);
+  const [uploadCID, setUploadCID] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState(TODO_PRIORITIES.MEDIUM);
   const textareaRef = useRef(null);
@@ -67,7 +79,11 @@ const NewReflectionModal = ({ isOpen, onClose, onReflectionCreated }) => {
     }
 
     setIsSubmitting(true);
-    setUploadProgress(0);
+    setUploadProgress(20);
+    setUploadStatus("Erstelle Reflexion...");
+    setUploadError("");
+    setIsOfflineMode(false);
+    setUploadCID("");
 
     try {
       // Erstelle Reflexions-Objekt
@@ -80,47 +96,108 @@ const NewReflectionModal = ({ isOpen, onClose, onReflectionCreated }) => {
       };
 
       console.log("📝 Erstelle neue Reflexion:", reflection);
-      setUploadProgress(100);
+      setUploadProgress(40);
+      setUploadStatus("Speichere lokal...");
 
-      // Callback mit der neuen Reflexion (wird in App.jsx in localStorage gespeichert)
+      // Speichere lokal (immer)
       onReflectionCreated(reflection);
+      setUploadProgress(60);
 
-      // Modal schließen und Formular zurücksetzen
-      handleClose();
+      // Storacha Upload wenn "Anonym teilen" aktiviert ist
+      if (isPublic) {
+        setUploadingToStoracha(true);
+        setUploadStatus("Prüfe Verbindung...");
 
-      // Optional: Upload zu dezentraler Speicherung im Hintergrund (wenn online)
-      if (navigator.onLine && isPublic) {
-        try {
-          console.log("☁️ Lade zu dezentraler Speicherung hoch...");
-          const uploadResult = await StorachaService.uploadReflection(
-            reflection
-          );
-          console.log("✅ Upload erfolgreich:", uploadResult);
+        // Offline-Check
+        if (!navigator.onLine) {
+          setIsOfflineMode(true);
+          setUploadStatus("Offline-Modus - nur lokal gespeichert");
+          setUploadProgress(100);
+        } else {
+          try {
+            setUploadStatus("Lädt hoch...");
+            setUploadProgress(70);
 
-          // Optional: CID zur API senden
-          const apiResult = await AIApiService.createReflection({
-            cid: uploadResult.cid,
-            title: reflection.title,
-            tags: reflection.tags,
-            shared: reflection.shared,
-            timestamp: reflection.timestamp,
-          });
-          console.log("✅ Reflexion in API erstellt:", apiResult);
-        } catch (uploadError) {
-          console.log(
-            "⚠️ Hintergrund-Upload fehlgeschlagen:",
-            uploadError.message
-          );
+            // Erstelle JSON-Objekt mit Reflexion
+            const reflectionData = {
+              type: "reflection",
+              data: reflection,
+              version: "1.0",
+              uploadedAt: new Date().toISOString(),
+            };
+
+            console.log("☁️ Lade zu Storacha hoch...");
+            const cid = await StorachaService.uploadReflection(reflectionData);
+
+            setUploadProgress(90);
+            setUploadCID(cid);
+            setUploadStatus("Erfolgreich gespeichert");
+
+            console.log("✅ Storacha Upload erfolgreich:", cid);
+
+            // Aktualisiere StorachaStatus-Komponente
+            if (onStorachaUpdate) {
+              onStorachaUpdate();
+            }
+
+            setUploadProgress(100);
+          } catch (uploadError) {
+            console.warn(
+              "⚠️ Storacha Upload fehlgeschlagen:",
+              uploadError.message
+            );
+
+            // Spezifische Fehlerbehandlung
+            let errorMessage = "Upload-Fehler";
+            if (uploadError.message.includes("Internetverbindung")) {
+              setIsOfflineMode(true);
+              errorMessage = "Offline-Modus";
+            } else if (
+              uploadError.message.includes("authorization") ||
+              uploadError.message.includes("Credentials")
+            ) {
+              errorMessage = "Ungültige Zugangsdaten";
+            } else if (
+              uploadError.message.includes("network") ||
+              uploadError.message.includes("Netzwerk")
+            ) {
+              errorMessage = "Verbindungsproblem";
+            }
+
+            setUploadError(errorMessage);
+            setUploadStatus(`${errorMessage} - lokal gespeichert`);
+            setUploadProgress(100);
+          }
         }
+      } else {
+        setUploadStatus("Erfolgreich gespeichert");
+        setUploadProgress(100);
       }
+
+      // Modal nach kurzer Verzögerung schließen
+      setTimeout(
+        () => {
+          handleClose();
+        },
+        uploadError || isOfflineMode ? 3000 : isPublic ? 2000 : 1000
+      );
     } catch (error) {
       console.error("❌ Fehler beim Erstellen der Reflexion:", error);
-      alert(
-        `Fehler beim Speichern: ${error.message}\n\nReflexion wurde lokal gespeichert.`
-      );
+      setUploadError("Lokaler Speicherfehler");
+      setUploadStatus("Fehler beim Speichern");
+      alert(`Fehler beim Speichern: ${error.message}`);
     } finally {
       setIsSubmitting(false);
-      setUploadProgress(0);
+      setUploadingToStoracha(false);
+
+      // Status nach Zeit zurücksetzen
+      setTimeout(() => {
+        setUploadProgress(0);
+        setUploadStatus("");
+        setUploadError("");
+        setIsOfflineMode(false);
+        setUploadCID("");
+      }, 4000);
     }
   };
 
@@ -134,6 +211,11 @@ const NewReflectionModal = ({ isOpen, onClose, onReflectionCreated }) => {
     setPriority(TODO_PRIORITIES.MEDIUM);
     setActiveTab("reflection");
     setUploadProgress(0);
+    setUploadStatus("");
+    setUploadingToStoracha(false);
+    setUploadError("");
+    setIsOfflineMode(false);
+    setUploadCID("");
     onClose();
   };
 
@@ -243,24 +325,85 @@ const NewReflectionModal = ({ isOpen, onClose, onReflectionCreated }) => {
                 className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
               />
               <span className="ml-2 text-sm text-gray-700">
-                Öffentlich teilen (andere können diese Reflexion sehen)
+                Anonym teilen (dezentral auf Storacha speichern)
               </span>
             </label>
+            {isPublic && (
+              <p className="mt-1 text-xs text-gray-500">
+                Wird verschlüsselt und dezentral gespeichert
+              </p>
+            )}
           </div>
 
           {/* Upload Progress */}
-          {isSubmitting && (
-            <div className="space-y-2">
-              <div className="flex items-center text-sm text-gray-600">
-                <CloudArrowUpIcon className="w-4 h-4 mr-2" />
-                Speichere Reflexion...
+          {(isSubmitting || uploadingToStoracha || uploadStatus) && (
+            <div className="space-y-3">
+              <div className="flex items-center text-sm">
+                {isOfflineMode ? (
+                  <WifiSlashIcon className="w-4 h-4 mr-2 text-orange-500" />
+                ) : uploadError ? (
+                  <ExclamationTriangleIcon className="w-4 h-4 mr-2 text-red-500" />
+                ) : (
+                  <CloudArrowUpIcon className="w-4 h-4 mr-2 text-blue-600" />
+                )}
+                <span
+                  className={`${
+                    uploadError
+                      ? "text-red-600"
+                      : isOfflineMode
+                      ? "text-orange-600"
+                      : "text-gray-600"
+                  }`}
+                >
+                  {uploadStatus || "Speichere Reflexion..."}
+                </span>
               </div>
+
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
-                  className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+                  className={`h-2 rounded-full transition-all duration-500 ${
+                    uploadError
+                      ? "bg-red-500"
+                      : isOfflineMode
+                      ? "bg-orange-500"
+                      : uploadingToStoracha
+                      ? "bg-blue-600"
+                      : "bg-indigo-600"
+                  }`}
                   style={{ width: `${uploadProgress}%` }}
                 ></div>
               </div>
+
+              {uploadingToStoracha && !uploadError && (
+                <p className="text-xs text-blue-600">
+                  Wird zu Storacha hochgeladen...
+                </p>
+              )}
+
+              {uploadError && (
+                <p className="text-xs text-red-600 flex items-center">
+                  <ExclamationTriangleIcon className="w-3 h-3 mr-1" />
+                  {uploadError} - Reflexion wurde trotzdem lokal gespeichert
+                </p>
+              )}
+
+              {isOfflineMode && (
+                <p className="text-xs text-orange-600 flex items-center">
+                  <WifiSlashIcon className="w-3 h-3 mr-1" />
+                  Keine Internetverbindung - nur lokale Speicherung
+                </p>
+              )}
+
+              {uploadCID && (
+                <div className="text-xs text-green-600 bg-green-50 p-2 rounded border">
+                  <p className="font-medium">
+                    ✅ Erfolgreich auf Storacha gespeichert
+                  </p>
+                  <p className="font-mono text-green-700 truncate">
+                    CID: {uploadCID}
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
@@ -277,9 +420,20 @@ const NewReflectionModal = ({ isOpen, onClose, onReflectionCreated }) => {
             <button
               type="submit"
               className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={isSubmitting || !title.trim() || !content.trim()}
+              disabled={
+                isSubmitting ||
+                uploadingToStoracha ||
+                !title.trim() ||
+                !content.trim()
+              }
             >
-              {isSubmitting ? "Speichere..." : "Reflexion erstellen"}
+              {isSubmitting
+                ? "Speichere..."
+                : uploadingToStoracha
+                ? "Lade hoch..."
+                : isPublic
+                ? "Speichern & sichern"
+                : "Reflexion erstellen"}
             </button>
           </div>
         </form>

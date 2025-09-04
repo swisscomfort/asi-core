@@ -147,3 +147,52 @@ secrets.json
 # Build artifacts
 web/dist/
 web/build/
+
+# Lokale Entwicklungsumgebung
+.env
+.env.local
+.env.production
+.env.test
+
+# Wallet-Dateien und private Schlüssel
+*.pem
+*.key
+wallet.json
+keystore/
+private/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Build Artefakte
+dist/
+build/
+*.tgz
+*.tar.gz
+
+# IDE und Editor
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporäre Dateien
+tmp/
+temp/
+*.tmp
+*.log
+
+# IPFS und lokale Daten
+.ipfs/
+data/
+cache/
+
+# OS spezifische Dateien
+.DS_Store
+Thumbs.db
