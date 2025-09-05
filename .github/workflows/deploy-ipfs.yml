@@ -1,0 +1,41 @@
+name: Deploy to IPFS
+
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install IPFS CLI
+        run: |
+          wget https://dist.ipfs.tech/kubo/v0.22.0/kubo_v0.22.0_linux-amd64.tar.gz
+          tar -xvzf kubo_v0.22.0_linux-amd64.tar.gz
+          sudo ./kubo/install.sh
+
+      - name: Start IPFS daemon
+        run: |
+          ipfs init
+          ipfs config Addresses.Gateway /ip4/127.0.0.1/tcp/8080
+          ipfs daemon &
+          sleep 15 # Warte auf Daemon
+
+      - name: Add and Pin build output
+        run: |
+          # Falls du eine Frontend-App baust (z. B. mit Vite)
+          # npm install
+          # npm run build
+          # echo "Falls du keine Frontend-App hast, kannst du auch Zustandsdaten hochladen"
+          mkdir -p dist
+          cp -r data/reflections/ state_exports/ README.md dist/ || true
+          ipfs add -r dist | tail -n 1 | cut -d' ' -f2 > cid.txt
+
+      - name: Export CID
+        run: |
+          echo "IPFS CID: $(cat cid.txt)"
+          echo "View at: https://ipfs.io/ipfs/$(cat cid.txt)"
