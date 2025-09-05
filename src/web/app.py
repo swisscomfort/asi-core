@@ -27,8 +27,25 @@ from src.storage.local_db import LocalDatabase
 
 # Flask App initialisieren
 app = Flask(__name__)
-app.secret_key = (
-    "asi-core-development-key"  # In Produktion: Sicherheitsschlüssel verwenden
+
+# Sicherheitsrelevante Einstellungen
+# Secret Key: aus ENV beziehen, sonst zur Laufzeit einen temporären Dev-Key generieren
+_env_secret = os.getenv("ASI_SECRET_KEY")
+if _env_secret:
+    app.secret_key = _env_secret
+else:
+    # Hinweis: Dieser temporäre Schlüssel ist nur für lokale Entwicklung geeignet
+    # In Produktion MUSS ASI_SECRET_KEY gesetzt sein (siehe README/.env.example)
+    import secrets
+
+    app.secret_key = secrets.token_hex(32)
+
+# Sichere Cookie-Defaults (wirken nur, wenn Sessions/Cookies verwendet werden)
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=os.getenv("ASI_COOKIE_SECURE", "false").lower()
+    in {"1", "true", "yes"},
 )
 
 
@@ -726,5 +743,8 @@ if __name__ == "__main__":
     static_dir = Path(__file__).parent / "static"
     static_dir.mkdir(exist_ok=True)
 
-    # Flask App starten
-    app.run(host="0.0.0.0", port=8000, debug=True, threaded=True)
+    # Flask App starten (Debug/Host via ENV konfigurierbar)
+    debug_enabled = os.getenv("ASI_DEBUG", "true").lower() in {"1", "true", "yes"}
+    host = os.getenv("ASI_HOST", "127.0.0.1" if not debug_enabled else "0.0.0.0")
+    port = int(os.getenv("ASI_PORT", "8000"))
+    app.run(host=host, port=port, debug=debug_enabled, threaded=True)

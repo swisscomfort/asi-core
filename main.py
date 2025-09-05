@@ -20,9 +20,23 @@ try:
 except ImportError:
     FLASK_AVAILABLE = False
 
+# Environment Variables laden
+from dotenv import load_dotenv
+
+load_dotenv()
+
 # ASI Core Module importieren
 sys.path.append(str(Path(__file__).parent))
 
+# Blockchain Integration
+from asi_core.blockchain import (
+    ASIBlockchainClient,
+    ASIBlockchainError,
+    create_blockchain_client_from_config,
+)
+
+# Neue Embedding und Suche Module
+from asi_core.search import ASIEmbeddingGenerator, ASISemanticSearch
 from src.ai.embedding import ReflectionEmbedding
 from src.ai.search import SemanticSearchEngine
 from src.blockchain.contract import ASISmartContract
@@ -65,6 +79,11 @@ class ASICore:
         self.arweave_client = ArweaveClient(self.config.get("arweave_gateway"))
 
         # AI-Module
+        # ASI Embedding und Suche System
+        self.asi_embedding_generator = ASIEmbeddingGenerator()
+        self.asi_search_engine = ASISemanticSearch(self.asi_embedding_generator)
+
+        # Original AI Module
         self.embedding_system = ReflectionEmbedding()
         self.search_engine = SemanticSearchEngine(self.embedding_system, self.local_db)
 
@@ -76,6 +95,13 @@ class ASICore:
         # Blockchain-Module
         self.smart_contract = ASISmartContract()
         self.wallet = CryptoWallet()
+
+        # Blockchain-Client initialisieren (falls konfiguriert)
+        self.blockchain_client = None
+        if self._init_blockchain_client():
+            print("✅ Blockchain-Client initialisiert")
+        else:
+            print("⚠️ Blockchain-Client nicht verfügbar")
 
         # HRM-Module (Hierarchical Reasoning Model)
         try:
@@ -96,6 +122,42 @@ class ASICore:
             self.hrm_planner = None
 
         print("✓ Alle Komponenten initialisiert")
+
+    def _init_blockchain_client(self) -> bool:
+        """
+        Initialisiert den Blockchain-Client basierend auf Umgebungsvariablen
+
+        Returns:
+            True wenn erfolgreich initialisiert, False sonst
+        """
+        try:
+            # Environment Variables prüfen
+            rpc_url = os.getenv("MUMBAI_RPC_URL") or os.getenv("POLYGON_RPC_URL")
+            private_key = os.getenv("PRIVATE_KEY")
+            contract_address = os.getenv("ASI_CONTRACT_ADDRESS")
+            enable_blockchain = (
+                os.getenv("ENABLE_BLOCKCHAIN", "false").lower() == "true"
+            )
+
+            if not enable_blockchain:
+                return False
+
+            if not all([rpc_url, private_key, contract_address]):
+                print("⚠️ Blockchain-Konfiguration unvollständig")
+                return False
+
+            # Blockchain-Client erstellen
+            self.blockchain_client = ASIBlockchainClient(
+                rpc_url=rpc_url,
+                private_key=private_key,
+                contract_address=contract_address,
+            )
+
+            return True
+
+        except Exception as e:
+            print(f"❌ Blockchain-Client Initialisierung fehlgeschlagen: {e}")
+            return False
 
     def process_reflection_workflow(
         self, content: str, tags: list = None, privacy_level: str = "private"
@@ -131,8 +193,20 @@ class ASICore:
         exported_data = self.processor.export_processed(processed_reflection)
         reflection_id = self.local_db.store_reflection(exported_data)
 
-        # 4. Embedding erstellen
-        print("4. Erstelle Embeddings...")
+        # 4. ASI Embedding erstellen
+        print("4. Erstelle ASI-Semantik-Embedding...")
+        asi_embedding_bytes = self.asi_embedding_generator.generate_embedding(
+            exported_data["content"]
+        )
+
+        # Embedding im lokalen Cache speichern (mit CID falls verfügbar)
+        text_preview = exported_data["content"][:200]
+        temp_id = exported_data.get("hash", f"temp_{reflection_id}")
+        self.asi_search_engine.store_embedding(
+            temp_id, asi_embedding_bytes, text_preview
+        )
+
+        # 5. Original Embedding System (für Kompatibilität)
         embedding_info = self.embedding_system.create_reflection_embedding(
             exported_data
         )
@@ -151,6 +225,10 @@ class ASICore:
                 self.local_db.update_storage_reference(
                     exported_data["hash"], "ipfs", ipfs_hash
                 )
+                # Update embedding cache mit tatsächlicher CID
+                self.asi_search_engine.store_embedding(
+                    ipfs_hash, asi_embedding_bytes, text_preview
+                )
 
         if self.config.get("auto_upload_arweave", False) and privacy_level == "public":
             print("5b. Lade zu Arweave hoch...")
@@ -160,11 +238,57 @@ class ASICore:
                     exported_data["hash"], "arweave", arweave_tx
                 )
 
-        # 6. Lokale Ausgabe und Hinweise
-        print("6. Generiere Ausgabe und Hinweise...")
+        # 6. Blockchain-Registrierung (falls aktiviert)
+        blockchain_tx = None
+        if (
+            self.blockchain_client
+            and os.getenv("AUTO_REGISTER_ON_CHAIN", "false").lower() == "true"
+            and privacy_level in ["anonymous", "public"]
+            and (ipfs_hash or arweave_tx)
+        ):
+
+            print("6. Registriere auf Blockchain...")
+            try:
+                # Content Identifier bestimmen (IPFS bevorzugt, dann Arweave)
+                cid = ipfs_hash if ipfs_hash else arweave_tx
+
+                # ASI Semantic Embedding verwenden
+                blockchain_embedding = asi_embedding_bytes
+
+                # Tags aus exported_data extrahieren
+                blockchain_tags = exported_data.get("tags", [])[:10]  # Max 10
+
+                # Timestamp aus exported_data
+                timestamp = int(
+                    datetime.fromisoformat(
+                        exported_data["timestamp"].replace("Z", "+00:00")
+                    ).timestamp()
+                )
+
+                # Auf Blockchain registrieren
+                blockchain_tx = self.blockchain_client.register_entry_on_chain(
+                    cid=cid,
+                    tags=blockchain_tags,
+                    embedding=blockchain_embedding,
+                    timestamp=timestamp,
+                )
+
+                print(f"✅ Blockchain-Registrierung erfolgreich: {blockchain_tx}")
+
+                # Blockchain-Referenz in lokaler DB speichern
+                self.local_db.update_storage_reference(
+                    exported_data["hash"], "blockchain", blockchain_tx
+                )
+
+            except Exception as e:
+                print(f"❌ Blockchain-Registrierung fehlgeschlagen: {e}")
+                blockchain_tx = None
+
+        # 7. Lokale Ausgabe und Hinweise
+        print("7. Generiere Ausgabe und Hinweise...")
         local_file = self.output_generator.save_local_copy(exported_data)
 
-        # 7. Erkenntnisse generieren
+        # 8. Erkenntnisse generieren
         recent_reflections = self.local_db.get_reflections(limit=10)
         insights = self.output_generator.generate_insights(
             [
@@ -180,12 +304,21 @@ class ASICore:
 
         print("✓ Reflexions-Workflow abgeschlossen")
 
+        # 9. Beispiel-Suche demonstrieren (falls Embeddings vorhanden)
+        stats = self.asi_search_engine.get_cache_stats()
+        if stats["total_embeddings"] > 0:
+            print("\n🔍 Demonstration der semantischen Suche:")
+            # Verwende die ersten paar Wörter der aktuellen Reflexion als Testquery
+            test_query = " ".join(exported_data["content"].split()[:3])
+            demo_results = self.search_asi_memories(test_query, 3)
+
         return {
             "reflection_id": reflection_id,
             "hash": exported_data["hash"],
             "local_file": local_file,
             "ipfs_hash": ipfs_hash,
             "arweave_tx": arweave_tx,
+            "blockchain_tx": blockchain_tx,
             "insights": len(insights),
             "themes": exported_data["themes"],
         }
@@ -214,6 +347,54 @@ class ASICore:
             print("Keine passenden Reflexionen gefunden.")
 
         return results
+
+    def search_asi_memories(self, query: str, num_results: int = 5):
+        """
+        Sucht in gespeicherten ASI-Reflektionen mit semantischer Suche
+
+        Args:
+            query: Suchtext
+            num_results: Anzahl der Ergebnisse
+
+        Returns:
+            List: Suchergebnisse mit CID und Ähnlichkeitswerten
+        """
+        print(f"🔍 ASI Semantische Suche nach: '{query}'")
+
+        try:
+            results = self.asi_search_engine.search_ASI_memory(query, num_results)
+
+            if not results:
+                print("Keine Ergebnisse gefunden.")
+                return []
+
+            print(f"\n📋 {len(results)} Ergebnisse gefunden:")
+            for i, result in enumerate(results, 1):
+                print(f"\n{i}. CID: {result['cid']}")
+                print(f"   Ähnlichkeit: {result['similarity']:.3f}")
+                print(f"   Vorschau: {result['text_preview'][:100]}...")
+                if result["timestamp"]:
+                    print(f"   Zeitstempel: {result['timestamp']}")
+
+            return results
+
+        except Exception as e:
+            print(f"❌ Fehler bei der Suche: {e}")
+            return []
+
+    def show_search_stats(self):
+        """Zeigt Statistiken über den Embedding-Cache"""
+        stats = self.asi_search_engine.get_cache_stats()
+
+        print("\n📊 ASI Semantische Suche - Statistiken:")
+        print(f"Gespeicherte Embeddings: {stats['total_embeddings']}")
+        print(f"Cache-Datei existiert: {stats['cache_file_exists']}")
+        print(f"Cache-Größe: {stats['cache_file_size']} Bytes")
+
+        if stats["oldest_entry"]:
+            print(f"Ältester Eintrag: {stats['oldest_entry']}")
+        if stats["newest_entry"]:
+            print(f"Neuester Eintrag: {stats['newest_entry']}")
 
     def show_statistics(self):
         """Zeigt System-Statistiken"""
@@ -428,6 +609,11 @@ def main():
             elif command == "search" and len(sys.argv) > 2:
                 query = " ".join(sys.argv[2:])
                 asi.search_reflections(query)
+            elif command == "search-asi" and len(sys.argv) > 2:
+                query = " ".join(sys.argv[2:])
+                asi.search_asi_memories(query)
+            elif command == "search-stats":
+                asi.show_search_stats()
             elif command == "hrm" and len(sys.argv) > 2:
                 content = " ".join(sys.argv[2:])
                 asi.hrm_demo(content)
@@ -435,10 +621,12 @@ def main():
                 asi.hrm_interactive_test()
             else:
                 print("Verwendung:")
-                print("  python main.py                    # Interaktiver Modus")
-                print("  python main.py stats              # Statistiken anzeigen")
-                print("  python main.py process <text>     # Reflexion verarbeiten")
+                print("  python main.py                    # Interaktiv")
+                print("  python main.py stats              # Statistiken")
+                print("  python main.py process <text>     # Reflexion")
                 print("  python main.py search <query>     # Suche")
+                print("  python main.py search-asi <query> # ASI Suche")
+                print("  python main.py search-stats       # Suche Stats")
                 print("  python main.py hrm <text>         # HRM-Analyse")
                 print("  python main.py hrm-test           # HRM-Demo")
         else:
@@ -485,7 +673,117 @@ if FLASK_AVAILABLE:
             }
         )
 
+
+def handle_command_line():
+    """Erweiterte Kommandozeilen-Behandlung für Hybrid-Modell"""
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="ASI Core - Hybrid-Modell mit Zustandsmanagement"
+    )
+    subparsers = parser.add_subparsers(dest="command", help="Verfügbare Kommandos")
+
+    # Legacy add-Befehl
+    add_parser = subparsers.add_parser("add", help="Fügt eine Reflexion hinzu")
+    add_parser.add_argument("content", help="Reflexionsinhalt")
+    add_parser.add_argument(
+        "--tags", nargs="*", default=[], help="Tags für die Reflexion"
+    )
+
+    # Neuer add-state Befehl
+    state_parser = subparsers.add_parser(
+        "add-state", help="Fügt eine Zustandsreflexion hinzu"
+    )
+    state_parser.add_argument("content", help="Reflexionsinhalt")
+    state_parser.add_argument(
+        "--state", type=int, default=0, help="Zustandswert (0-255)"
+    )
+    state_parser.add_argument(
+        "--tags", nargs="*", default=[], help="Tags für die Reflexion"
+    )
+
+    # Suchbefehle
+    search_parser = subparsers.add_parser("search-state", help="Sucht nach Zustand")
+    search_parser.add_argument("state", type=int, help="Zustandswert zum Suchen")
+
+    # Statistiken
+    stats_parser = subparsers.add_parser("stats", help="Zeigt Zustandsstatistiken")
+
+    # Export
+    export_parser = subparsers.add_parser("export", help="Exportiert Zustandsdaten")
+    export_parser.add_argument("--filename", help="Ausgabedatei (optional)")
+
+    # Zustände auflisten
+    list_states_parser = subparsers.add_parser(
+        "list-states", help="Listet verfügbare Zustände auf"
+    )
+
+    args = parser.parse_args()
+
+    if not args.command:
+        print("🤖 ASI Core - Hybrid-Modell")
+        print("Verwende --help für verfügbare Kommandos")
+        return
+
+    # ASI System initialisieren
+    import asyncio
+
+    from src.asi_core import ASICore
+
+    asi = ASICore()
+
+    # Existierende Reflexionen laden
+    asi.load_reflections_from_directory()
+
+    try:
+        if args.command == "add":
+            # Legacy-Befehl mit automatischer Zustandserkennung
+            result = asi.add_reflection(args.content, args.tags)
+            print(f"📝 Reflexion hinzugefügt mit automatischem Zustand")
+
+        elif args.command == "add-state":
+            # Neuer Zustandsbefehl
+            result = asyncio.run(
+                asi.add_state_reflection(args.content, args.state, args.tags)
+            )
+            print(f"📝 Zustandsreflexion hinzugefügt: Zustand {args.state}")
+
+        elif args.command == "search-state":
+            results = asi.search_by_state(args.state)
+            print(f"\n🔍 Suchergebnisse für Zustand {args.state}:")
+            for i, result in enumerate(results, 1):
+                print(f"{i}. {result['reflection_text'][:100]}...")
+                print(f"   Tags: {', '.join(result['tags'])}")
+                print(f"   Zeit: {result['timestamp']}")
+                print()
+
+        elif args.command == "stats":
+            asi.show_state_statistics()
+
+        elif args.command == "export":
+            asi.export_state_data(args.filename)
+
+        elif args.command == "list-states":
+            states = asi.get_available_states()
+            print("\n📋 Verfügbare Zustände:")
+            for state_id, info in states.items():
+                print(f"{state_id}: {info['name']} - {info['description']}")
+
+    except Exception as e:
+        print(f"❌ Fehler: {e}")
+
     # Nur starten wenn direkt ausgeführt
     if __name__ == "__main__" and len(sys.argv) > 1 and sys.argv[1] == "serve":
         print("Starte Flask API Server...")
-        app.run(host="0.0.0.0", port=5000, debug=True)
+        debug_flag = os.getenv("ASI_MAIN_DEBUG", "true").lower()
+        debug_enabled = debug_flag in {"1", "true", "yes"}
+        default_host = "127.0.0.1" if not debug_enabled else "0.0.0.0"
+        host = os.getenv("ASI_MAIN_HOST", default_host)
+        port = int(os.getenv("ASI_MAIN_PORT", "5000"))
+        app.run(host=host, port=port, debug=debug_enabled)
+    elif __name__ == "__main__" and len(sys.argv) > 1:
+        handle_command_line()
+    elif __name__ == "__main__":
+        print("🤖 ASI Core - Hybrid-Modell")
+        print("Verwende 'python main.py --help' für verfügbare Kommandos")
+        print("Verwende 'python main.py serve' für den Flask-Server")

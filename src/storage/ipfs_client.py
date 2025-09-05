@@ -3,11 +3,12 @@ ASI Core - IPFS Client
 Upload zu IPFS für dezentrale Speicherung
 """
 
-import json
-import requests
 import hashlib
-from typing import Dict, Optional, List
+import json
 from datetime import datetime
+from typing import Dict, List, Optional
+
+import requests
 
 
 class IPFSClient:
@@ -25,7 +26,8 @@ class IPFSClient:
             bool: True wenn Node erreichbar
         """
         try:
-            response = self.session.get(f"{self.api_url}/version", timeout=5)
+            # Kubo HTTP API erwartet POST für die meisten Endpunkte
+            response = self.session.post(f"{self.api_url}/version", timeout=5)
             return response.status_code == 200
         except requests.RequestException:
             return False
@@ -63,8 +65,8 @@ class IPFSClient:
                 print(f"IPFS Upload Fehler: {response.status_code}")
                 return None
 
-        except Exception as e:
-            print(f"IPFS Upload Exception: {e}")
+        except (requests.RequestException, TypeError, ValueError) as e:
+            print(f"IPFS Upload Fehler/Exception: {e}")
             return self._simulate_upload(data)
 
     def _simulate_upload(self, data: Dict) -> str:
@@ -102,17 +104,22 @@ class IPFSClient:
             return None
 
         try:
-            response = self.session.get(
+            # Kubo erwartet POST für /cat
+            response = self.session.post(
                 f"{self.api_url}/cat", params={"arg": ipfs_hash}
             )
 
             if response.status_code == 200:
-                return response.json()
+                # Inhalt ist roher JSON-Text (wir haben zuvor JSON hochgeladen)
+                try:
+                    return response.json()
+                except ValueError:
+                    return json.loads(response.text)
             else:
                 print(f"IPFS Download Fehler: {response.status_code}")
                 return None
 
-        except Exception as e:
+        except requests.RequestException as e:
             print(f"IPFS Download Exception: {e}")
             return None
 
@@ -134,7 +141,7 @@ class IPFSClient:
                 f"{self.api_url}/pin/add", params={"arg": ipfs_hash}
             )
             return response.status_code == 200
-        except Exception as e:
+        except requests.RequestException as e:
             print(f"IPFS Pin Exception: {e}")
             return False
 
@@ -149,12 +156,13 @@ class IPFSClient:
             return []
 
         try:
-            response = self.session.get(f"{self.api_url}/pin/ls")
+            # Kubo erwartet POST für /pin/ls
+            response = self.session.post(f"{self.api_url}/pin/ls")
             if response.status_code == 200:
                 data = response.json()
                 return list(data.get("Keys", {}).keys())
             return []
-        except Exception as e:
+        except requests.RequestException as e:
             print(f"IPFS List Pins Exception: {e}")
             return []
 
@@ -170,13 +178,13 @@ class IPFSClient:
 
         try:
             # Version
-            version_resp = self.session.get(f"{self.api_url}/version")
+            version_resp = self.session.post(f"{self.api_url}/version")
             version_data = (
                 version_resp.json() if version_resp.status_code == 200 else {}
             )
 
             # ID
-            id_resp = self.session.get(f"{self.api_url}/id")
+            id_resp = self.session.post(f"{self.api_url}/id")
             id_data = id_resp.json() if id_resp.status_code == 200 else {}
 
             return {
@@ -185,7 +193,7 @@ class IPFSClient:
                 "addresses": id_data.get("Addresses", []),
                 "status": "running",
             }
-        except Exception as e:
+        except requests.RequestException as e:
             print(f"IPFS Node Info Exception: {e}")
             return None
 

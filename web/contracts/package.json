@@ -4,12 +4,14 @@
   "description": "MemoryIndex Smart Contract Deployment",
   "scripts": {
     "deploy": "hardhat run scripts/deploy.js --network mumbai",
+    "deploy-asi": "hardhat run scripts/deployASIIndex.js --network mumbai",
     "compile": "hardhat compile"
   },
   "devDependencies": {
-    "@nomiclabs/hardhat-ethers": "^2.2.3",
-    "@openzeppelin/contracts": "^4.9.3",
-    "ethers": "^5.7.2",
-    "hardhat": "^2.17.1"
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@openzeppelin/contracts": "^5.0.0",
+    "ethers": "^6.14.0",
+    "hardhat": "^2.19.0",
+    "dotenv": "^16.0.0"
   }
 }

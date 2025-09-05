@@ -4,7 +4,7 @@ ASI Core - API Server
 Separater Flask-Server für kognitive Analyse-API
 """
 
-import json
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -15,6 +15,11 @@ from flask import Flask, jsonify, request
 sys.path.append(str(Path(__file__).parent))
 
 app = Flask(__name__)
+
+# Sicherheits- und Laufzeiteinstellungen via ENV
+app.config.update(
+    JSONIFY_PRETTYPRINT_REGULAR=False,
+)
 
 
 @app.route("/api/cognitive-insights", methods=["POST"])
@@ -45,7 +50,11 @@ def cognitive_insights():
         suggestions = generate_refinement_suggestions(biases)
 
         return jsonify(
-            {"biases": biases, "suggestions": suggestions, "total_biases": len(biases)}
+            {
+                "biases": biases,
+                "suggestions": suggestions,
+                "total_biases": len(biases),
+            }
         )
 
     except Exception as e:
@@ -82,4 +91,9 @@ def index():
 
 if __name__ == "__main__":
     print("Starte ASI Core - Kognitive Analyse API...")
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    debug_flag = os.getenv("ASI_API_DEBUG", "true").lower()
+    debug_enabled = debug_flag in {"1", "true", "yes"}
+    default_host = "127.0.0.1" if not debug_enabled else "0.0.0.0"
+    host = os.getenv("ASI_API_HOST", default_host)
+    port = int(os.getenv("ASI_API_PORT", "5000"))
+    app.run(host=host, port=port, debug=debug_enabled)
