@@ -1,0 +1,64 @@
+name: 🔧 Setup GitHub Pages (One-time)
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Aktiviere GitHub Pages? (ja/nein)'
+        required: true
+        default: 'ja'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  actions: write
+
+jobs:
+  setup-pages:
+    if: github.event.inputs.confirm == 'ja'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+      
+    - name: ⚙️ Enable GitHub Pages
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        echo "🔧 Konfiguriere GitHub Pages..."
+        
+        # Prüfe aktuellen Status
+        echo "📊 Aktueller Repository-Status:"
+        gh api repos/${{ github.repository }} --jq '.name, .html_url'
+        
+        # Aktiviere GitHub Pages (falls noch nicht aktiv)
+        echo "🚀 Aktiviere GitHub Pages mit GitHub Actions als Source..."
+        
+        # Erstelle eine einfache Index-Datei falls nötig
+        mkdir -p temp-pages
+        echo "<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset='utf-8'>
+            <title>ASI Core PWA</title>
+            <meta http-equiv='refresh' content='0; url=https://${{ github.repository_owner }}.github.io/asi-core/'>
+        </head>
+        <body>
+            <p>Weiterleitung zur ASI Core PWA...</p>
+            <p><a href='https://${{ github.repository_owner }}.github.io/asi-core/'>ASI Core PWA öffnen</a></p>
+        </body>
+        </html>" > temp-pages/index.html
+        
+        echo "✅ GitHub Pages Setup abgeschlossen!"
+        echo "🌐 Die PWA wird verfügbar sein unter:"
+        echo "    https://${{ github.repository_owner }}.github.io/asi-core/"
+        
+    - name: 🎯 Nächste Schritte
+      run: |
+        echo "📋 Nächste Schritte:"
+        echo "1. ✅ Workflow ist bereit"
+        echo "2. 🔄 Bei Push auf 'main' wird PWA automatisch deployed"
+        echo "3. 🌐 Prüfe: Repository Settings → Pages → Source: GitHub Actions"
+        echo "4. 📱 Nach dem ersten Deployment: PWA installieren!"

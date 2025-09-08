@@ -1,9 +1,18 @@
 
-[🌍 Projekt-Webseite](https://swisscomfort.github.io/asi-core-site/)
+[🌍 Projekt-Webseite](https://swisscomfort.github.io/asi-core-site/) | [📱 Live PWA](https://swisscomfort.github.io/asi-core/)
 
 # 🧠 ASI-Core: Artificial Self-Intelligence System
 
 Ein lebenslanges, dezentrales, anonymes digitales Gedächtnis.
+
+## 🚀 Live PWA
+
+**[📱 ASI Core PWA öffnen](https://swisscomfort.github.io/asi-core/)**
+
+- ✅ **Installierbar** als native App (PWA)
+- ✅ **Offline-First** - funktioniert ohne Internet
+- ✅ **Auto-Updates** - immer die neueste Version
+- ✅ **Responsiv** - optimiert für alle Geräte
 
 ## 📋 Übersicht
 
