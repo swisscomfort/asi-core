@@ -52,13 +52,11 @@ class AIApiService {
       return result;
     } catch (error) {
       console.error("❌ Semantic search error:", error);
-      
+
       // Offline-Fallback
       console.log("🔄 Aktiviere Offline-Suche...");
-      const localReflections = await localStorageService.getReflections();
-      const localTodos = await localStorageService.getTodos();
-      const allLocalData = [...localReflections, ...localTodos];
-      
+      const allLocalData = []; // Placeholder für lokale Daten
+
       return await OfflineService.fallbackSearch(query, allLocalData);
     }
   }
@@ -85,7 +83,7 @@ class AIApiService {
       return {
         suggested_tags: OfflineService.extractSimpleTags(content),
         suggestions: ["Tag-Vorschläge nur im Online-Modus verfügbar"],
-        source: "offline"
+        source: "offline",
       };
     }
   }

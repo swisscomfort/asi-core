@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { localStorage } from "../services/localStorage";
+import { localStorageService } from "../services/localStorage";
 
 export const OfflineStats = () => {
   const [stats, setStats] = useState({ total: 0, unsynced: 0, synced: 0 });

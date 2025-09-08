@@ -1,0 +1,80 @@
+name: "🔧 GitHub Pages Activation & First Deploy"
+
+on:
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: "Force deployment even if no changes"
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages-activation"
+  cancel-in-progress: false
+
+jobs:
+  setup-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: web/package-lock.json
+
+      - name: 🔧 Install Dependencies
+        run: |
+          cd web
+          npm ci --prefer-offline --no-audit
+
+      - name: 🏗️ Build PWA
+        run: |
+          cd web
+          npm run build
+          echo "🚀 PWA Build completed successfully!"
+
+      - name: 📋 Build Summary
+        run: |
+          cd web/dist
+          echo "📊 Build Output:"
+          ls -la
+          du -sh *
+          echo "📱 PWA Features: ✅ Installable ✅ Offline ✅ Auto-Update"
+          echo "🌐 Will be available at: https://swisscomfort.github.io/asi-core/"
+
+      - name: ⚙️ Setup GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: 📤 Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+      - name: 🚀 Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: ✅ Deployment Success
+        run: |
+          echo "🎉 PWA erfolgreich deployed!"
+          echo "🌐 Live URL: ${{ steps.deployment.outputs.page_url }}"
+          echo "📱 Die PWA kann jetzt installiert werden!"
+          echo ""
+          echo "🔗 Direct Link: https://swisscomfort.github.io/asi-core/"
+          echo ""
+          echo "📋 Next Steps:"
+          echo "1. Visit the URL above"
+          echo "2. Install PWA on your device"
+          echo "3. Test offline functionality"
+          echo "4. Check mobile responsiveness"

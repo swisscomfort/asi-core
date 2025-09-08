@@ -5,7 +5,7 @@ import {
   TagIcon,
   CalendarIcon,
   ExclamationTriangleIcon,
-  WifiSlashIcon,
+  WifiIcon,
 } from "@heroicons/react/24/outline";
 import AIApiService from "../services/aiApiService";
 import StorachaService from "../services/storacha";
@@ -340,7 +340,7 @@ const NewReflectionModal = ({
             <div className="space-y-3">
               <div className="flex items-center text-sm">
                 {isOfflineMode ? (
-                  <WifiSlashIcon className="w-4 h-4 mr-2 text-orange-500" />
+                  <WifiIcon className="w-4 h-4 mr-2 text-orange-500" />
                 ) : uploadError ? (
                   <ExclamationTriangleIcon className="w-4 h-4 mr-2 text-red-500" />
                 ) : (
@@ -389,7 +389,7 @@ const NewReflectionModal = ({
 
               {isOfflineMode && (
                 <p className="text-xs text-orange-600 flex items-center">
-                  <WifiSlashIcon className="w-3 h-3 mr-1" />
+                  <WifiIcon className="w-3 h-3 mr-1" />
                   Keine Internetverbindung - nur lokale Speicherung
                 </p>
               )}

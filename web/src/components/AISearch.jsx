@@ -36,11 +36,11 @@ const AISearch = ({ onSearchResults }) => {
       } catch (error) {
         console.error("❌ Fehler bei der semantischen Suche:", error);
         // Zeige eine Benutzerfreundliche Fehlermeldung
-        alert(
-        const errorMessage = error.message.includes('fetch')
+        const errorMessage = error.message.includes("fetch")
           ? `Suche fehlgeschlagen: ${error.message}\n\nStelle sicher, dass das Backend verfügbar ist oder arbeite im Offline-Modus.`
           : `Suche fehlgeschlagen: ${error.message}`;
-        );
+
+        alert(errorMessage);
         onSearchResults([]);
       } finally {
         setIsSearching(false);

@@ -1,4 +1,4 @@
-import { localStorage } from "./localStorage";
+import { localStorageService } from "./localStorage";
 
 export class SyncService {
   constructor() {
