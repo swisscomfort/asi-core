@@ -1,0 +1,110 @@
+name: 🐛 Bug Report
+description: Melde einen Fehler im ASI-Core System
+title: "[BUG] "
+labels: ["bug", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        🐛 **Bug Report für ASI-Core**
+        Danke für das Melden eines Bugs! Bitte fülle alle relevanten Felder aus.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Vorab-Checkliste
+      description: Bitte bestätige folgende Punkte
+      options:
+        - label: Ich habe die Dokumentation gelesen
+          required: true
+        - label: Ich habe nach ähnlichen Issues gesucht
+          required: true
+        - label: Ich kann den Bug reproduzieren
+          required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Betroffene Komponente
+      description: Welcher Teil des Systems ist betroffen?
+      options:
+        - Frontend/PWA
+        - Backend/API
+        - Blockchain Integration
+        - Storage (IPFS/Arweave)
+        - AI/Semantic Search
+        - Database
+        - Authentication
+        - Deployment
+        - Anderes
+      default: 0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Schweregrad
+      description: Wie schwerwiegend ist der Bug?
+      options:
+        - 🔴 Kritisch - System nicht nutzbar
+        - 🟠 Hoch - Wichtige Funktionen betroffen
+        - 🟡 Mittel - Beeinträchtigung der Nutzererfahrung
+        - 🟢 Niedrig - Kleine Unannehmlichkeiten
+      default: 2
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Beschreibung des Problems
+      description: Beschreibe den Bug so detailliert wie möglich
+      placeholder: |
+        Erwartetes Verhalten:
+        
+        Tatsächliches Verhalten:
+        
+        Schritte zur Reproduktion:
+        1. 
+        2. 
+        3. 
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Umgebung
+      description: Informationen über deine Umgebung
+      placeholder: |
+        - Browser: (Chrome, Firefox, Safari, etc.)
+        - Version: 
+        - Betriebssystem: 
+        - Gerät: (Desktop, Mobile, etc.)
+        - URL: 
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Fehlermeldungen
+      description: Füge relevante Logs oder Fehlermeldungen hinzu
+      placeholder: |
+        Füge hier Browser-Konsolen-Logs, Server-Logs oder andere relevante Ausgaben ein
+      render: text
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Zusätzliche Informationen
+      description: Weitere relevante Informationen, Screenshots, etc.
+      placeholder: |
+        - Screenshots
+        - Videos
+        - Zusätzlicher Kontext
+        - Mögliche Lösungsansätze

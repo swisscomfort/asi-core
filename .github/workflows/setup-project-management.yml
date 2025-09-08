@@ -1,0 +1,90 @@
+name: "🚀 Setup GitHub Projects & Milestones"
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/setup-project-management.yml"
+
+jobs:
+  setup-project-management:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create GitHub Project
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Create main project board
+            try {
+              const project = await github.rest.projects.createForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: '🧠 ASI-Core Development Board',
+                body: 'Main project board for ASI-Core development tracking'
+              });
+              
+              console.log('Created project:', project.data.id);
+              
+              // Create columns
+              const columns = [
+                '📋 Backlog',
+                '🔄 In Progress', 
+                '👀 Review',
+                '🧪 Testing',
+                '✅ Done'
+              ];
+              
+              for (const columnName of columns) {
+                await github.rest.projects.createColumn({
+                  project_id: project.data.id,
+                  name: columnName
+                });
+                console.log(`Created column: ${columnName}`);
+              }
+              
+            } catch (error) {
+              console.log('Project might already exist:', error.message);
+            }
+
+            // Create milestones
+            const milestones = [
+              {
+                title: '🎯 MVP Release v1.0',
+                description: 'Core functionality: Local reflections, basic search, PWA deployment',
+                due_on: '2025-10-01T00:00:00Z'
+              },
+              {
+                title: '🔗 Blockchain Integration v1.1',
+                description: 'Smart contracts, token integration, decentralized identity',
+                due_on: '2025-11-01T00:00:00Z'
+              },
+              {
+                title: '🌐 Decentralized Storage v1.2',
+                description: 'IPFS integration, Arweave permanent storage, content addressing',
+                due_on: '2025-12-01T00:00:00Z'
+              },
+              {
+                title: '🧠 Advanced AI v2.0',
+                description: 'Enhanced semantic search, pattern recognition, AI insights',
+                due_on: '2026-01-01T00:00:00Z'
+              }
+            ];
+
+            for (const milestone of milestones) {
+              try {
+                const created = await github.rest.issues.createMilestone({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ...milestone
+                });
+                console.log(`Created milestone: ${milestone.title}`);
+              } catch (error) {
+                console.log(`Milestone might exist: ${milestone.title}`);
+              }
+            }

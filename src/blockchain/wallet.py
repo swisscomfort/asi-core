@@ -1,26 +1,443 @@
 """
-ASI Core - Wallet Module
-Wallet-Management und Transaktions-Signierung
+Wallet Service für ASI Core
+Seed-basierte lokale Wallet-Generierung ohne externe Abhängigkeiten
 """
 
 import hashlib
+import hmac
 import json
 import os
-from typing import Dict, Optional, List
-from datetime import datetime
-from dataclasses import dataclass
 import secrets
+from typing import Dict, Optional
+
+from flask import Blueprint, jsonify, request
 
 
-@dataclass
-class WalletInfo:
-    """Wallet-Informationen"""
+class LocalWallet:
+    """
+    Lokale Wallet-Implementierung mit seed-basierter Schlüsselgenerierung
+    """
 
-    address: str
-    public_key: str
-    balance_eth: float
-    balance_tokens: Dict[str, float]
-    transaction_count: int
+    def __init__(self, seed: Optional[str] = None):
+        self.seed = seed or self._generate_seed()
+        self.private_key = self._derive_private_key()
+        self.address = self._derive_address()
+
+    @staticmethod
+    def _generate_seed() -> str:
+        """Generiere einen sicheren 256-bit Seed"""
+        return secrets.token_hex(32)
+
+    def _derive_private_key(self) -> str:
+        """Leite private key aus seed ab"""
+        # Verwende HMAC-SHA256 für deterministische Schlüsselableitung
+        key = hmac.new(
+            self.seed.encode("utf-8"), b"ASI_PRIVATE_KEY", hashlib.sha256
+        ).hexdigest()
+        return key
+
+    def _derive_address(self) -> str:
+        """Leite Ethereum-kompatible Adresse aus private key ab"""
+        # Vereinfachte Adressgenerierung (in Produktion: echte ECDSA)
+        address_hash = hashlib.sha256(
+            (self.private_key + "address").encode("utf-8")
+        ).hexdigest()
+        # Nehme die letzten 40 Zeichen für Ethereum-Format
+        return "0x" + address_hash[-40:]
+
+    def to_dict(self) -> Dict:
+        """Exportiere Wallet-Daten"""
+        return {
+            "seed": self.seed,
+            "private_key": self.private_key,
+            "address": self.address,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict) -> "LocalWallet":
+        """Importiere Wallet aus Dict"""
+        return cls(seed=data["seed"])
+
+
+class WalletManager:
+    """
+    Wallet-Management für ASI Core
+    """
+
+    def __init__(self, wallet_file: str = "data/local/wallet.json"):
+        self.wallet_file = wallet_file
+        self.wallet = self._load_or_create_wallet()
+
+    def _load_or_create_wallet(self) -> LocalWallet:
+        """Lade existierende Wallet oder erstelle neue"""
+        if os.path.exists(self.wallet_file):
+            try:
+                with open(self.wallet_file, "r") as f:
+                    data = json.load(f)
+                return LocalWallet.from_dict(data)
+            except Exception as e:
+                print(f"⚠️ Fehler beim Laden der Wallet: {e}")
+                print("Erstelle neue Wallet...")
+
+        # Erstelle neue Wallet
+        wallet = LocalWallet()
+        self._save_wallet(wallet)
+        return wallet
+
+    def _save_wallet(self, wallet: LocalWallet):
+        """Speichere Wallet sicher"""
+        os.makedirs(os.path.dirname(self.wallet_file), exist_ok=True)
+
+        with open(self.wallet_file, "w") as f:
+            json.dump(wallet.to_dict(), f, indent=2)
+
+        # Setze restriktive Berechtigungen
+        os.chmod(self.wallet_file, 0o600)
+
+    def get_address(self) -> str:
+        """Hole Wallet-Adresse"""
+        return self.wallet.address
+
+    def get_private_key(self) -> str:
+        """Hole Private Key (nur für interne Verwendung)"""
+        return self.wallet.private_key
+
+    def export_seed(self) -> str:
+        """Exportiere Seed für Backup"""
+        return self.wallet.seed
+
+    def import_from_seed(self, seed: str) -> bool:
+        """Importiere Wallet aus Seed"""
+        try:
+            new_wallet = LocalWallet(seed=seed)
+            self._save_wallet(new_wallet)
+            self.wallet = new_wallet
+            return True
+        except Exception as e:
+            print(f"❌ Fehler beim Import: {e}")
+            return False
+
+
+# Legacy CryptoWallet class for compatibility
+class CryptoWallet:
+    def __init__(self):
+        self.manager = WalletManager()
+
+    def get_address(self):
+        return self.manager.get_address()
+
+
+# Flask API für Wallet-Funktionen
+wallet_bp = Blueprint("wallet", __name__)
+wallet_manager = WalletManager()
+
+
+@wallet_bp.route("/api/wallet/address")
+def get_wallet_address():
+    """Hole aktuelle Wallet-Adresse"""
+    return jsonify({"address": wallet_manager.get_address()})
+
+
+@wallet_bp.route("/api/wallet/export")
+def export_wallet():
+    """Exportiere Wallet-Seed für Backup"""
+    return jsonify(
+        {
+            "seed": wallet_manager.export_seed(),
+            "address": wallet_manager.get_address(),
+            "warning": "Bewahre den Seed sicher auf! Er ist dein Master-Schlüssel.",
+        }
+    )
+
+
+@wallet_bp.route("/api/wallet/import", methods=["POST"])
+def import_wallet():
+    """Importiere Wallet aus Seed"""
+    data = request.get_json()
+
+    seed = data.get("seed")
+    if not seed:
+        return jsonify({"error": "Seed required"}), 400
+
+    success = wallet_manager.import_from_seed(seed)
+
+    if success:
+        return jsonify(
+            {
+                "success": True,
+                "address": wallet_manager.get_address(),
+                "message": "Wallet erfolgreich importiert",
+            }
+        )
+    else:
+        return jsonify({"error": "Fehler beim Import der Wallet"}), 500
+
+
+@wallet_bp.route("/api/wallet/generate", methods=["POST"])
+def generate_new_wallet():
+    """Generiere neue Wallet (überschreibt aktuelle!)"""
+    data = request.get_json()
+    confirm = data.get("confirm", False)
+
+    if not confirm:
+        return (
+            jsonify({"error": 'Bestätigung erforderlich. Setze "confirm": true'}),
+            400,
+        )
+
+    try:
+        # Sichere alte Wallet
+        old_address = wallet_manager.get_address()
+
+        # Generiere neue Wallet
+        new_wallet = LocalWallet()
+        wallet_manager._save_wallet(new_wallet)
+        wallet_manager.wallet = new_wallet
+
+        return jsonify(
+            {
+                "success": True,
+                "old_address": old_address,
+                "new_address": wallet_manager.get_address(),
+                "seed": wallet_manager.export_seed(),
+                "warning": "Neue Wallet generiert! Sichere den Seed!",
+            }
+        )
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+if __name__ == "__main__":
+    # Test der Wallet-Funktionalität
+    print("🔐 ASI Wallet Service Test")
+    print("=" * 40)
+
+    # Teste Wallet-Erstellung
+    wm = WalletManager()
+
+    print(f"Wallet-Adresse: {wm.get_address()}")
+    print(f"Seed (für Backup): {wm.export_seed()}")
+
+    # Teste Import/Export
+    seed = wm.export_seed()
+    print("📦 Teste Import/Export...")
+
+    wm2 = WalletManager(wallet_file="data/local/wallet_test.json")
+    success = wm2.import_from_seed(seed)
+
+    if success and wm2.get_address() == wm.get_address():
+        print("✅ Import/Export erfolgreich!")
+        if os.path.exists("data/local/wallet_test.json"):
+            os.remove("data/local/wallet_test.json")
+    else:
+        print("❌ Import/Export fehlgeschlagen!")
+
+    print("🎯 Wallet Service bereit für ASI Core!")
+
+import hashlib
+import hmac
+import json
+import os
+import secrets
+from typing import Dict, Optional, Tuple
+
+from flask import Blueprint, jsonify, request
+
+
+class LocalWallet:
+    """
+    Lokale Wallet-Implementierung mit seed-basierter Schlüsselgenerierung
+    """
+
+    def __init__(self, seed: Optional[str] = None):
+        self.seed = seed or self._generate_seed()
+        self.private_key = self._derive_private_key()
+        self.address = self._derive_address()
+
+    @staticmethod
+    def _generate_seed() -> str:
+        """Generiere einen sicheren 256-bit Seed"""
+        return secrets.token_hex(32)
+
+    def _derive_private_key(self) -> str:
+        """Leite private key aus seed ab"""
+        # Verwende HMAC-SHA256 für deterministische Schlüsselableitung
+        key = hmac.new(
+            self.seed.encode("utf-8"), b"ASI_PRIVATE_KEY", hashlib.sha256
+        ).hexdigest()
+        return key
+
+    def _derive_address(self) -> str:
+        """Leite Ethereum-kompatible Adresse aus private key ab"""
+        # Vereinfachte Adressgenerierung (in Produktion: echte ECDSA)
+        address_hash = hashlib.sha256(
+            (self.private_key + "address").encode("utf-8")
+        ).hexdigest()
+        # Nehme die letzten 40 Zeichen für Ethereum-Format
+        return "0x" + address_hash[-40:]
+
+    def to_dict(self) -> Dict:
+        """Exportiere Wallet-Daten"""
+        return {
+            "seed": self.seed,
+            "private_key": self.private_key,
+            "address": self.address,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict) -> "LocalWallet":
+        """Importiere Wallet aus Dict"""
+        return cls(seed=data["seed"])
+
+
+class WalletManager:
+    """
+    Wallet-Management für ASI Core
+    """
+
+    def __init__(self, wallet_file: str = "data/local/wallet.json"):
+        self.wallet_file = wallet_file
+        self.wallet = self._load_or_create_wallet()
+
+    def _load_or_create_wallet(self) -> LocalWallet:
+        """Lade existierende Wallet oder erstelle neue"""
+        if os.path.exists(self.wallet_file):
+            try:
+                with open(self.wallet_file, "r") as f:
+                    data = json.load(f)
+                return LocalWallet.from_dict(data)
+            except Exception as e:
+                print(f"⚠️ Fehler beim Laden der Wallet: {e}")
+                print("Erstelle neue Wallet...")
+
+        # Erstelle neue Wallet
+        wallet = LocalWallet()
+        self._save_wallet(wallet)
+        return wallet
+
+    def _save_wallet(self, wallet: LocalWallet):
+        """Speichere Wallet sicher"""
+        os.makedirs(os.path.dirname(self.wallet_file), exist_ok=True)
+
+        with open(self.wallet_file, "w") as f:
+            json.dump(wallet.to_dict(), f, indent=2)
+
+        # Setze restriktive Berechtigungen
+        os.chmod(self.wallet_file, 0o600)
+
+    def get_address(self) -> str:
+        """Hole Wallet-Adresse"""
+        return self.wallet.address
+
+    def get_private_key(self) -> str:
+        """Hole Private Key (nur für interne Verwendung)"""
+        return self.wallet.private_key
+
+    def export_seed(self) -> str:
+        """Exportiere Seed für Backup"""
+        return self.wallet.seed
+
+    def import_from_seed(self, seed: str) -> bool:
+        """Importiere Wallet aus Seed"""
+        try:
+            new_wallet = LocalWallet(seed=seed)
+            self._save_wallet(new_wallet)
+            self.wallet = new_wallet
+            return True
+        except Exception as e:
+            print(f"❌ Fehler beim Import: {e}")
+            return False
+
+
+# Legacy CryptoWallet class for compatibility
+class CryptoWallet:
+    def __init__(self):
+        self.manager = WalletManager()
+
+    def get_address(self):
+        return self.manager.get_address()
+
+
+# Flask API für Wallet-Funktionen
+wallet_bp = Blueprint("wallet", __name__)
+wallet_manager = WalletManager()
+
+
+@wallet_bp.route("/api/wallet/address")
+def get_wallet_address():
+    """Hole aktuelle Wallet-Adresse"""
+    return jsonify({"address": wallet_manager.get_address()})
+
+
+@wallet_bp.route("/api/wallet/export")
+def export_wallet():
+    """Exportiere Wallet-Seed für Backup"""
+    return jsonify(
+        {
+            "seed": wallet_manager.export_seed(),
+            "address": wallet_manager.get_address(),
+            "warning": "Bewahre den Seed sicher auf! Er ist dein Master-Schlüssel.",
+        }
+    )
+
+
+@wallet_bp.route("/api/wallet/import", methods=["POST"])
+def import_wallet():
+    """Importiere Wallet aus Seed"""
+    data = request.get_json()
+
+    seed = data.get("seed")
+    if not seed:
+        return jsonify({"error": "Seed required"}), 400
+
+    success = wallet_manager.import_from_seed(seed)
+
+    if success:
+        return jsonify(
+            {
+                "success": True,
+                "address": wallet_manager.get_address(),
+                "message": "Wallet erfolgreich importiert",
+            }
+        )
+    else:
+        return jsonify({"error": "Fehler beim Import der Wallet"}), 500
+
+
+@wallet_bp.route("/api/wallet/generate", methods=["POST"])
+def generate_new_wallet():
+    """Generiere neue Wallet (überschreibt aktuelle!)"""
+    data = request.get_json()
+    confirm = data.get("confirm", False)
+
+    if not confirm:
+        return (
+            jsonify({"error": 'Bestätigung erforderlich. Setze "confirm": true'}),
+            400,
+        )
+
+    try:
+        # Sichere alte Wallet
+        old_address = wallet_manager.get_address()
+
+        # Generiere neue Wallet
+        new_wallet = LocalWallet()
+        wallet_manager._save_wallet(new_wallet)
+        wallet_manager.wallet = new_wallet
+
+        return jsonify(
+            {
+                "success": True,
+                "old_address": old_address,
+                "new_address": wallet_manager.get_address(),
+                "seed": wallet_manager.export_seed(),
+                "warning": "Neue Wallet generiert! Sichere den Seed!",
+            }
+        )
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 class CryptoWallet:

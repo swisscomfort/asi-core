@@ -33,5 +33,9 @@ loguru>=0.7.0
 # Dezentrale Speicherung
 ipfshttpclient>=0.7.0
 
+# Blockchain integration
+web3>=6.11.0
+eth-account>=0.9.0
+
 # Testing
 pytest>=8.0.0

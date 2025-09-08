@@ -40,6 +40,9 @@ from asi_core.search import ASIEmbeddingGenerator, ASISemanticSearch
 from src.ai.embedding import ReflectionEmbedding
 from src.ai.search import SemanticSearchEngine
 from src.blockchain.contract import ASISmartContract
+
+# Memory Token Integration
+from src.blockchain.memory_token import memory_token_service, token_bp
 from src.blockchain.wallet import CryptoWallet
 from src.core.input import InputHandler
 from src.core.output import OutputGenerator
@@ -657,21 +660,280 @@ if FLASK_AVAILABLE:
             asi_instance = ASICore()
         return asi_instance
 
+    # Import hybrid model modules for API endpoints
+    try:
+        import sys
+        from pathlib import Path
+
+        hybrid_model_path = str(Path(__file__).parent / "src" / "modules")
+        if hybrid_model_path not in sys.path:
+            sys.path.append(hybrid_model_path)
+
+        # For Python API, we'll create simple wrapper classes
+        class StateTrackerAPI:
+            def get_state_history(self, key, days):
+                # This would interface with the JS module via a bridge
+                return []
+
+            def calculate_streak(self, history):
+                return 0
+
+            def set_local_state(self, key, value, context):
+                return {"key": key, "value": value, "context": context}
+
+            def get_all_states_for_key(self, key):
+                return []
+
+        class InsightEngineAPI:
+            def get_personal_insights(self, days):
+                return []
+
+        state_tracker = StateTrackerAPI()
+        insight_engine = InsightEngineAPI()
+
+        HYBRID_MODEL_AVAILABLE = True
+    except Exception as e:
+        print(f"⚠️ Hybrid Model nicht verfügbar: {e}")
+        HYBRID_MODEL_AVAILABLE = False
+
     # Registriere cognitive insights Blueprint
     from src.modules.cognitive_insights import cognitive_insights_bp
 
     app.register_blueprint(cognitive_insights_bp)
 
-    @app.route("/api/health", methods=["GET"])
+    # Registriere Memory Token Blueprint
+    app.register_blueprint(token_bp)
+    print("✅ Memory Token API endpoints registered")
+
+    # Registriere Wallet Blueprint
+    try:
+        from src.blockchain.wallet import wallet_bp
+
+        app.register_blueprint(wallet_bp)
+        print("✅ Wallet API endpoints registered")
+    except ImportError as e:
+        print(f"⚠️ Wallet Blueprint nicht verfügbar: {e}") @ app.route(
+            "/api/health", methods=["GET"]
+        )
+
     def health_check():
         """Gesundheitscheck für die API"""
         return jsonify(
             {
                 "status": "ok",
                 "timestamp": datetime.now().isoformat(),
-                "features": ["cognitive_insights"],
+                "features": [
+                    "cognitive_insights",
+                    "hybrid_model" if HYBRID_MODEL_AVAILABLE else None,
+                ],
             }
         )
+
+    @app.route("/api/states", methods=["GET"])
+    def get_states():
+        """Get user states from hybrid model"""
+        if not HYBRID_MODEL_AVAILABLE:
+            return jsonify({"error": "Hybrid model not available"}), 503
+
+        days = int(request.args.get("days", 7))
+
+        try:
+            # Get states for all known state types
+            state_types = [
+                "walked",
+                "focused",
+                "slept_well",
+                "meditated",
+                "productive_morning",
+                "exercised",
+                "read",
+                "journaled",
+                "socialized",
+                "creative_work",
+            ]
+
+            user_states = {}
+            for state_type in state_types:
+                history = state_tracker.get_state_history(state_type, days)
+                if history:
+                    streak_data = history[-7:] if len(history) >= 7 else history
+                    user_states[state_type] = {
+                        "history": history,
+                        "streak": state_tracker.calculate_streak(streak_data),
+                        "last_activity": (
+                            history[-1]["timestamp"] if history else None
+                        ),
+                    }
+
+            return jsonify(user_states)
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    @app.route("/api/insights", methods=["GET"])
+    def get_insights():
+        """Get personal insights from hybrid model"""
+        if not HYBRID_MODEL_AVAILABLE:
+            return jsonify({"error": "Hybrid model not available"}), 503
+
+        days = int(request.args.get("days", 7))
+
+        try:
+            insights = insight_engine.get_personal_insights(days)
+            return jsonify(insights)
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    @app.route("/api/states/aggregate", methods=["GET"])
+    def get_aggregate_states():
+        """Get aggregate state data for collective insights"""
+        if not HYBRID_MODEL_AVAILABLE:
+            return jsonify({"error": "Hybrid model not available"}), 503
+
+        state_keys = request.args.get("keys", "").split(",")
+        if not state_keys or state_keys == [""]:
+            state_keys = [
+                "walked",
+                "focused",
+                "slept_well",
+                "meditated",
+                "productive_morning",
+            ]
+
+        try:
+            aggregate_data = {}
+            default_states = [
+                "walked",
+                "focused",
+                "slept_well",
+                "meditated",
+                "productive_morning",
+            ]
+            if not state_keys or state_keys == [""]:
+                state_keys = default_states
+
+            for key in state_keys:
+                # Integrate with smart contract in real implementation
+                history = state_tracker.get_all_states_for_key(key)
+                if history:
+                    total_entries = len(history)
+                    positive_count = sum(
+                        1 for entry in history if entry.get("value", 0) == 1
+                    )
+                    success_rate = (
+                        (positive_count / total_entries * 100)
+                        if total_entries > 0
+                        else 0
+                    )
+
+                    last_updated = (
+                        max(entry.get("timestamp", 0) for entry in history)
+                        if history
+                        else None
+                    )
+
+                    aggregate_data[key] = {
+                        "total_entries": total_entries,
+                        "positive_count": positive_count,
+                        "success_rate": success_rate,
+                        "last_updated": last_updated,
+                    }
+                else:
+                    aggregate_data[key] = {
+                        "total_entries": 0,
+                        "positive_count": 0,
+                        "success_rate": 0,
+                        "last_updated": None,
+                    }
+
+            return jsonify(aggregate_data)
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    @app.route("/api/states/log", methods=["POST"])
+    def log_state():
+        """Log a new state entry"""
+        if not HYBRID_MODEL_AVAILABLE:
+            return jsonify({"error": "Hybrid model not available"}), 503
+
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+
+        required_fields = ["key", "value"]
+        for field in required_fields:
+            if field not in data:
+                return jsonify({"error": f"Missing required field: {field}"}), 400
+
+        try:
+            context = {
+                "mood_before": data.get("moodBefore"),
+                "mood_after": data.get("moodAfter"),
+                "duration": data.get("duration"),
+                "notes": data.get("notes"),
+                "reflection_id": data.get("reflectionId"),
+            }
+
+            result = state_tracker.set_local_state(data["key"], data["value"], context)
+
+            return jsonify(
+                {
+                    "success": True,
+                    "state_entry": result,
+                    "message": f"State '{data['key']}' logged successfully",
+                }
+            )
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    @app.route("/api/recommendations", methods=["GET"])
+    def get_recommendations():
+        """Get proactive recommendations based on patterns"""
+        if not HYBRID_MODEL_AVAILABLE:
+            return jsonify({"error": "Hybrid model not available"}), 503
+
+        try:
+            recommendations = []
+
+            # Generate time-based recommendations
+            current_hour = datetime.now().hour
+            if 6 <= current_hour <= 10:
+                recommendations.append(
+                    {
+                        "type": "time_based",
+                        "message": "Guter Zeitpunkt für einen Spaziergang oder Meditation",
+                        "actions": ["walked", "meditated"],
+                        "confidence": 0.8,
+                    }
+                )
+            elif 14 <= current_hour <= 16:
+                recommendations.append(
+                    {
+                        "type": "time_based",
+                        "message": "Nachmittag ist ideal für fokussierte Arbeit",
+                        "actions": ["focused"],
+                        "confidence": 0.7,
+                    }
+                )
+
+            # Pattern-based recommendations from insights
+            insights = insight_engine.get_personal_insights(7)
+            for insight in insights:
+                if (
+                    insight.get("type") == "streak"
+                    and insight.get("confidence", 0) > 0.7
+                ):
+                    recommendations.append(
+                        {
+                            "type": "pattern_based",
+                            "message": f"Setze deine {insight.get('state_key', 'Aktivität')}-Serie fort!",
+                            "actions": [insight.get("state_key")],
+                            "confidence": insight.get("confidence", 0.5),
+                        }
+                    )
+
+            return jsonify(recommendations)
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
 
 
 def handle_command_line():

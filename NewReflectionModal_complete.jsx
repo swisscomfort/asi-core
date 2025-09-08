@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   XMarkIcon,
   CloudArrowUpIcon,
@@ -6,6 +6,10 @@ import {
   CalendarIcon,
   ExclamationTriangleIcon,
   WifiSlashIcon,
+  CheckCircleIcon,
+  SparklesIcon,
+  CurrencyDollarIcon,
+  GiftIcon,
 } from "@heroicons/react/24/outline";
 import AIApiService from "../services/aiApiService";
 import StorachaService from "../services/storacha";
@@ -15,6 +19,33 @@ import {
   createTodo,
   TODO_PRIORITIES,
 } from "../core/data-model";
+import HybridModel from "../src/modules/hybrid-model/index.js";
+import TokenDashboard from "../web/src/components/TokenDashboard.jsx";
+
+const STATES = [
+  { key: 'walked', label: 'Spaziergang/Gehen' },
+  { key: 'focused', label: 'Fokussiert gearbeitet' },
+  { key: 'slept_well', label: 'Gut geschlafen' },
+  { key: 'meditated', label: 'Meditiert' },
+  { key: 'productive_morning', label: 'Produktiver Morgen' },
+  { key: 'exercised', label: 'Sport gemacht' },
+  { key: 'read', label: 'Gelesen' },
+  { key: 'journaled', label: 'Tagebuch geschrieben' },
+  { key: 'socialized', label: 'Zeit mit anderen verbracht' },
+  { key: 'creative_work', label: 'Kreativ tätig' }
+];
+
+const MOOD_OPTIONS = [
+  { value: 'terrible', label: '😞 Schrecklich' },
+  { value: 'bad', label: '😔 Schlecht' },
+  { value: 'stressed', label: '😤 Gestresst' },
+  { value: 'neutral', label: '😐 Neutral' },
+  { value: 'okay', label: '🙂 Okay' },
+  { value: 'good', label: '😊 Gut' },
+  { value: 'calm', label: '😌 Ruhig' },
+  { value: 'great', label: '😄 Großartig' },
+  { value: 'excellent', label: '🤩 Exzellent' }
+];
 
 const NewReflectionModal = ({
   isOpen,
@@ -39,7 +70,18 @@ const NewReflectionModal = ({
   const [priority, setPriority] = useState(TODO_PRIORITIES.MEDIUM);
   const [cognitiveInsights, setCognitiveInsights] = useState(null);
   const [showInsights, setShowInsights] = useState(true);
+  const [selectedStates, setSelectedStates] = useState([]);
+  const [showStateSelector, setShowStateSelector] = useState(false);
+  const [currentStateConfig, setCurrentStateConfig] = useState(null);
+  const [hybridInsights, setHybridInsights] = useState([]);
+  const [privacyValidation, setPrivacyValidation] = useState(null);
+  const [shareAnonymously, setShareAnonymously] = useState(false);
+  const [userWalletAddress, setUserWalletAddress] = useState(null);
+  const [tokenBalance, setTokenBalance] = useState(0);
+  const [showTokenReward, setShowTokenReward] = useState(false);
+  const [rewardAmount, setRewardAmount] = useState(0);
   const textareaRef = useRef(null);
+  const hybridModel = useRef(new HybridModel());
 
   const commonTags = [
     "#Arbeit",
@@ -53,6 +95,69 @@ const NewReflectionModal = ({
     "#Social",
     "#Finanzen",
   ];
+
+    // Initialize hybrid model and wallet
+  useEffect(() => {
+    const initHybridModel = async () => {
+      await hybridModel.current.initialize();
+      // Load initial insights
+      const insights = await hybridModel.current.getInsights();
+      setHybridInsights(insights);
+    };
+    
+    // Initialize wallet address (from localStorage or generate)
+    const initWallet = () => {
+      let address = localStorage.getItem('asi_wallet_address');
+      if (!address) {
+        // Generate seed-based wallet address
+        const seed = localStorage.getItem('asi_wallet_seed') || Math.random().toString(36).substring(2);
+        localStorage.setItem('asi_wallet_seed', seed);
+        
+        // Simple address generation (in production, use proper cryptography)
+        address = '0x' + Array.from(seed).map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('').substring(0, 40);
+        localStorage.setItem('asi_wallet_address', address);
+      }
+      setUserWalletAddress(address);
+    };
+    
+    initHybridModel();
+    initWallet();
+  }, []);
+
+  // State management functions
+  const handleStateSelection = (state) => {
+    setCurrentStateConfig({
+      ...state,
+      value: 1,
+      moodBefore: '',
+      moodAfter: '',
+      duration: '',
+      notes: ''
+    });
+    setShowStateSelector(false);
+  };
+
+  const addSelectedState = () => {
+    if (currentStateConfig) {
+      const existing = selectedStates.find(s => s.key === currentStateConfig.key);
+      if (!existing) {
+        setSelectedStates([...selectedStates, currentStateConfig]);
+      }
+      setCurrentStateConfig(null);
+    }
+  };
+
+  const removeSelectedState = (stateKey) => {
+    setSelectedStates(selectedStates.filter(s => s.key !== stateKey));
+  };
+
+  const updateStateConfig = (stateKey, field, value) => {
+    setSelectedStates(selectedStates.map(state => 
+      state.key === stateKey 
+        ? { ...state, [field]: value }
+        : state
+    ));
+  };
 
   const handleAddTag = () => {
     if (currentTag.trim() && !tags.includes(currentTag.trim())) {
@@ -110,6 +215,15 @@ const NewReflectionModal = ({
     window.cognitiveAnalysisTimeout = setTimeout(() => {
       analyzeCognitiveContent(newContent);
     }, 1500);
+
+    // Privacy validation
+    clearTimeout(window.privacyValidationTimeout);
+    window.privacyValidationTimeout = setTimeout(async () => {
+      if (newContent.trim().length > 10) {
+        const validation = await hybridModel.current.validatePrivacy(newContent);
+        setPrivacyValidation(validation);
+      }
+    }, 1000);
   };
 
   const highlightBiases = (text, biases) => {
@@ -147,45 +261,94 @@ const NewReflectionModal = ({
 
     setIsSubmitting(true);
     setUploadProgress(20);
-    setUploadStatus("Erstelle Reflexion...");
+    setUploadStatus("Verarbeite Reflexion...");
     setUploadError("");
     setIsOfflineMode(false);
     setUploadCID("");
 
     try {
-      // Erstelle Reflexions-Objekt
+      // Process with hybrid model
+      setUploadProgress(40);
+      setUploadStatus("Analyse läuft...");
+      
+      const hybridResult = await hybridModel.current.processReflection(
+        title.trim(),
+        content.trim(),
+        selectedStates,
+        shareAnonymously
+      );
+
+      setUploadProgress(60);
+      setUploadStatus("Speichere lokal...");
+
+      // Create reflection object for backwards compatibility
       const reflection = {
         title: title.trim(),
         content: content.trim(),
         tags: tags,
         timestamp: new Date().toISOString(),
         shared: isPublic,
+        hybridData: hybridResult,
+        selectedStates: selectedStates
       };
 
       console.log("📝 Erstelle neue Reflexion:", reflection);
-      setUploadProgress(40);
-      setUploadStatus("Speichere lokal...");
 
-      // Speichere lokal (immer)
+      // Store locally (always)
       onReflectionCreated(reflection);
-      setUploadProgress(60);
+      setUploadProgress(80);
 
-      // Storacha Upload wenn "Anonym teilen" aktiviert ist
-      if (isPublic) {
+      // Store selected states with context
+      for (const state of selectedStates) {
+        await hybridModel.current.stateTracker.setLocalState(state.key, 1, {
+          mood_before: state.moodBefore,
+          mood_after: state.moodAfter,
+          duration: parseInt(state.duration) || null,
+          notes: state.notes,
+          reflection_id: Date.now().toString()
+        });
+      }
+
+      // Update insights
+      const newInsights = await hybridModel.current.getInsights();
+      setHybridInsights(newInsights);
+
+      // Handle blockchain/storage sharing
+      if (shareAnonymously && hybridResult.blockchainResults) {
+        setUploadProgress(90);
+        setUploadStatus("Anonym geteilt...");
+        
+        // Process anonymized data
+        const anonymized = await hybridModel.current.anonymizer.anonymize({
+          title: title.trim(),
+          content: content.trim(),
+          states: selectedStates.map(s => ({ key: s.key, value: 1 }))
+        });
+        
+        // Upload to IPFS
+        const cid = await hybridModel.current.chainInterface.uploadToIPFS(anonymized);
+        
+        // Log state to blockchain
+        await hybridModel.current.chainInterface.logState('reflection_uploaded', 1, cid);
+        
+        if (hybridResult.blockchainResults.cid) {
+          setUploadCID(hybridResult.blockchainResults.cid);
+        }
+      }
+
+      // Legacy Storacha upload if public
+      if (isPublic && !shareAnonymously) {
         setUploadingToStoracha(true);
         setUploadStatus("Prüfe Verbindung...");
 
-        // Offline-Check
         if (!navigator.onLine) {
           setIsOfflineMode(true);
           setUploadStatus("Offline-Modus - nur lokal gespeichert");
-          setUploadProgress(100);
         } else {
           try {
             setUploadStatus("Lädt hoch...");
-            setUploadProgress(70);
+            setUploadProgress(90);
 
-            // Erstelle JSON-Objekt mit Reflexion
             const reflectionData = {
               type: "reflection",
               data: reflection,
@@ -193,47 +356,67 @@ const NewReflectionModal = ({
               uploadedAt: new Date().toISOString(),
             };
 
-            console.log("☁️ Lade zu Storacha hoch...");
             const cid = await StorachaService.uploadReflection(reflectionData);
-
-            setUploadProgress(90);
             setUploadCID(cid);
-            setUploadStatus("Erfolgreich gespeichert");
 
-            console.log("✅ Storacha Upload erfolgreich:", cid);
-
-            // Aktualisiere StorachaStatus-Komponente
             if (onStorachaUpdate) {
-              onStorachaUpdate();
+              onStorachaUpdate({
+                type: "reflection",
+                cid: cid,
+                title: reflection.title,
+                timestamp: reflection.timestamp,
+              });
             }
 
-            setUploadProgress(100);
+            setUploadStatus("Erfolgreich hochgeladen!");
           } catch (uploadError) {
-            console.warn(
-              "⚠️ Storacha Upload fehlgeschlagen:",
-              uploadError.message
+            console.error("Storacha Upload Fehler:", uploadError);
+            setUploadError(
+              "Upload fehlgeschlagen. Reflexion wurde lokal gespeichert."
             );
+            setUploadStatus("Upload-Fehler");
+          }
+        }
+        setUploadingToStoracha(false);
+      }
 
-            // Spezifische Fehlerbehandlung
-            let errorMessage = "Upload-Fehler";
-            if (uploadError.message.includes("Internetverbindung")) {
-              setIsOfflineMode(true);
-              errorMessage = "Offline-Modus";
-            } else if (
-              uploadError.message.includes("authorization") ||
-              uploadError.message.includes("Credentials")
-            ) {
-              errorMessage = "Ungültige Zugangsdaten";
-            } else if (
-              uploadError.message.includes("network") ||
-              uploadError.message.includes("Netzwerk")
-            ) {
-              errorMessage = "Verbindungsproblem";
-            }
+      setUploadProgress(100);
+      setUploadStatus("Reflexion erfolgreich gespeichert!");
 
-            setUploadError(errorMessage);
-            setUploadStatus(`${errorMessage} - lokal gespeichert`);
-            setUploadProgress(100);
+      // Award $MEM token for saved reflection
+      await handleRewardClaim('reflection_saved', 1);
+
+      // Reset form after successful submission
+      setTimeout(() => {
+        resetForm();
+        onClose();
+      }, 1500);
+
+          }
+        }
+        setUploadingToStoracha(false);
+      }
+
+      // Reset form
+      setTitle("");
+      setContent("");
+      setTags([]);
+      setIsPublic(false);
+      setCognitiveInsights(null);
+      setUploadProgress(100);
+      setUploadStatus("Erfolgreich gespeichert!");
+
+      // Schließe Modal nach kurzer Verzögerung
+      setTimeout(() => {
+        onClose();
+      }, 1500);
+    } catch (error) {
+      console.error("Fehler beim Speichern der Reflexion:", error);
+      setUploadError("Fehler beim Speichern. Bitte versuche es erneut.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
           }
         }
       } else {
@@ -269,25 +452,65 @@ const NewReflectionModal = ({
   };
 
   const handleClose = () => {
+    resetForm();
+    setActiveTab("reflection");
+
+    // Timeout löschen
+    if (window.cognitiveAnalysisTimeout) {
+      clearTimeout(window.cognitiveAnalysisTimeout);
+    }
+    if (window.privacyValidationTimeout) {
+      clearTimeout(window.privacyValidationTimeout);
+    }
+
+    onClose();
+  };
+
+  const resetForm = () => {
+          user_address: userWalletAddress,
+          activity_type: activityType
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (!result.error) {
+        setRewardAmount(amount);
+        setShowTokenReward(true);
+        
+        // Update balance
+        await fetchTokenBalance();
+        
+        // Hide reward notification after 3 seconds
+        setTimeout(() => {
+          setShowTokenReward(false);
+        }, 3000);
+      }
+    } catch (error) {
+      console.error('Error claiming reward:', error);
+    }
+  };
     setTitle("");
     setContent("");
     setTags([]);
     setCurrentTag("");
     setIsPublic(false);
+    setSelectedStates([]);
+    setShareAnonymously(false);
+    setCurrentStateConfig(null);
+    setCognitiveInsights(null);
+    setPrivacyValidation(null);
+    setHybridInsights([]);
     setDueDate("");
     setPriority(TODO_PRIORITIES.MEDIUM);
-    setActiveTab("reflection");
     setUploadProgress(0);
     setUploadStatus("");
-    setUploadingToStoracha(false);
     setUploadError("");
-    setIsOfflineMode(false);
     setUploadCID("");
-    setCognitiveInsights(null);
+    setIsOfflineMode(false);
+    setUploadingToStoracha(false);
     setShowInsights(true);
-
-    // Timeout löschen
-    if (window.cognitiveAnalysisTimeout) {
+  };
       clearTimeout(window.cognitiveAnalysisTimeout);
     }
 
@@ -301,9 +524,17 @@ const NewReflectionModal = ({
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Neue Reflexion erstellen
-          </h2>
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">
+              Neue Reflexion erstellen
+            </h2>
+            {userWalletAddress && (
+              <div className="flex items-center mt-2 text-sm text-gray-600">
+                <CurrencyDollarIcon className="h-4 w-4 mr-1" />
+                <span>{tokenBalance.toFixed(2)} $MEM</span>
+              </div>
+            )}
+          </div>
           <button
             onClick={handleClose}
             className="text-gray-400 hover:text-gray-600 transition"
@@ -311,6 +542,20 @@ const NewReflectionModal = ({
             <XMarkIcon className="w-6 h-6" />
           </button>
         </div>
+
+        {/* Token Reward Notification */}
+        {showTokenReward && (
+          <div className="bg-green-50 border-l-4 border-green-400 p-4 mx-6 mt-4 rounded-r-lg">
+            <div className="flex">
+              <GiftIcon className="h-5 w-5 text-green-400" />
+              <div className="ml-3">
+                <p className="text-sm text-green-700">
+                  🎉 Du hast {rewardAmount} $MEM Token erhalten!
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
@@ -525,8 +770,218 @@ const NewReflectionModal = ({
             </div>
           </div>
 
-          {/* Sichtbarkeit */}
+          {/* Zustandsauswahl (Hybrid Model) */}
           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Heutige Aktivitäten/Zustände
+            </label>
+            
+            {/* Selected States */}
+            {selectedStates.length > 0 && (
+              <div className="mb-3 space-y-2">
+                {selectedStates.map((state) => (
+                  <div key={state.key} className="flex items-center justify-between bg-green-50 border border-green-200 rounded-md p-3">
+                    <div className="flex items-center">
+                      <CheckCircleIcon className="w-4 h-4 text-green-600 mr-2" />
+                      <span className="text-sm font-medium text-green-800">
+                        {state.label || state.key}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeSelectedState(state.key)}
+                      className="text-green-600 hover:text-green-800 text-sm"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Add State Button */}
+            <button
+              type="button"
+              onClick={() => setShowStateSelector(!showStateSelector)}
+              className="inline-flex items-center px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition"
+            >
+              <SparklesIcon className="w-4 h-4 mr-2" />
+              Aktivität hinzufügen
+            </button>
+
+            {/* State Selector */}
+            {showStateSelector && (
+              <div className="mt-3 p-4 bg-gray-50 rounded-lg">
+                <h4 className="text-sm font-medium text-gray-900 mb-3">
+                  Wähle eine Aktivität:
+                </h4>
+                <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+                  {STATES.map((state) => (
+                    <button
+                      key={state.key}
+                      type="button"
+                      onClick={() => handleStateSelection(state)}
+                      disabled={selectedStates.some(s => s.key === state.key)}
+                      className={`text-left p-2 text-xs rounded transition ${
+                        selectedStates.some(s => s.key === state.key)
+                          ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                          : 'bg-white border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50'
+                      }`}
+                    >
+                      {state.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* State Configuration Modal */}
+            {currentStateConfig && (
+              <div className="mt-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 className="text-sm font-medium text-blue-900 mb-3">
+                  Details für "{currentStateConfig.label}":
+                </h4>
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1">
+                        Stimmung vorher
+                      </label>
+                      <select
+                        value={currentStateConfig.moodBefore}
+                        onChange={(e) => setCurrentStateConfig({
+                          ...currentStateConfig,
+                          moodBefore: e.target.value
+                        })}
+                        className="w-full text-xs border border-gray-300 rounded px-2 py-1"
+                      >
+                        <option value="">Optional</option>
+                        {MOOD_OPTIONS.map(mood => (
+                          <option key={mood.value} value={mood.value}>
+                            {mood.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1">
+                        Stimmung nachher
+                      </label>
+                      <select
+                        value={currentStateConfig.moodAfter}
+                        onChange={(e) => setCurrentStateConfig({
+                          ...currentStateConfig,
+                          moodAfter: e.target.value
+                        })}
+                        className="w-full text-xs border border-gray-300 rounded px-2 py-1"
+                      >
+                        <option value="">Optional</option>
+                        {MOOD_OPTIONS.map(mood => (
+                          <option key={mood.value} value={mood.value}>
+                            {mood.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">
+                      Dauer (Minuten)
+                    </label>
+                    <input
+                      type="number"
+                      value={currentStateConfig.duration}
+                      onChange={(e) => setCurrentStateConfig({
+                        ...currentStateConfig,
+                        duration: e.target.value
+                      })}
+                      className="w-full text-xs border border-gray-300 rounded px-2 py-1"
+                      placeholder="z.B. 30"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">
+                      Notizen (optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={currentStateConfig.notes}
+                      onChange={(e) => setCurrentStateConfig({
+                        ...currentStateConfig,
+                        notes: e.target.value
+                      })}
+                      className="w-full text-xs border border-gray-300 rounded px-2 py-1"
+                      placeholder="Zusätzliche Details..."
+                    />
+                  </div>
+                  <div className="flex justify-end space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStateConfig(null)}
+                      className="px-3 py-1 text-xs text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
+                    >
+                      Abbrechen
+                    </button>
+                    <button
+                      type="button"
+                      onClick={addSelectedState}
+                      className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+                    >
+                      Hinzufügen
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Privacy Validation */}
+          {privacyValidation && privacyValidation.piiFound.length > 0 && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+              <div className="flex items-start">
+                <ExclamationTriangleIcon className="w-5 h-5 text-yellow-600 mr-2 mt-0.5" />
+                <div>
+                  <h4 className="text-sm font-medium text-yellow-800">
+                    Datenschutz-Hinweis
+                  </h4>
+                  <p className="text-sm text-yellow-700 mt-1">
+                    Persönliche Informationen erkannt: {privacyValidation.piiFound.map(p => p.type).join(', ')}
+                  </p>
+                  {privacyValidation.recommendations.length > 0 && (
+                    <ul className="text-xs text-yellow-600 mt-2 space-y-1">
+                      {privacyValidation.recommendations.map((rec, i) => (
+                        <li key={i}>• {rec}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Hybrid Insights */}
+          {hybridInsights.length > 0 && (
+            <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
+              <h4 className="text-sm font-medium text-indigo-900 mb-2">
+                💡 Erkenntnisse für dich
+              </h4>
+              <div className="space-y-2">
+                {hybridInsights.slice(0, 3).map((insight, i) => (
+                  <div key={insight.id || i} className="text-sm">
+                    <p className="text-indigo-700">{insight.message}</p>
+                    {insight.confidence && (
+                      <p className="text-xs text-indigo-600">
+                        Vertrauen: {Math.round(insight.confidence * 100)}%
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Sichtbarkeit */}
+          <div className="space-y-3">
             <label className="flex items-center">
               <input
                 type="checkbox"
@@ -535,13 +990,55 @@ const NewReflectionModal = ({
                 className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
               />
               <span className="ml-2 text-sm text-gray-700">
-                Anonym teilen (dezentral auf Storacha speichern)
+                Öffentlich teilen (Storacha)
               </span>
             </label>
+            
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={shareAnonymously}
+                onChange={(e) => setShareAnonymously(e.target.checked)}
+                className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+              />
+              <span className="ml-2 text-sm text-gray-700">
+                Muster anonymisiert teilen 
+                <span className="text-green-600 font-medium">(+10 $MEM)</span>
+              </span>
+            </label>
+            
+            {shareAnonymously && (
+              <div className="bg-green-50 border-l-4 border-green-400 p-3 ml-6">
+                <div className="flex">
+                  <GiftIcon className="h-5 w-5 text-green-400" />
+                  <div className="ml-3">
+                    <p className="text-sm text-green-700">
+                      Du erhältst 10 $MEM Token für das anonyme Teilen deiner Reflexionsmuster.
+                      Deine Identität bleibt dabei vollständig geschützt.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+                onChange={(e) => setShareAnonymously(e.target.checked)}
+                className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+              />
+              <span className="ml-2 text-sm text-gray-700">
+                Anonym teilen (Blockchain + IPFS)
+              </span>
+            </label>
+            
+            {shareAnonymously && (
+              <div className="pl-6 text-xs text-gray-600">
+                <p>✓ Automatische Anonymisierung</p>
+                <p>✓ Nur Zustände und Muster werden geteilt</p>
+                <p>✓ Keine persönlichen Daten</p>
+              </div>
+            )}
+            
             {isPublic && (
               <p className="mt-1 text-xs text-gray-500">
-                Wird verschlüsselt und dezentral gespeichert
-              </p>
+                Wird verschlüsselt und dezentral gespeichert</p>
             )}
           </div>
 

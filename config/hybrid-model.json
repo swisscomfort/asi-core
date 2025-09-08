@@ -1,0 +1,96 @@
+{
+  "hybrid_model": {
+    "enabled": true,
+    "version": "1.0.0",
+    "philosophy": "Lokal. Anonym. Für immer."
+  },
+  "blockchain": {
+    "network": "polygon_mumbai",
+    "rpc_url": "https://rpc-mumbai.maticvigil.com/",
+    "chain_id": 80001,
+    "contract_address": null,
+    "gas_limit_multiplier": 1.2,
+    "auto_fund_threshold": "0.001"
+  },
+  "anonymization": {
+    "enabled": true,
+    "pii_detection": {
+      "names": true,
+      "emails": true,
+      "phones": true,
+      "addresses": true,
+      "dates": true,
+      "custom_patterns": []
+    },
+    "embedding": {
+      "dimensions": 384,
+      "model": "local_simple",
+      "normalize": true
+    },
+    "sentiment": {
+      "enabled": true,
+      "languages": ["de", "en"],
+      "confidence_threshold": 0.5
+    }
+  },
+  "storage": {
+    "local": {
+      "db_name": "ASI_StateTracker",
+      "version": 1,
+      "max_entries": 10000,
+      "auto_cleanup_days": 90
+    },
+    "ipfs": {
+      "enabled": false,
+      "gateway": "https://ipfs.io/ipfs/",
+      "pin_service": null
+    }
+  },
+  "insights": {
+    "enabled": true,
+    "max_insights": 8,
+    "confidence_threshold": 0.6,
+    "update_interval_hours": 6,
+    "types": {
+      "local_patterns": true,
+      "collective_stats": true,
+      "contextual_time": true,
+      "recommendations": true
+    }
+  },
+  "privacy": {
+    "validation_enabled": true,
+    "strict_mode": false,
+    "warn_on_pii": true,
+    "block_on_high_risk": false,
+    "anonymization_required": false
+  },
+  "states": {
+    "default_categories": [
+      "movement",
+      "mindfulness", 
+      "productivity",
+      "health",
+      "social",
+      "learning",
+      "creativity",
+      "wellness"
+    ],
+    "custom_states": [],
+    "mood_tracking": true,
+    "duration_tracking": true
+  },
+  "ui": {
+    "show_privacy_warnings": true,
+    "show_collective_insights": true,
+    "enable_proactive_suggestions": true,
+    "insight_refresh_interval": 300000,
+    "state_selector_categories": true
+  },
+  "development": {
+    "debug_mode": false,
+    "mock_blockchain": false,
+    "log_level": "info",
+    "performance_monitoring": false
+  }
+}

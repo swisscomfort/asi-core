@@ -1,0 +1,46 @@
+# GitHub Copilot Configuration for ASI-Core
+# Pro+ Features: Enterprise-grade AI assistance
+
+# Copilot Chat Settings
+copilot:
+  chat:
+    enabled: true
+    enhanced_context: true
+    workspace_indexing: true
+    
+# Copilot Code Completion
+code_completion:
+  enabled: true
+  suggestions_count: 5
+  multiline_completions: true
+  
+# Security & Privacy
+security:
+  telemetry_disabled: true
+  local_processing: true
+  sensitive_data_filtering: true
+  
+# Custom Instructions for ASI-Core
+instructions: |
+  This is an ASI (Artificial Self-Intelligence) system with:
+  - React/Vite frontend with PWA capabilities
+  - Python backend with AI/ML features
+  - Blockchain integration (Ethereum/Polygon)
+  - IPFS/Arweave decentralized storage
+  - Semantic search and embeddings
+  
+  Code style preferences:
+  - Use TypeScript where possible
+  - Follow React best practices
+  - Implement error boundaries
+  - Use proper state management
+  - Include comprehensive logging
+  - Add unit tests for new features
+  
+# Excluded patterns (sensitive/private data)
+exclude:
+  - "**/*.env*"
+  - "**/secrets.json"
+  - "**/private-keys/**"
+  - "**/node_modules/**"
+  - "**/.git/**"

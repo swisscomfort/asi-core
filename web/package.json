@@ -1,16 +1,39 @@
 {
-  "name": "web",
+  "name": "@swisscomfort/asi-core-pwa",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "ASI-Core Progressive Web Application - Artificial Self-Intelligence System",
+  "keywords": ["asi", "ai", "pwa", "blockchain", "decentralized", "semantic-search"],
+  "author": "SwissComfort <your@email.com>",
+  "license": "MIT",
+  "homepage": "https://swisscomfort.github.io/asi-core/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/swisscomfort/asi-core.git",
+    "directory": "web"
+  },
+  "bugs": {
+    "url": "https://github.com/swisscomfort/asi-core/issues"
+  },
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 5173",
     "build": "vite build",
+    "build:analyze": "vite build --mode analyze",
     "preview": "vite preview --host 0.0.0.0 --port 4173",
     "preview:pwa": "npm run build && npm run preview",
-    "lint": "eslint .",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,md,json}\"",
+    "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,css,md,json}\"",
     "type-check": "tsc --noEmit",
-    "serve": "npx serve dist -p 3000"
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui",
+    "serve": "npx serve dist -p 3000",
+    "pwa:start": "npm run build && npm run preview",
+    "security:audit": "npm audit",
+    "security:fix": "npm audit fix"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

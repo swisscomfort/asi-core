@@ -15,7 +15,12 @@ const DebugPanel = () => {
 
   const checkBackendStatus = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/health", {
+      const apiUrl =
+        process.env.NODE_ENV === "production"
+          ? "https://swisscomfort.github.io/asi-core"
+          : "http://localhost:8000";
+
+      const response = await fetch(`${apiUrl}/api/health`, {
         method: "GET",
         timeout: 5000,
       });
@@ -36,7 +41,12 @@ const DebugPanel = () => {
   const testSearch = async () => {
     try {
       console.log("🧪 Teste Suchfunktion...");
-      const url = new URL("http://localhost:8000/api/search");
+      const apiUrl =
+        process.env.NODE_ENV === "production"
+          ? "https://swisscomfort.github.io/asi-core"
+          : "http://localhost:8000";
+
+      const url = new URL(`${apiUrl}/api/search`);
       url.searchParams.append("q", "test");
       url.searchParams.append("limit", "5");
 

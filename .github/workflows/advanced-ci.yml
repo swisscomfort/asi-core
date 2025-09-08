@@ -1,0 +1,165 @@
+name: "🚀 Advanced CI/CD Pipeline"
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: "20"
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  lint-and-format:
+    name: "📋 Code Quality Check"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: web/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          cd web && npm ci
+          pip install -r requirements.txt
+          pip install black flake8 mypy pytest-cov
+
+      - name: Lint JavaScript/React
+        run: |
+          cd web
+          npm run lint
+          npm run format:check
+
+      - name: Lint Python
+        run: |
+          black --check .
+          flake8 . --max-line-length=88
+          mypy . --ignore-missing-imports
+
+  test-frontend:
+    name: "🧪 Frontend Tests"
+    runs-on: ubuntu-latest
+    needs: lint-and-format
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install dependencies
+        run: cd web && npm ci
+
+      - name: Run tests
+        run: |
+          cd web
+          npm run test:coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          directory: ./web/coverage
+          flags: frontend
+
+  test-backend:
+    name: "🔧 Backend Tests"
+    runs-on: ubuntu-latest
+    needs: lint-and-format
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: asi_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest-cov
+
+      - name: Run tests
+        env:
+          DATABASE_URL: postgresql://postgres:test@localhost/asi_test
+        run: |
+          pytest --cov=asi_core --cov-report=xml tests/
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          flags: backend
+
+  security-scan:
+    name: "🛡️ Security Scan"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=medium
+
+  build-and-deploy:
+    name: "🏗️ Build & Deploy"
+    runs-on: ubuntu-latest
+    needs: [test-frontend, test-backend, security-scan]
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: web/package-lock.json
+
+      - name: Build PWA
+        run: |
+          cd web
+          npm ci
+          npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./web/dist
+          cname: asi-core.yourdomain.com # Optional: Custom domain

@@ -37,7 +37,9 @@ const AISearch = ({ onSearchResults }) => {
         console.error("❌ Fehler bei der semantischen Suche:", error);
         // Zeige eine Benutzerfreundliche Fehlermeldung
         alert(
-          `Suche fehlgeschlagen: ${error.message}\n\nStelle sicher, dass das Backend unter http://localhost:8000 läuft.`
+        const errorMessage = error.message.includes('fetch')
+          ? `Suche fehlgeschlagen: ${error.message}\n\nStelle sicher, dass das Backend verfügbar ist oder arbeite im Offline-Modus.`
+          : `Suche fehlgeschlagen: ${error.message}`;
         );
         onSearchResults([]);
       } finally {

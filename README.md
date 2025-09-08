@@ -1,30 +1,28 @@
-[🌍 Projekt-Webseite](https://swisscomfort.github.io/asi-core-site/) | [📱 Live PWA](https://swisscomfort.github.io/asi-core/)
+[🌍 Live PWA](https://swisscomfort.github.io/asi-core/) | [📖 Dokumentation](./docs/) | [🔗 GitHub Project](https://github.com/users/swisscomfort/projects/1) | [📊 Analytics](https://insights.github.com/swisscomfort/asi-core)
+
+[![CI/CD Status](https://github.com/swisscomfort/asi-core/workflows/Advanced%20CI%2FCD%20Pipeline/badge.svg)](https://github.com/swisscomfort/asi-core/actions)
+[![Security Scan](https://github.com/swisscomfort/asi-core/workflows/Advanced%20Security%20Scan/badge.svg)](https://github.com/swisscomfort/asi-core/actions)
+[![CodeQL](https://github.com/swisscomfort/asi-core/workflows/CodeQL/badge.svg)](https://github.com/swisscomfort/asi-core/security/code-scanning)
+[![PWA Status](https://img.shields.io/badge/PWA-Ready-green)](https://swisscomfort.github.io/asi-core/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # 🧠 ASI-Core: Artificial Self-Intelligence System
 
-Ein lebenslanges, dezentrales, anonymes digitales Gedächtnis.
+> **Professionelles, lebenslanges, dezentrales digitales Gedächtnis**  
+> Entwickelt mit GitHub Pro+ Features und Enterprise-Standards
 
-## 🚀 Live PWA
+## 🚀 Live System
 
-> **⏳ PWA-Deployment vorbereitet**  
-> Die PWA ist vollständig konfiguriert und wartet auf GitHub Pro Upgrade für private GitHub Pages.
+**[📱 ASI-Core PWA](https://swisscomfort.github.io/asi-core/)**
 
-**Nach GitHub Pro Upgrade verfügbar unter:**  
-**[📱 ASI Core PWA](https://swisscomfort.github.io/asi-core/)**
+### ✨ Enterprise Features:
 
-### 📱 PWA Features (bereit):
-
-- ✅ **Installierbar** als native App (PWA)
-- ✅ **Offline-First** - funktioniert ohne Internet
-- ✅ **Auto-Updates** - immer die neueste Version
-- ✅ **Responsiv** - optimiert für alle Geräte
-- ✅ **Automatisches Deployment** bei jedem Update
-
-### 🔧 GitHub Pro Upgrade:
-
-- 💎 **GitHub Pro:** $4/Monat für private GitHub Pages
-- 🔗 **Upgrade:** [github.com/settings/billing/plans](https://github.com/settings/billing/plans)
-- ⚡ **Sofort verfügbar** nach Upgrade - alle Workflows sind bereit!
+- 🏢 **GitHub Pro+ Integration** - Vollständige Nutzung aller Premium-Features
+- 🛡️ **Advanced Security** - CodeQL, Dependency Review, Secret Scanning
+- 🔄 **Professional CI/CD** - Automatisierte Tests, Code Quality, Deployment
+- 📊 **Project Management** - GitHub Projects, Milestones, Issue Templates
+- 🤖 **GitHub Copilot** - Enterprise AI-Assistenz mit Custom Instructions
+- 📈 **Analytics & Insights** - Detaillierte Projekt-Metriken
 
 ## 📋 Übersicht
 

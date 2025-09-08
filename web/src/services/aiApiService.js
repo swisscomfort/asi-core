@@ -1,9 +1,11 @@
 // API Service für ASI Core KI-Funktionen
 import { ethers } from "ethers";
+import { OfflineService } from "./offlineService";
+import { localStorageService } from "./localStorage";
 
 const API_BASE_URL =
   process.env.NODE_ENV === "production"
-    ? "https://your-api-domain.com"
+    ? "https://swisscomfort.github.io/asi-core"
     : "http://localhost:8000";
 
 const MEMORY_INDEX_ABI = [
@@ -50,10 +52,14 @@ class AIApiService {
       return result;
     } catch (error) {
       console.error("❌ Semantic search error:", error);
-      if (error.name === "TypeError" && error.message.includes("fetch")) {
-        console.error(`🚨 Backend nicht erreichbar unter: ${API_BASE_URL}`);
-      }
-      throw error;
+      
+      // Offline-Fallback
+      console.log("🔄 Aktiviere Offline-Suche...");
+      const localReflections = await localStorageService.getReflections();
+      const localTodos = await localStorageService.getTodos();
+      const allLocalData = [...localReflections, ...localTodos];
+      
+      return await OfflineService.fallbackSearch(query, allLocalData);
     }
   }
 
@@ -77,8 +83,9 @@ class AIApiService {
       console.error("Content analysis error:", error);
       // Fallback für lokale Analyse
       return {
-        suggested_tags: this.extractLocalTags(content),
-        suggestions: [],
+        suggested_tags: OfflineService.extractSimpleTags(content),
+        suggestions: ["Tag-Vorschläge nur im Online-Modus verfügbar"],
+        source: "offline"
       };
     }
   }

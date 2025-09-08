@@ -1,0 +1,130 @@
+name: ✨ Feature Request
+description: Schlage ein neues Feature für ASI-Core vor
+title: "[FEATURE] "
+labels: ["enhancement", "needs-discussion"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ✨ **Feature Request für ASI-Core**
+        Schlage neue Funktionen vor, die das ASI-System verbessern!
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Vorab-Checkliste
+      description: Bitte bestätige folgende Punkte
+      options:
+        - label: Ich habe geprüft, dass dieses Feature noch nicht existiert
+          required: true
+        - label: Ich habe nach ähnlichen Feature Requests gesucht
+          required: true
+        - label: Dieses Feature passt zur ASI-Core Vision
+          required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Feature-Kategorie
+      description: In welchen Bereich fällt das neue Feature?
+      options:
+        - 🧠 AI/Machine Learning
+        - 🔗 Blockchain Integration
+        - 💾 Storage & Data Management
+        - 🔍 Search & Discovery
+        - 🎨 User Interface/UX
+        - 🔐 Security & Privacy
+        - 📱 Mobile/PWA Features
+        - 🔧 Developer Tools
+        - 📊 Analytics & Insights
+        - 🌐 Integration/API
+        - 📈 Performance
+        - 🎯 Anderes
+      default: 0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priorität
+      description: Wie wichtig ist dieses Feature?
+      options:
+        - 🔴 Hoch - Essentiell für Kernfunktionalität
+        - 🟡 Mittel - Würde Nutzererfahrung deutlich verbessern
+        - 🟢 Niedrig - Nice-to-have Feature
+      default: 1
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem/Bedarf
+      description: Welches Problem löst dieses Feature?
+      placeholder: |
+        - Was ist der aktuelle Zustand?
+        - Welche Herausforderung/Problem existiert?
+        - Wer wäre von diesem Feature betroffen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Lösungsvorschlag
+      description: Wie stellst du dir die Lösung vor?
+      placeholder: |
+        - Wie sollte das Feature funktionieren?
+        - Welche Interaktionen sind nötig?
+        - Gibt es spezielle Anforderungen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: benefits
+    attributes:
+      label: Vorteile & Impact
+      description: Welche Vorteile bringt dieses Feature?
+      placeholder: |
+        - Verbesserte Nutzererfahrung
+        - Neue Anwendungsfälle
+        - Performance-Verbesserungen
+        - Sicherheitsvorteile
+        - etc.
+    validations:
+      required: true
+
+  - type: textarea
+    id: technical
+    attributes:
+      label: Technische Überlegungen
+      description: Technische Aspekte und Implementierungsdetails
+      placeholder: |
+        - Welche Technologien könnten verwendet werden?
+        - Gibt es Dependencies?
+        - Mögliche Herausforderungen?
+        - Breaking Changes?
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativen
+      description: Hast du alternative Lösungsansätze betrachtet?
+      placeholder: |
+        - Andere Implementierungsansätze
+        - Bestehende Tools/Services
+        - Workarounds
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Zusätzliche Informationen
+      description: Weitere relevante Informationen
+      placeholder: |
+        - Mockups/Wireframes
+        - Links zu ähnlichen Implementierungen
+        - Beispielcode
+        - Screenshots
