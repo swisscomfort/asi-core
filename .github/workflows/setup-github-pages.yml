@@ -1,0 +1,64 @@
+name: "🔧 GitHub Pages Setup Helper"
+
+on:
+  workflow_dispatch:
+    inputs:
+      setup_pages:
+        description: 'Setup GitHub Pages'
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  setup-pages:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: web/package-lock.json
+
+      - name: 🔧 Install Dependencies
+        run: |
+          cd web
+          npm ci
+
+      - name: 🏗️ Build PWA
+        run: |
+          cd web
+          npm run build
+          echo "🚀 Build completed successfully!"
+
+      - name: ⚙️ Configure GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: 📤 Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+      - name: 🚀 Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: ✅ Setup Complete
+        run: |
+          echo "🎉 GitHub Pages setup completed!"
+          echo "🌐 Your PWA should be available at:"
+          echo "https://swisscomfort.github.io/asi-core/"
+          echo ""
+          echo "📋 If you see a 404, please:"
+          echo "1. Go to Repository Settings → Pages"
+          echo "2. Ensure Source is set to 'GitHub Actions'"
+          echo "3. Wait a few minutes for DNS propagation"
