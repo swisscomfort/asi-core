@@ -2,14 +2,14 @@ name: Deploy PWA to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
-    paths: 
-      - 'web/**'
-      - '.github/workflows/deploy-pwa.yml'
+    branches: [main]
+    paths:
+      - "web/**"
+      - ".github/workflows/deploy-pwa.yml"
   workflow_dispatch:
-  
+
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: "20"
 
 permissions:
   contents: read
@@ -23,43 +23,43 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: 📥 Checkout Repository
-      uses: actions/checkout@v4
-      
-    - name: 📦 Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-        cache-dependency-path: web/package-lock.json
-        
-    - name: 🔧 Install Dependencies
-      run: |
-        cd web
-        npm ci --prefer-offline --no-audit
-        
-    - name: 🏗️ Build PWA
-      run: |
-        cd web
-        npm run build
-        echo "🚀 PWA Build completed successfully!"
-        
-    - name: 📋 Build Summary
-      run: |
-        cd web/dist
-        echo "📊 Build Output:"
-        du -sh *
-        echo "📱 PWA Features: ✅ Installable ✅ Offline ✅ Auto-Update"
-        
-    - name: ⚙️ Setup GitHub Pages
-      uses: actions/configure-pages@v4
-      
-    - name: 📤 Upload Build Artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: web/dist
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: web/package-lock.json
+
+      - name: 🔧 Install Dependencies
+        run: |
+          cd web
+          npm ci --prefer-offline --no-audit
+
+      - name: 🏗️ Build PWA
+        run: |
+          cd web
+          npm run build
+          echo "🚀 PWA Build completed successfully!"
+
+      - name: 📋 Build Summary
+        run: |
+          cd web/dist
+          echo "📊 Build Output:"
+          du -sh *
+          echo "📱 PWA Features: ✅ Installable ✅ Offline ✅ Auto-Update"
+
+      - name: ⚙️ Setup GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: 📤 Upload Build Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
 
   deploy:
     environment:
@@ -67,14 +67,14 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
-    
+
     steps:
-    - name: 🚀 Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
-      
-    - name: ✅ Deployment Success
-      run: |
-        echo "🎉 PWA erfolgreich deployed!"
-        echo "🌐 Live URL: ${{ steps.deployment.outputs.page_url }}"
-        echo "📱 Die PWA kann jetzt installiert werden!"
+      - name: 🚀 Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: ✅ Deployment Success
+        run: |
+          echo "🎉 PWA erfolgreich deployed!"
+          echo "🌐 Live URL: ${{ steps.deployment.outputs.page_url }}"
+          echo "📱 Die PWA kann jetzt installiert werden!"

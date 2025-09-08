@@ -3,49 +3,49 @@ name: 📊 PWA Status Check
 on:
   schedule:
     # Jeden Tag um 6:00 UTC prüfen
-    - cron: '0 6 * * *'
+    - cron: "0 6 * * *"
   workflow_dispatch:
 
 jobs:
   check-pwa-status:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: 🔍 Check PWA Availability
-      run: |
-        PWA_URL="https://${{ github.repository_owner }}.github.io/asi-core/"
-        
-        echo "🌐 Prüfe PWA-Status: $PWA_URL"
-        
-        # HTTP Status prüfen
-        if curl -f -s -o /dev/null "$PWA_URL"; then
-          echo "✅ PWA ist online und erreichbar!"
-          
-          # Service Worker prüfen
-          if curl -f -s "$PWA_URL/sw.js" > /dev/null; then
-            echo "✅ Service Worker verfügbar"
+      - name: 🔍 Check PWA Availability
+        run: |
+          PWA_URL="https://${{ github.repository_owner }}.github.io/asi-core/"
+
+          echo "🌐 Prüfe PWA-Status: $PWA_URL"
+
+          # HTTP Status prüfen
+          if curl -f -s -o /dev/null "$PWA_URL"; then
+            echo "✅ PWA ist online und erreichbar!"
+            
+            # Service Worker prüfen
+            if curl -f -s "$PWA_URL/sw.js" > /dev/null; then
+              echo "✅ Service Worker verfügbar"
+            else
+              echo "⚠️ Service Worker nicht gefunden"
+            fi
+            
+            # Manifest prüfen
+            if curl -f -s "$PWA_URL/manifest.json" > /dev/null; then
+              echo "✅ PWA Manifest verfügbar"
+            else
+              echo "⚠️ PWA Manifest nicht gefunden"
+            fi
+            
           else
-            echo "⚠️ Service Worker nicht gefunden"
+            echo "❌ PWA ist nicht erreichbar!"
+            echo "🔧 Mögliche Ursachen:"
+            echo "   - GitHub Pages nicht aktiviert"
+            echo "   - Deployment-Fehler"
+            echo "   - Build-Probleme"
+            exit 1
           fi
-          
-          # Manifest prüfen
-          if curl -f -s "$PWA_URL/manifest.json" > /dev/null; then
-            echo "✅ PWA Manifest verfügbar"
-          else
-            echo "⚠️ PWA Manifest nicht gefunden"
-          fi
-          
-        else
-          echo "❌ PWA ist nicht erreichbar!"
-          echo "🔧 Mögliche Ursachen:"
-          echo "   - GitHub Pages nicht aktiviert"
-          echo "   - Deployment-Fehler"
-          echo "   - Build-Probleme"
-          exit 1
-        fi
-        
-    - name: 📈 Performance Check
-      run: |
-        echo "📊 Basic Performance Check..."
-        time curl -s "https://${{ github.repository_owner }}.github.io/asi-core/" > /dev/null
-        echo "✅ Ladezeit-Check abgeschlossen"
+
+      - name: 📈 Performance Check
+        run: |
+          echo "📊 Basic Performance Check..."
+          time curl -s "https://${{ github.repository_owner }}.github.io/asi-core/" > /dev/null
+          echo "✅ Ladezeit-Check abgeschlossen"

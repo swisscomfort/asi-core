@@ -1,4 +1,3 @@
-
 [🌍 Projekt-Webseite](https://swisscomfort.github.io/asi-core-site/) | [📱 Live PWA](https://swisscomfort.github.io/asi-core/)
 
 # 🧠 ASI-Core: Artificial Self-Intelligence System
@@ -7,12 +6,25 @@ Ein lebenslanges, dezentrales, anonymes digitales Gedächtnis.
 
 ## 🚀 Live PWA
 
-**[📱 ASI Core PWA öffnen](https://swisscomfort.github.io/asi-core/)**
+> **⏳ PWA-Deployment vorbereitet**  
+> Die PWA ist vollständig konfiguriert und wartet auf GitHub Pro Upgrade für private GitHub Pages.
+
+**Nach GitHub Pro Upgrade verfügbar unter:**  
+**[📱 ASI Core PWA](https://swisscomfort.github.io/asi-core/)**
+
+### 📱 PWA Features (bereit):
 
 - ✅ **Installierbar** als native App (PWA)
 - ✅ **Offline-First** - funktioniert ohne Internet
 - ✅ **Auto-Updates** - immer die neueste Version
 - ✅ **Responsiv** - optimiert für alle Geräte
+- ✅ **Automatisches Deployment** bei jedem Update
+
+### 🔧 GitHub Pro Upgrade:
+
+- 💎 **GitHub Pro:** $4/Monat für private GitHub Pages
+- 🔗 **Upgrade:** [github.com/settings/billing/plans](https://github.com/settings/billing/plans)
+- ⚡ **Sofort verfügbar** nach Upgrade - alle Workflows sind bereit!
 
 ## 📋 Übersicht
 

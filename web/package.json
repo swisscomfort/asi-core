@@ -4,11 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0 --port 5173",
     "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 4173",
+    "preview:pwa": "npm run build && npm run preview",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "serve": "npx serve dist -p 3000"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
