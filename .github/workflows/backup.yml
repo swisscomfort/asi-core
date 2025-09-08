@@ -45,7 +45,7 @@ jobs:
         run: |
           DATE=$(date +%Y%m%d-%H%M%S)
           echo "🔄 Creating backup archive..."
-          tar -czf "asi-backup-${DATE}.tar.gz" \
+          tar --warning=no-file-changed --ignore-failed-read -czf "asi-backup-${DATE}.tar.gz" \
             --exclude='.git' \
             --exclude='__pycache__' \
             --exclude='venv' \
