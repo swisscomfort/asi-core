@@ -7,15 +7,18 @@ Obwohl alle Workflows erfolgreich laufen, ist GitHub Pages noch nicht konfigurie
 ## ✅ **Lösung:** Manuelle Aktivierung in 3 einfachen Schritten
 
 ### **Schritt 1: Repository Settings öffnen**
+
 ```
 https://github.com/swisscomfort/asi-core/settings/pages
 ```
 
 ### **Schritt 2: Pages Source konfigurieren**
+
 - **Source:** "GitHub Actions" auswählen
 - **Nicht** "Deploy from a branch" verwenden
 
 ### **Schritt 3: Speichern und warten**
+
 - Klicken Sie "Save"
 - Warten Sie 2-3 Minuten für DNS-Propagation
 
@@ -33,7 +36,7 @@ Falls die Settings-Methode nicht funktioniert:
 ✅ PWA wird automatisch deployed  
 ✅ Service Worker wird aktiviert  
 ✅ Manifest wird konfiguriert  
-✅ Offline-Funktionalität wird enabled  
+✅ Offline-Funktionalität wird enabled
 
 ## 🌐 **Erwartetes Ergebnis:**
 

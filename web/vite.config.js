@@ -3,8 +3,8 @@ import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
-  base: process.env.NODE_ENV === "production" ? "/asi-core/" : "/",
-  
+  base: process.env.NODE_ENV === "production" ? "/" : "/",
+
   plugins: [
     react(),
     VitePWA({
@@ -20,8 +20,8 @@ export default defineConfig({
         theme_color: "#1e40af",
         background_color: "#ffffff",
         display: "standalone",
-        scope: "/asi-core/",
-        start_url: "/asi-core/",
+        scope: "/",
+        start_url: "/",
         icons: [
           {
             src: "icon-192.png",

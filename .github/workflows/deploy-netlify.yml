@@ -1,0 +1,58 @@
+name: "🚀 Deploy to Netlify"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "web/**"
+      - ".github/workflows/deploy-netlify.yml"
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: web/package-lock.json
+
+      - name: 🔧 Install Dependencies
+        run: |
+          cd web
+          npm ci --prefer-offline --no-audit
+
+      - name: 🏗️ Build PWA
+        run: |
+          cd web
+          npm run build
+          echo "🚀 PWA Build completed successfully!"
+
+      - name: 🌐 Deploy to Netlify
+        uses: nwtgck/actions-netlify@v3.0
+        with:
+          publish-dir: "./web/dist"
+          production-branch: main
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deploy from GitHub Actions"
+          enable-pull-request-comment: false
+          enable-commit-comment: true
+          overwrites-pull-request-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+      - name: ✅ Deployment Complete
+        run: |
+          echo "🎉 PWA successfully deployed to Netlify!"
+          echo "🌐 Your app will be available at your Netlify URL"
+          echo "📱 PWA Features: ✅ Installable ✅ Offline ✅ Auto-Update"
