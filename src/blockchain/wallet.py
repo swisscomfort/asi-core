@@ -8,9 +8,18 @@ import hmac
 import json
 import os
 import secrets
-from typing import Dict, Optional
+from typing import Dict, Optional, NamedTuple
 
 from flask import Blueprint, jsonify, request
+
+
+class WalletInfo(NamedTuple):
+    """Wallet-Informationen"""
+    address: str
+    balance_eth: str
+    balance_matic: str
+    public_key: str
+    is_unlocked: bool
 
 
 class LocalWallet:
