@@ -1,0 +1,63 @@
+name: "📚 Documentation Build"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "*.md"
+      - ".github/workflows/docs.yml"
+  workflow_dispatch:
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📚 Setup Documentation Build
+        run: |
+          echo "📖 Building Documentation..."
+          mkdir -p docs/generated
+
+      - name: 📋 Generate Documentation Index
+        run: |
+          cat > docs/generated/index.md << 'EOF'
+          # 📚 ASI-Core Documentation
+
+          ## 🚀 Quick Start
+          - [README](../README.md)
+          - [System Documentation](../ASI_System_Dokumentation.md)
+          - [Implementation Summary](../IMPLEMENTATION_SUMMARY.md)
+
+          ## 🏢 GitHub Pro+ Features
+          - [GitHub Pro Implementation](../GITHUB_PRO_IMPLEMENTATION.md)
+          - [Deployment Guide](../DEPLOYMENT_READY.md)
+
+          ## 🔗 Blockchain & Storage
+          - [Blockchain Integration](../BLOCKCHAIN_README.md)
+          - [Decentralized Storage](../DECENTRALIZED_STORAGE.md)
+          - [Memory Token](../MEM_TOKEN_DEPLOYMENT.md)
+
+          ## 🧪 Development
+          - [Hybrid Model](../HYBRID_MODEL_INTEGRATION.md)
+          - [Test Protocol](../TESTPROTOKOLL_HYBRID_MODELL.md)
+          - [HRM Implementation](../HRM_IMPLEMENTATION_OVERVIEW.md)
+
+          ## 📈 Project Management
+          - [Roadmap](../PERFECTION_ROADMAP.md)
+          - [Presentation Checklist](../PRESENTATION_CHECKLIST.md)
+
+          ---
+
+          *Generated automatically by GitHub Actions*
+          EOF
+
+      - name: ✅ Documentation Build Complete
+        run: |
+          echo "📚 Documentation successfully generated!"
+          echo "📄 Files created:"
+          ls -la docs/generated/
+          echo "✅ Documentation build completed successfully!"
