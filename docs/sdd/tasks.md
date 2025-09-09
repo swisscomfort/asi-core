@@ -92,11 +92,13 @@
   - **Implementation**: `docs/studienführer/sektion-01-uebersicht.md`
   - **Status**: ✅ Delivered 2025-09-09 - Full 3-page documentation with comprehensive coverage of all three core principles
 
-- **T-002**: `/new_feature System Architecture Overview` (P1, M, spec)
+- **T-002**: `/new_feature System Architecture Overview` (P1, M, spec) ✅ **COMPLETED**
   - **DoD**: Section II complete with component descriptions and hybrid model
   - **Estimate**: 1h
-  - **Label**: spec
+  - **Label**: spec, implemented
   - **Traceability**: FR-001, FR-008
+  - **Implementation**: `docs/studienführer/sektion-02-architektur.md`
+  - **Status**: ✅ Delivered 2025-09-09 - Comprehensive architecture documentation with Mermaid diagrams and component details
 
 #### Feature 1.2: Token Economy & Economic Model (F-002)
 **WHAT**: Detailed documentation of $MEM token economics and sustainability mechanisms  
@@ -378,8 +380,8 @@
 | FR-004 | System MUST include detailed answer keys | F-005 | T-007 |
 | FR-005 | Study guide MUST contain 5 essay questions | F-006 | T-008a, T-008b, T-008c |
 | FR-006 | Documentation MUST include comprehensive glossary | F-007 | T-009a, T-009b, T-010a, T-010b |
-| FR-007 | Content MUST explain three core principles | F-001 | T-001 |
-| FR-008 | Study guide MUST detail hybrid model architecture | F-001 | T-002 |
+| FR-007 | Content MUST explain three core principles | F-001 | T-001 ✅ |
+| FR-008 | Study guide MUST detail hybrid model architecture | F-001 | T-002 ✅ |
 | FR-009 | Documentation MUST explain $MEM token economics | F-002 | T-003 |
 | FR-010 | Content MUST cover all four storage strategies | F-004 | T-005a, T-005b, T-005c |
 | FR-011 | Study guide MUST explain pattern recognition mechanisms | [NEEDS CLARIFICATION: Missing feature mapping] | - |

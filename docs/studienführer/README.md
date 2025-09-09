@@ -17,12 +17,12 @@ Dieser Ordner enthält den umfassenden Studienführer für das ASI Core System, 
    - Systemumfang und Zielgruppen
    - **Status**: ✅ Vollständig implementiert (3 Seiten)
 
-### 🚧 Geplante Sektionen
+2. **[Sektion II - Systemarchitektur](sektion-02-architektur.md)** (FR-001, FR-008)
+   - Hybrid-Model-Architektur mit Mermaid-Diagrammen
+   - Hauptkomponenten und Datenflüsse
+   - **Status**: ✅ Vollständig implementiert (4 Seiten)
 
-2. **Sektion II - Systemarchitektur** (FR-001, FR-008)
-   - Hybrid-Model-Architektur
-   - Komponenteninteraktionen
-   - **Status**: 🚧 In Planung
+### 🚧 Geplante Sektionen
 
 3. **Sektion III - Token-Ökonomie** (FR-009)
    - $MEM Token-Spezifikationen
@@ -68,7 +68,7 @@ Dieser Ordner enthält den umfassenden Studienführer für das ASI Core System, 
 | Sektion | Functional Requirements | Status | Datei |
 |---------|------------------------|--------|-------|
 | I | FR-007, FR-002, FR-014 | ✅ | `sektion-01-uebersicht.md` |
-| II | FR-001, FR-008, FR-002 | 🚧 | - |
+| II | FR-001, FR-008, FR-002 | ✅ | `sektion-02-architektur.md` |
 | III | FR-009, FR-002 | 🚧 | - |
 | IV | FR-013, FR-002 | 🚧 | - |
 | V | FR-010, FR-002 | 🚧 | - |
@@ -105,7 +105,7 @@ Dieser Ordner enthält den umfassenden Studienführer für das ASI Core System, 
 ## Nächste Schritte
 
 1. ✅ **Commit und PR** für Sektion I
-2. 🚧 **Sektion II** - Systemarchitektur (FR-001, FR-008)
+2. ✅ **Sektion II** - Systemarchitektur (FR-001, FR-008)
 3. 🚧 **Sektion III** - Token-Ökonomie (FR-009)
 4. 🚧 **Quiz-System** entwickeln (FR-003, FR-004)
 
