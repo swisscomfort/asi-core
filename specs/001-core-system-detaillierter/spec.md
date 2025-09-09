@@ -168,5 +168,5 @@ The study guide covers the complete ASI Core System ecosystem including:
 | FR-007 | ✅ | Sektion I – Kernprinzipien "Lokal. Anonym. Für immer." |
 | FR-008 | ✅ | Sektion II – Hybrid-Architektur detailliert |
 | FR-009 | ✅ | Sektion III – Token-Ökonomie ($MEM) |
-| **FR-013** | ✅ | **Sektion IV – Datenschutz & Anonymisierung** |
+| **FR-013** | ✅ | **Sektion IV – Datenschutz & Anonymisierung** (Enhanced: Policies+Mechanismen+K-Anonymität k≥5+Datenklassen-Matrix+6 QA-Gates+Code-Beispiele) |
 
