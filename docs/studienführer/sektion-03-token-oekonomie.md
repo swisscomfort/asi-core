@@ -460,3 +460,63 @@ Nach Abschluss dieser Sektion verstehen Sie die wirtschaftlichen Grundlagen des 
 3. **Praktische Übung**: Berechnung eigener Contribution-Scores und Reward-Projektionen
 
 **Selbsttest**: Können Sie den Unterschied zwischen Emission und Burn erklären, eine Reward-Berechnung für einen hypothetischen Node durchführen und mindestens drei Anti-Missbrauch-Mechanismen benennen?
+## Parameter & Defaults (vorschlagsweise, per Governance änderbar)
+| Name                         | Symbol       | Beschreibung                                        | Einheit       | Default (Vorschlag) | Range/Notizen                                 |
+|-----------------------------|--------------|-----------------------------------------------------|---------------|---------------------|-----------------------------------------------|
+| Initial Supply              | `SUPPLY_0`   | Startmenge                                          | MEM           | 0 (oder fix)        | Falls gesetzt: capped                         |
+| Emission initial/epoch      | `EMISS_0`    | Start-Emission pro Epoche                           | MEM/Epoch     | 10 000              |                                              |
+| Halving-Intervall           | `H`          | Epochen bis Halbierung                              | Epoch         | 365                 | `EMISS_t = EMISS_0 * 0.5^{⌊t/H⌋}`             |
+| Emission aktuell            | `EMISS_t`    | Emission in Epoche *t*                              | MEM/Epoch     | abgeleitet          | Formel oben                                   |
+| Allokation Contributor      | `α_contrib`  | Anteil Emission an Contributor-Rewards              | –             | 0.80                | `0..1`                                        |
+| Allokation Dev-Fonds        | `α_dev`      | Anteil Emission an Entwicklung                      | –             | 0.15                | `0..1`                                        |
+| Allokation Reserve          | `α_res`      | Anteil Emission an Reserve                          | –             | 0.05                | `0..1`, Summe = 1                             |
+| Burn-on-Use                 | `β_burn`     | Anteil einer Nutzung, der vernichtet wird           | –             | 0.01 (1 %)          | `0..0.1`                                      |
+| Fee-Burn-Anteil             | `β_fee`      | Anteil der Gebühren, der verbrannt wird             | –             | 0.50                | `0..1`                                        |
+| Slashing-Anteil             | `β_slash`    | Anteil bei Täuschung (vom betroffenen Betrag)       | –             | 0.50                | `0..1`                                        |
+| Basisgebühr                 | `fee_base`   | Fixe Gebühr pro Tx                                  | MEM           | 0.10                | ≥0                                            |
+| Prozentuale Gebühr          | `fee_pct`    | Variable Gebühr je Tx                               | –             | 0.002 (0.2 %)       | ≥0                                            |
+| Qualitätsfaktor             | `q_i`        | Vertrauens-/Qualitätsgewicht                        | –             | 0.90                | `[0,1]`                                       |
+| Reward-Cap pro Node         | `cap_epoch`  | Limit pro Epoche je Node (vom α_contrib-Topf)       | –             | 0.02 (2 %)          | Anteil von `α_contrib * EMISS_t`              |
+| Minimale Ausschüttung       | `reward_min` | Kleinste Auszahlung zur Aggregationsvermeidung      | MEM           | 0.01                | ≥0                                            |
+
+> Hinweis: Konkrete Defaults sind **Dokument-Vorschläge**. Verbindlich werden sie in `spec.md` festgelegt.
+
+## Beispielrechnungen
+
+### Beispiel #1 – User-Reward (eine Epoche)
+Gegeben: `EMISS_t = 8 000`, `α_contrib = 0.80`, Gesamtsumme Scores `Σ score = 400`.  
+Node *i*: `norm(work_i)=6`, `q_i=0.9` ⇒ `score_i = 5.4`.  
+**Reward:**
+```
+
+reward\_i = α\_contrib \* EMISS\_t \* score\_i / Σ score
+\= 0.80 \* 8 000 \* 5.4 / 400
+\= 86.4 MEM
+
+```
+**Cap-Prüfung:** `cap_epoch = 0.02 * (0.80 * 8 000) = 128 MEM` ⇒ 86.4 < 128, kein Cap.  
+**Nutzung:** Ausgabe `50 MEM`, `β_burn=1%`, `fee_base=0.10`, `fee_pct=0.2%`, `β_fee=50%`.
+- Burn-on-Use: `0.01 * 50 = 0.50 MEM`
+- Gebühr: `0.10 + (0.002 * 50) = 0.20 MEM` → Burn-Anteil: `0.5 * 0.20 = 0.10 MEM`
+- **Wallet nach Tx:** `86.4 - (50 + 0.20) = 36.2 MEM`
+- **Gesamt-Burn dieser Tx:** `0.50 + 0.10 = 0.60 MEM`
+
+### Beispiel #2 – Deflations-Impact (eine Epoche)
+Gegeben: `EMISS_0 = 10 000`, `H=365`, Epoche `t=730` ⇒ `EMISS_t = 10 000 * 0.5^{⌊730/365⌋} = 2 500 MEM`.
+Aggregierte Burns/Slashes/Fees in der Epoche:
+- Burn-on-Use (Netzwerkvolumen `20 000 MEM`, `β_burn=1%`): `BURN_t = 200 MEM`
+- Gebühren gesamt `150 MEM`, `β_fee=50%` ⇒ `FEE_BURN_t = 75 MEM`
+- Slashing-Fälle: `SLASH_t = 10 MEM`
+
+**Netto-Angebotsänderung:**
+```
+
+ΔSUPPLY\_t = + EMISS\_t − (BURN\_t + FEE\_BURN\_t + SLASH\_t)
+\= 2 500 − (200 + 75 + 10)
+\= +2 260 MEM
+
+```
+**High-Burn-Szenario (Vergleich):** `β_burn=3%`, Volumen `50 000 MEM`, Gebühren-Burn `75 MEM`, Slashing `25 MEM`  
+⇒ Gesamtburn `1 600 MEM` ⇒ `ΔSUPPLY_t = 2 500 − 1 600 = +900 MEM`.  
+**Neutralitäts-Schwelle** (nur Burn-on-Use betrachtet): `Volumen ≥ EMISS_t / β_burn`.  
+Bei `EMISS_t=2 500`, `β_burn=1%` ⇒ `≥ 250 000 MEM`/Epoche.
