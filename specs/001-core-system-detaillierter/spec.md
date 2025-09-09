@@ -155,3 +155,17 @@ The study guide covers the complete ASI Core System ecosystem including:
 
 **Traceability:** FR-009 ✅ · Quelle: *Sektion III – Token-Ökonomie ($MEM)*.
 
+---
+
+## Traceability Matrix
+
+| Functional Requirement | Status | Quelle/Implementation |
+|------------------------|--------|-----------------------|
+| FR-001 | ✅ | Sektionen I–III vollständig implementiert |
+| FR-002 | ✅ | Lernziele in allen Sektionen definiert |
+| **FR-003** | ✅ | **docs/studienführer/assessment-quiz.md** |
+| **FR-004** | ✅ | **docs/studienführer/assessment-quiz.md** |
+| FR-007 | ✅ | Sektion I – Kernprinzipien "Lokal. Anonym. Für immer." |
+| FR-008 | ✅ | Sektion II – Hybrid-Architektur detailliert |
+| FR-009 | ✅ | Sektion III – Token-Ökonomie ($MEM) |
+
