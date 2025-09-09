@@ -136,3 +136,22 @@ The study guide covers the complete ASI Core System ecosystem including:
 - **Developers**: Understanding the architecture for potential contributions
 - **Educators**: Teaching advanced concepts in decentralized computing
 - **Stakeholders**: Evaluating the system's capabilities and potential
+
+## Globale Parameter – Token-Ökonomie ($MEM) *(Kurzfassung, referenziert Sektion III)*
+
+| Param                     | Symbol       | Default (Vorschlag) | Einheit    | Zweck/Notizen                                      |
+|---------------------------|--------------|---------------------|-----------:|----------------------------------------------------|
+| Initial Supply            | `SUPPLY_0`   | 0 (oder fix/cap)    | MEM        | Startmenge; falls ≠0, dann gedeckelt               |
+| Emission initial/epoch    | `EMISS_0`    | 10 000              | MEM/Epoch  | Startemission                                      |
+| Halving-Intervall         | `H`          | 365                 | Epoch      | `EMISS_t = EMISS_0 * 0.5^{⌊t/H⌋}`                  |
+| Allokation Contributor    | `α_contrib`  | 0.80                | –          | Anteil Emission an Rewards                         |
+| Allokation Dev-Fonds      | `α_dev`      | 0.15                | –          | Anteil Emission an Entwicklung                     |
+| Allokation Reserve        | `α_res`      | 0.05                | –          | Reserve; Summe = 1                                 |
+| Burn-on-Use               | `β_burn`     | 0.01                | –          | Anteil je Nutzung wird verbrannt                   |
+| Fee-Burn-Anteil           | `β_fee`      | 0.50                | –          | Anteil von Gebühren, der verbrannt wird            |
+| Basisgebühr               | `fee_base`   | 0.10                | MEM        | Fixe Tx-Gebühr                                     |
+| Prozentuale Gebühr        | `fee_pct`    | 0.002               | –          | Variable Tx-Gebühr (0.2 %)                         |
+| Reward-Cap je Node        | `cap_epoch`  | 0.02                | –          | Anteil vom `α_contrib * EMISS_t` pro Epoche        |
+
+**Traceability:** FR-009 ✅ · Quelle: *Sektion III – Token-Ökonomie ($MEM)*.
+
