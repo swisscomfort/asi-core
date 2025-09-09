@@ -1,0 +1,305 @@
+{
+  "file_mappings": {
+    "main.py": {
+      "module": "core",
+      "reason": "Haupt-Einstiegspunkt des Systems, orchestriert andere Module"
+    },
+    "src/asi_core.py": {
+      "module": "core", 
+      "reason": "Zentrale ASI-Klasse, Hauptorchestrator für alle Funktionen"
+    },
+    "asi_hybrid_cli.py": {
+      "module": "core",
+      "reason": "CLI-Interface für das ASI-System, Teil der Anwendungsschicht"
+    },
+    "api_server.py": {
+      "module": "web",
+      "reason": "REST-API Server für Web-Interface"
+    },
+    
+    "asi_core/blockchain.py": {
+      "module": "blockchain",
+      "reason": "Blockchain-Client und Smart Contract-Integration"
+    },
+    "asi_core/processing.py": {
+      "module": "processing", 
+      "reason": "KI-basierte Textverarbeitung und Semantic Search"
+    },
+    "asi_core/search.py": {
+      "module": "processing",
+      "reason": "Such-Algorithmen und Vektor-Operationen"
+    },
+    "asi_core/storage.py": {
+      "module": "storage",
+      "reason": "Lokale und dezentrale Datenspeicherung"
+    },
+    "asi_core/state_management.py": {
+      "module": "domain",
+      "reason": "Geschäftslogik für State-Management ohne technische Abhängigkeiten"
+    },
+    
+    "src/blockchain/": {
+      "module": "blockchain",
+      "reason": "Erweiterte Blockchain-Funktionalität: Contracts, Wallet, Memory Token"
+    },
+    "src/blockchain/wallet.py": {
+      "module": "blockchain",
+      "reason": "Wallet-Management und Kryptographie-Operationen"
+    },
+    "src/blockchain/contract.py": {
+      "module": "blockchain", 
+      "reason": "Smart Contract-Interfaces und -Operationen"
+    },
+    "src/blockchain/memory_token.py": {
+      "module": "blockchain",
+      "reason": "Memory Token Contract-Integration"
+    },
+    
+    "src/storage/": {
+      "module": "storage",
+      "reason": "Storage-Module für verschiedene Persistence-Strategien"
+    },
+    "src/ai/": {
+      "module": "processing",
+      "reason": "KI-Module für NLP und Machine Learning"
+    },
+    "src/core/": {
+      "module": "core",
+      "reason": "Kern-Funktionalitäten und gemeinsame Orchestrierung"
+    },
+    "src/modules/": {
+      "module": "domain",
+      "reason": "Fachliche Module ohne technische Abhängigkeiten"
+    },
+    "src/web/": {
+      "module": "web",
+      "reason": "Web-spezifische Backend-Komponenten"
+    },
+    
+    "web/": {
+      "module": "web",
+      "reason": "Frontend PWA mit React/TypeScript"
+    },
+    "web/src/": {
+      "module": "web",
+      "reason": "Frontend-Quellcode: Komponenten, Services, Stores"
+    },
+    "web/package.json": {
+      "module": "web",
+      "reason": "Frontend-Dependencies und Build-Konfiguration"
+    },
+    "web/vite.config.js": {
+      "module": "web",
+      "reason": "Frontend-Build-System Konfiguration"
+    },
+    
+    "contracts/": {
+      "module": "blockchain",
+      "reason": "Solidity Smart Contracts und Deployment-Scripts"
+    },
+    "contracts/ASIStateTracker.sol": {
+      "module": "blockchain",
+      "reason": "Smart Contract für State-Tracking"
+    },
+    "contracts/MemoryToken.sol": {
+      "module": "blockchain",
+      "reason": "ERC-20 Token Contract für Memory-Economy"
+    },
+    "contracts/deploy-contract.js": {
+      "module": "blockchain",
+      "reason": "Deployment-Script für Smart Contracts"
+    },
+    
+    "data/": {
+      "module": "storage",
+      "reason": "Lokale Datenbank und Dateien"
+    },
+    "data/asi_local.db": {
+      "module": "storage",
+      "reason": "SQLite-Datenbank für lokale Persistierung"
+    },
+    "data/embedding_cache.pkl": {
+      "module": "storage", 
+      "reason": "Cache für Vector-Embeddings"
+    },
+    "data/entries/": {
+      "module": "storage",
+      "reason": "Strukturierte Daten-Entries"
+    },
+    "data/reflections/": {
+      "module": "storage",
+      "reason": "Reflexions-Daten und Metadaten"
+    },
+    "data/backups/": {
+      "module": "storage",
+      "reason": "Backup-Dateien und -Metadaten"
+    },
+    "data/logs/": {
+      "module": "common",
+      "reason": "System-Logs und Debugging-Informationen"
+    },
+    
+    "config/": {
+      "module": "common",
+      "reason": "Konfigurationsdateien für alle Module"
+    },
+    "config/settings.json": {
+      "module": "common",
+      "reason": "Haupt-Konfiguration des Systems"
+    },
+    "config/secrets.json": {
+      "module": "common",
+      "reason": "Sichere Konfiguration (API-Keys, Credentials)"
+    },
+    "config/hybrid-model.json": {
+      "module": "core",
+      "reason": "Konfiguration für Hybrid-Model Integration"
+    },
+    
+    "tests/": {
+      "module": "tests",
+      "reason": "Test-Suite und Test-Utilities"
+    },
+    "tests/test_*.py": {
+      "module": "tests",
+      "reason": "Unit- und Integration-Tests für verschiedene Module"
+    },
+    "tests/unit/": {
+      "module": "tests",
+      "reason": "Unit-Tests mit Mock-Objekten"
+    },
+    
+    "scripts/": {
+      "module": "io",
+      "reason": "Utility-Scripts für Import/Export und Deployment"
+    },
+    "scripts/upload-to-storacha.sh": {
+      "module": "io",
+      "reason": "Dezentraler Upload-Script für Storacha/IPFS"
+    },
+    "setup-git.sh": {
+      "module": "platform",
+      "reason": "Plattform-spezifisches Setup-Script"
+    },
+    "start-pwa.sh": {
+      "module": "platform",
+      "reason": "Plattform-spezifischer PWA-Start"
+    },
+    
+    "demo_*.py": {
+      "module": "io",
+      "reason": "Demo-Scripts für verschiedene Funktionen, I/O-lastig"
+    },
+    "demo_complete_integration.py": {
+      "module": "io",
+      "reason": "Vollständige System-Demo mit I/O-Operationen"
+    },
+    "demo_hybrid_model.py": {
+      "module": "io", 
+      "reason": "Hybrid-Model Demo und Showcase"
+    },
+    "demo_semantic_search.py": {
+      "module": "io",
+      "reason": "Semantic Search Demo mit Ein-/Ausgabe"
+    },
+    "decentralized_storage_demo.py": {
+      "module": "io",
+      "reason": "Demo für dezentrale Storage-Features"
+    },
+    "test_blockchain_integration.py": {
+      "module": "tests",
+      "reason": "Integration-Test für Blockchain-Komponenten"
+    },
+    
+    "requirements.txt": {
+      "module": "common",
+      "reason": "Python-Dependencies für das gesamte Projekt"
+    },
+    "NewReflectionModal_complete.jsx": {
+      "module": "web",
+      "reason": "React-Komponente für Reflection-UI"
+    },
+    
+    "docs/": {
+      "module": "common",
+      "reason": "Projektdokumentation und Spezifikationen"
+    },
+    "docs/index.html": {
+      "module": "web",
+      "reason": "Dokumentations-Website (statisch)"
+    },
+    "*.md": {
+      "module": "common",
+      "reason": "Dokumentation und README-Dateien"
+    },
+    
+    "LICENSE": {
+      "module": "common",
+      "reason": "Projekt-Lizenz und rechtliche Informationen"
+    },
+    "CODE_OF_CONDUCT.md": {
+      "module": "common", 
+      "reason": "Community-Richtlinien und Standards"
+    }
+  },
+  
+  "module_summary": {
+    "core": {
+      "description": "Zentrale Orchestrierung und Haupteinstiegspunkte",
+      "file_count": 4,
+      "key_files": ["main.py", "src/asi_core.py", "asi_hybrid_cli.py"]
+    },
+    "domain": {
+      "description": "Geschäftslogik ohne technische Abhängigkeiten",
+      "file_count": 2,
+      "key_files": ["asi_core/state_management.py", "src/modules/"]
+    },
+    "processing": {
+      "description": "KI-basierte Verarbeitung und Semantic Search",
+      "file_count": 3,
+      "key_files": ["asi_core/processing.py", "asi_core/search.py", "src/ai/"]
+    },
+    "blockchain": {
+      "description": "Dezentrale Technologien und Smart Contracts",
+      "file_count": 7,
+      "key_files": ["asi_core/blockchain.py", "src/blockchain/", "contracts/"]
+    },
+    "storage": {
+      "description": "Datenpersistierung lokal und dezentral",
+      "file_count": 8,
+      "key_files": ["asi_core/storage.py", "data/", "src/storage/"]
+    },
+    "web": {
+      "description": "Frontend PWA und Web-APIs",
+      "file_count": 5,
+      "key_files": ["web/", "api_server.py", "NewReflectionModal_complete.jsx"]
+    },
+    "io": {
+      "description": "Import/Export und externe Schnittstellen",
+      "file_count": 6,
+      "key_files": ["demo_*.py", "scripts/upload-to-storacha.sh"]
+    },
+    "common": {
+      "description": "Gemeinsame Utilities und Konfiguration",
+      "file_count": 8,
+      "key_files": ["config/", "requirements.txt", "*.md"]
+    },
+    "platform": {
+      "description": "Plattform-spezifische Implementierungen",
+      "file_count": 2,
+      "key_files": ["setup-git.sh", "start-pwa.sh"]
+    },
+    "tests": {
+      "description": "Test-Infrastructure und Validation",
+      "file_count": 4,
+      "key_files": ["tests/", "test_blockchain_integration.py"]
+    }
+  },
+  
+  "migration_notes": {
+    "preserving_structure": "Aktuelle Datei-Pfade bleiben unverändert - Mapping dient nur der logischen Zuordnung",
+    "build_compatibility": "Bestehende Python-Imports und Build-Prozesse bleiben funktional",
+    "gradual_refactoring": "Module können schrittweise durch Interface-Abstraktion entkoppelt werden",
+    "api_boundaries": "Public APIs werden über __init__.py und explizite Interface-Klassen definiert"
+  }
+}

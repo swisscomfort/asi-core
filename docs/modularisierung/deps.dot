@@ -1,0 +1,114 @@
+digraph asi_module_dependencies {
+    // Graph-Eigenschaften
+    rankdir=BT;
+    node [shape=box, style=filled, fontname="Arial"];
+    edge [fontname="Arial", fontsize=10];
+    
+    // Farbschema für Layer
+    subgraph cluster_infrastructure {
+        label="Infrastructure Layer";
+        style=filled;
+        fillcolor=lightgray;
+        
+        common [fillcolor=lightblue, label="common\n(utilities, logging)"];
+        platform [fillcolor=lightblue, label="platform\n(OS-specific)"];
+        tests [fillcolor=lightblue, label="tests\n(test utilities)"];
+    }
+    
+    subgraph cluster_domain {
+        label="Domain Layer";
+        style=filled;
+        fillcolor=lightyellow;
+        
+        domain [fillcolor=yellow, label="domain\n(business logic)"];
+    }
+    
+    subgraph cluster_services {
+        label="Service Layer";
+        style=filled;
+        fillcolor=lightcyan;
+        
+        processing [fillcolor=cyan, label="processing\n(AI, semantic search)"];
+        blockchain [fillcolor=cyan, label="blockchain\n(Web3, contracts)"];
+        storage [fillcolor=cyan, label="storage\n(DB, IPFS, cache)"];
+        io [fillcolor=cyan, label="io\n(import/export)"];
+    }
+    
+    subgraph cluster_application {
+        label="Application Layer";
+        style=filled;
+        fillcolor=lightgreen;
+        
+        core [fillcolor=green, label="core\n(orchestration)"];
+    }
+    
+    subgraph cluster_ui {
+        label="UI Layer";
+        style=filled;
+        fillcolor=pink;
+        
+        web [fillcolor=hotpink, label="web\n(PWA, API)"];
+    }
+    
+    // Abhängigkeiten (gerichtete Kanten von abhängig zu verwendet)
+    
+    // Domain Layer nutzt nur Infrastructure
+    domain -> common;
+    
+    // Service Layer nutzt Domain und Infrastructure
+    processing -> domain;
+    processing -> common;
+    processing -> platform;
+    
+    blockchain -> domain;
+    blockchain -> common;
+    blockchain -> platform;
+    
+    storage -> domain;
+    storage -> common;
+    storage -> platform;
+    
+    io -> domain;
+    io -> common;
+    io -> platform;
+    
+    // Service Layer interne Abhängigkeiten (begrenzt)
+    processing -> storage [label="cache", style=dashed];
+    blockchain -> storage [label="persistence", style=dashed];
+    io -> storage [label="data access", style=dashed];
+    
+    // Application Layer nutzt Services und Domain
+    core -> processing;
+    core -> blockchain;
+    core -> storage;
+    core -> io;
+    core -> domain;
+    core -> common;
+    
+    // UI Layer nutzt Application
+    web -> core;
+    web -> common;
+    
+    // Tests nutzen alle Module (für Unit/Integration Tests)
+    tests -> common;
+    tests -> domain;
+    tests -> processing;
+    tests -> blockchain;
+    tests -> storage;
+    tests -> io;
+    tests -> core;
+    tests -> web;
+    
+    // Legende
+    subgraph cluster_legend {
+        label="Legende";
+        style=filled;
+        fillcolor=white;
+        
+        legend_solid [shape=point, style=invis];
+        legend_dashed [shape=point, style=invis];
+        
+        legend_solid -> legend_dashed [label="direkte Abhängigkeit", style=solid];
+        legend_dashed -> legend_solid [label="optionale/lose Kopplung", style=dashed];
+    }
+}

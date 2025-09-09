@@ -1,0 +1,2 @@
+/workspaces/asi-core/build-mod/CMakeFiles/edit_cache.dir
+/workspaces/asi-core/build-mod/CMakeFiles/rebuild_cache.dir

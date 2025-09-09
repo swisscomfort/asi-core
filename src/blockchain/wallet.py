@@ -8,9 +8,22 @@ import hmac
 import json
 import os
 import secrets
+from dataclasses import dataclass
+from datetime import datetime
 from typing import Dict, Optional
 
 from flask import Blueprint, jsonify, request
+
+
+@dataclass
+class WalletInfo:
+    """Datenklasse für Wallet-Informationen"""
+
+    address: str
+    public_key: str
+    balance_eth: float
+    balance_tokens: Dict[str, float]
+    transaction_count: int
 
 
 class LocalWallet:
@@ -234,15 +247,6 @@ if __name__ == "__main__":
         print("❌ Import/Export fehlgeschlagen!")
 
     print("🎯 Wallet Service bereit für ASI Core!")
-
-import hashlib
-import hmac
-import json
-import os
-import secrets
-from typing import Dict, Optional, Tuple
-
-from flask import Blueprint, jsonify, request
 
 
 class LocalWallet:

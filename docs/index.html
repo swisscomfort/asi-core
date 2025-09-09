@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASI-Core Setup</title>
+    <style>
+        body { 
+            font-family: system-ui; 
+            max-width: 600px; 
+            margin: 0 auto; 
+            padding: 40px 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container { 
+            background: rgba(255,255,255,0.1); 
+            padding: 30px; 
+            border-radius: 15px; 
+            backdrop-filter: blur(10px);
+        }
+        .step { 
+            background: rgba(255,255,255,0.1); 
+            padding: 20px; 
+            margin: 15px 0; 
+            border-radius: 10px; 
+            border-left: 4px solid #4ade80;
+        }
+        .button {
+            display: inline-block;
+            background: #4ade80;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 ASI Core</h1>
+        
+        <div class="step">
+            <h3>✅ Projekt-Webseite ist live</h3>
+            <p>CI/CD, Tests & Security sind aktiv. Alle Workflows laufen erfolgreich.</p>
+            <a href="https://github.com/swisscomfort/asi-core" class="button">
+                📂 Zum Repository
+            </a>
+        </div>
+
+        <div class="step">
+            <h3>🔧 GitHub Pages Setup</h3>
+            <p><strong>Repository Settings → Pages → Source: "GitHub Actions"</strong></p>
+            <a href="https://github.com/swisscomfort/asi-core/settings/pages" class="button">
+                ⚙️ Jetzt aktivieren
+            </a>
+        </div>
+
+        <div class="step">
+            <h3>🚀 Deployment Alternativen</h3>
+            <p>Sofortiger Start mit lokalem Server:</p>
+            <code style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; display: block; margin: 10px 0;">./start-pwa.sh</code>
+            <p>Nach der Aktivierung ist Ihre PWA unter allen Deployment-Optionen verfügbar!</p>
+        </div>
+    </div>
+</body>
+</html>
