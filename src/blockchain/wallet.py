@@ -9,8 +9,20 @@ import json
 import os
 import secrets
 from typing import Dict, Optional
+from dataclasses import dataclass
+from datetime import datetime
 
 from flask import Blueprint, jsonify, request
+
+
+@dataclass
+class WalletInfo:
+    """Datenklasse für Wallet-Informationen"""
+    address: str
+    public_key: str
+    balance_eth: float
+    balance_tokens: Dict[str, float]
+    transaction_count: int
 
 
 class LocalWallet:

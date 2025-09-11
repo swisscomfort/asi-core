@@ -14,6 +14,9 @@ from flask import Flask, flash, jsonify, redirect, render_template, request, url
 # ASI Core Module importieren
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
+# Admin API Blueprint importieren
+from admin_api import admin_bp
+
 from src.ai.embedding import ReflectionEmbedding
 from src.ai.search import SemanticSearchEngine
 from src.blockchain.contract import ASISmartContract

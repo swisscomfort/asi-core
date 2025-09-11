@@ -137,6 +137,7 @@ def calculate_arweave_cost(data_size_mb: float) -> float:
 - **Belohnungssystem**: Token-Incentives für Speicher-Provider
 - **Flexible SLAs**: Verschiedene Verfügbarkeits- und Persistenz-Level
 - **Regionale Optimierung**: Geografische Nähe für bessere Performance
+- **Invisible Mining**: Automatische Teilnahme ohne User-Eingriff bei verfügbaren Ressourcen
 
 **Anwendung im ASI Core**:
 - **Kollektive Daten**: Aggregierte, anonymisierte Muster und Statistiken

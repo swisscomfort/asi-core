@@ -1,0 +1,160 @@
+{
+    "contractName": "ASI",
+    "address": "",
+    "network": "polygon-mumbai",
+    "abi": [
+        {
+            "inputs": [
+                {
+                    "name": "cid",
+                    "type": "string"
+                },
+                {
+                    "name": "tags",
+                    "type": "string[]"
+                },
+                {
+                    "name": "embedding",
+                    "type": "bytes"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "uint256"
+                }
+            ],
+            "name": "registerEntry",
+            "outputs": [
+                {
+                    "name": "entryId",
+                    "type": "bytes32"
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "name": "cid",
+                    "type": "string"
+                },
+                {
+                    "name": "tags",
+                    "type": "string[]"
+                },
+                {
+                    "name": "embedding",
+                    "type": "bytes"
+                },
+                {
+                    "name": "stateValue",
+                    "type": "uint8"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "uint256"
+                }
+            ],
+            "name": "registerHybridEntry",
+            "outputs": [
+                {
+                    "name": "entryId",
+                    "type": "bytes32"
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "getStateStatistics",
+            "outputs": [
+                {
+                    "name": "totalEntries",
+                    "type": "uint256"
+                },
+                {
+                    "name": "uniqueStates",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "name": "stateValue",
+                    "type": "uint8"
+                }
+            ],
+            "name": "getEntriesByState",
+            "outputs": [
+                {
+                    "name": "entries",
+                    "type": "bytes32[]"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "name": "entryId",
+                    "type": "bytes32"
+                }
+            ],
+            "name": "getEntry",
+            "outputs": [
+                {
+                    "name": "cid",
+                    "type": "string"
+                },
+                {
+                    "name": "owner",
+                    "type": "address"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "uint256"
+                },
+                {
+                    "name": "stateValue",
+                    "type": "uint8"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": true,
+                    "name": "entryId",
+                    "type": "bytes32"
+                },
+                {
+                    "indexed": true,
+                    "name": "owner",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "name": "cid",
+                    "type": "string"
+                },
+                {
+                    "indexed": false,
+                    "name": "stateValue",
+                    "type": "uint8"
+                }
+            ],
+            "name": "EntryRegistered",
+            "type": "event"
+        }
+    ],
+    "bytecode": "",
+    "deployedBytecode": ""
+}

@@ -1,0 +1,144 @@
+# ASI-Core Offline Fallback Page
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASI-Core - Offline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .offline-container {
+            text-align: center;
+            max-width: 400px;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .offline-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .retry-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .retry-btn:hover {
+            background: #45a049;
+        }
+
+        .status-indicator {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .online {
+            color: #4CAF50;
+        }
+
+        .offline {
+            color: #f44336;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">🔌</div>
+        <h1>Sie sind offline</h1>
+        <p>ASI-Core konnte keine Verbindung zum Server herstellen. Ihre Daten werden automatisch synchronisiert, sobald
+            die Verbindung wiederhergestellt ist.</p>
+
+        <button class="retry-btn" onclick="retryConnection()">
+            Erneut versuchen
+        </button>
+
+        <div class="status-indicator">
+            Status: <span id="connection-status" class="offline">Offline</span>
+        </div>
+    </div>
+
+    <script>
+        function retryConnection() {
+            window.location.reload();
+        }
+
+        // Monitor connection status
+        function updateConnectionStatus() {
+            const statusEl = document.getElementById('connection-status');
+            if (navigator.onLine) {
+                statusEl.textContent = 'Online';
+                statusEl.className = 'online';
+                // Auto-reload after a short delay when back online
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                statusEl.textContent = 'Offline';
+                statusEl.className = 'offline';
+            }
+        }
+
+        // Check connection status on load
+        updateConnectionStatus();
+
+        // Listen for online/offline events
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+
+        // Periodic retry when offline
+        setInterval(() => {
+            if (!navigator.onLine) {
+                fetch('/', {mode: 'no-cors'})
+                    .then(() => {
+                        updateConnectionStatus();
+                    })
+                    .catch(() => {
+                        // Still offline
+                    });
+            }
+        }, 30000); // Check every 30 seconds
+    </script>
+</body>
+
+</html>
