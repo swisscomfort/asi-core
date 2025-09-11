@@ -1,28 +1,47 @@
-[🌍 Live PWA](https://swisscomfort.github.io/asi-core/) | [📖 Dokumentation](./docs/) | [🔗 GitHub Project](https://github.com/users/swisscomfort/projects/1) | [📊 Analytics](https://insights.github.com/swisscomfort/asi-core)
+[🌍 Live PWA](https://swisscomfort.github.io/asi-core/) | [📖 Dokumentation](./docs/) | [🔗 GitHub Project](https://github.com/users/swisscomfort/projects/1) | [📊 Pro Analytics](https://insights.github.com/swisscomfort/asi-core) | [🐳 Packages](https://github.com/swisscomfort/asi-core/pkgs/container/asi-core)
 
+[![GitHub Pro](https://img.shields.io/badge/GitHub-Pro%20User-orange?style=for-the-badge&logo=github)](https://github.com/swisscomfort)
 [![CI/CD Status](https://github.com/swisscomfort/asi-core/workflows/Advanced%20CI%2FCD%20Pipeline/badge.svg)](https://github.com/swisscomfort/asi-core/actions)
 [![Security Scan](https://github.com/swisscomfort/asi-core/workflows/Advanced%20Security%20Scan/badge.svg)](https://github.com/swisscomfort/asi-core/actions)
 [![CodeQL](https://github.com/swisscomfort/asi-core/workflows/CodeQL/badge.svg)](https://github.com/swisscomfort/asi-core/security/code-scanning)
+[![Docker Packages](https://github.com/swisscomfort/asi-core/workflows/🐳%20Docker%20Package%20(GitHub%20Pro)/badge.svg)](https://github.com/swisscomfort/asi-core/actions)
+[![GitHub Pro Analytics](https://github.com/swisscomfort/asi-core/workflows/📊%20GitHub%20Pro%20Analytics%20&%20Insights/badge.svg)](https://github.com/swisscomfort/asi-core/actions)
 [![PWA Status](https://img.shields.io/badge/PWA-Ready-green)](https://swisscomfort.github.io/asi-core/)
+[![Beta Testing](https://img.shields.io/badge/Beta-30%20Days-blue)](https://github.com/swisscomfort/asi-core/issues?q=label%3Abeta-testing)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # 🧠 ASI-Core: Artificial Self-Intelligence System
 
 > **Professionelles, lebenslanges, dezentrales digitales Gedächtnis**  
-> Entwickelt mit GitHub Pro+ Features und Enterprise-Standards
+> Entwickelt mit GitHub Pro Features und Enterprise-Standards | **Aktuell: 30-Tage Beta Phase** 🧪
 
-## 🚀 Live System
+## 🎯 **30-Tage Beta Testing Program**
 
-**[📱 ASI-Core PWA](https://swisscomfort.github.io/asi-core/)**
+[![Join Beta](https://img.shields.io/badge/Join-Beta%20Testing-blue?style=for-the-badge)](https://github.com/swisscomfort/asi-core/issues/new?template=beta-feedback.yml)
+[![Report Bug](https://img.shields.io/badge/Report-Bug-red?style=for-the-badge)](https://github.com/swisscomfort/asi-core/issues/new?template=bug-report.yml)
+[![Request Feature](https://img.shields.io/badge/Request-Feature-green?style=for-the-badge)](https://github.com/swisscomfort/asi-core/issues/new?template=feature-request.yml)
 
-### ✨ Enterprise Features:
+**Beta Testing läuft vom 11.09.2024 - 11.10.2024**
+- � **PWA Testing auf iPhone/Android**
+- ⛓️ **Blockchain Integration (Polygon)**
+- 🤖 **KI-gestützte Reflexionen**
+- 🔐 **Dezentrale Speicherung (IPFS)**
+
+## �🚀 Live System
+
+**[📱 ASI-Core PWA](https://swisscomfort.github.io/asi-core/)** - Bereit für Mobile Installation!
+
+### ✨ GitHub Pro Features:
 
 - 🏢 **GitHub Pro+ Integration** - Vollständige Nutzung aller Premium-Features
-- 🛡️ **Advanced Security** - CodeQL, Dependency Review, Secret Scanning
-- 🔄 **Professional CI/CD** - Automatisierte Tests, Code Quality, Deployment
-- 📊 **Project Management** - GitHub Projects, Milestones, Issue Templates
+- 🛡️ **Advanced Security** - CodeQL, Dependency Review, Secret Scanning, Trivy
+- 🔄 **Professional CI/CD** - Multi-Environment Deployment, Auto-Testing
+- 📊 **Project Management** - GitHub Projects v2, Automated Workflows
 - 🤖 **GitHub Copilot** - Enterprise AI-Assistenz mit Custom Instructions
-- 📈 **Analytics & Insights** - Detaillierte Projekt-Metriken
+- 📈 **Advanced Analytics** - Traffic Insights, Performance Metrics, User Analytics
+- 🐳 **Container Registry** - Automatische Docker Builds mit ghcr.io
+- 🔐 **Security Center** - Dependabot, Secret Scanning, Code Scanning
+- 👥 **Collaboration Tools** - Protected Branches, Required Reviews, Status Checks
 
 ## 📋 Übersicht
 

@@ -1,0 +1,408 @@
+name: 🎯 Beta Testing Project Setup
+description: Automatisches Setup für 30-Tage Beta Testing mit GitHub Projects
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_name:
+        description: 'Name des Beta-Projekts'
+        required: true
+        default: 'ASI-Core 30-Day Beta'
+      start_date:
+        description: 'Start-Datum (YYYY-MM-DD)'
+        required: true
+        default: '2024-09-11'
+
+jobs:
+  setup-beta-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create GitHub Project (Beta 2)
+        uses: actions/github-script@v7
+        env:
+          PROJECT_NAME: ${{ github.event.inputs.project_name }}
+          START_DATE: ${{ github.event.inputs.start_date }}
+        with:
+          script: |
+            // GitHub Projects v2 API verwenden
+            const query = `
+              mutation($ownerId: ID!, $title: String!) {
+                createProjectV2(input: {ownerId: $ownerId, title: $title}) {
+                  projectV2 {
+                    id
+                    url
+                    title
+                  }
+                }
+              }
+            `;
+            
+            const variables = {
+              ownerId: context.repo.owner_id || context.payload.repository.owner.node_id,
+              title: process.env.PROJECT_NAME
+            };
+            
+            try {
+              const result = await github.graphql(query, variables);
+              const projectId = result.createProjectV2.projectV2.id;
+              const projectUrl = result.createProjectV2.projectV2.url;
+              
+              console.log(`✅ Projekt erstellt: ${projectUrl}`);
+              
+              // Projekt-Ausgabe für weitere Steps
+              core.setOutput('project_id', projectId);
+              core.setOutput('project_url', projectUrl);
+              
+            } catch (error) {
+              console.error('❌ Fehler beim Erstellen des Projekts:', error);
+              // Fallback: Issue erstellen mit Anweisungen
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🎯 Beta Testing Project Setup',
+                body: `## 🚀 30-Tage Beta Testing Setup
+                
+                Da das automatische Projekt-Setup fehlgeschlagen ist, erstellen Sie bitte manuell:
+                
+                ### 📋 GitHub Project erstellen
+                1. Gehen Sie zu: https://github.com/${context.repo.owner}/${context.repo.repo}/projects
+                2. Klicken Sie "New Project"
+                3. Wählen Sie "Table" Template
+                4. Name: "${process.env.PROJECT_NAME}"
+                
+                ### 🏗️ Spalten einrichten
+                - 📥 **Backlog** - Neue Aufgaben und Features
+                - 🚧 **In Progress** - Aktuelle Entwicklung
+                - 👀 **Review** - Code Review & Testing
+                - 🧪 **Beta Testing** - Bereit für Beta-Tester
+                - ✅ **Done** - Abgeschlossene Aufgaben
+                - 🐛 **Bugs** - Gefundene Probleme
+                
+                ### 🏷️ Labels erstellen
+                - \`beta-testing\` - Für Beta-relevante Issues
+                - \`day-1\`, \`day-7\`, \`day-14\`, \`day-21\`, \`day-30\` - Zeitplanung
+                - \`priority-high\`, \`priority-medium\`, \`priority-low\` - Prioritäten
+                - \`mobile\`, \`desktop\`, \`pwa\` - Plattformen
+                - \`feedback\`, \`bug\`, \`enhancement\` - Issue-Typen
+                
+                ### 📅 Milestones erstellen
+                - **Woche 1: Setup & Onboarding** (${process.env.START_DATE})
+                - **Woche 2: Feature Testing** 
+                - **Woche 3: Performance & Polish**
+                - **Woche 4: Release Preparation**
+                
+                Dieses Issue kann nach dem Setup geschlossen werden.`,
+                labels: ['project-setup', 'beta-testing', 'automation']
+              });
+            }
+
+      - name: Create Beta Testing Issues
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const startDate = new Date('${{ github.event.inputs.start_date }}');
+            const issues = [
+              {
+                title: '🚀 Beta Week 1: Setup & Onboarding',
+                body: `## 🎯 Woche 1 - Setup & Onboarding (Tag 1-7)
+                
+                ### 📋 Ziele
+                - [ ] Beta-Tester Onboarding
+                - [ ] PWA Installation testen
+                - [ ] Grundfunktionen validieren
+                - [ ] Feedback-Kanäle einrichten
+                
+                ### 👥 Beta-Tester Tasks
+                - [ ] ASI-Core PWA auf verschiedenen Geräten installieren
+                - [ ] Account erstellen und erste Reflexion anlegen
+                - [ ] UI/UX Feedback geben
+                - [ ] Performance auf Mobile testen
+                
+                ### 🔧 Developer Tasks
+                - [ ] GitHub Pages Deployment aktivieren
+                - [ ] Analytics Dashboard einrichten
+                - [ ] Monitoring für kritische Metriken
+                - [ ] Backup-Strategien implementieren
+                
+                ### 📊 Success Metrics
+                - PWA Installation Rate > 80%
+                - Mobile Performance Score > 90
+                - Zero Critical Bugs
+                - Positive User Feedback
+                
+                ### 📅 Deadline: ${new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString()}`,
+                labels: ['beta-testing', 'week-1', 'priority-high'],
+                milestone: 1
+              },
+              {
+                title: '🧪 Beta Week 2: Core Feature Testing',
+                body: `## 🎯 Woche 2 - Core Feature Testing (Tag 8-14)
+                
+                ### 📋 Ziele
+                - [ ] KI-Reflexionen ausgiebig testen
+                - [ ] Blockchain Integration validieren
+                - [ ] Dezentrale Speicherung testen
+                - [ ] Cross-Platform Kompatibilität
+                
+                ### 👥 Beta-Tester Tasks
+                - [ ] Mindestens 10 Reflexionen erstellen
+                - [ ] Blockchain-Features testen (Wallet-Integration)
+                - [ ] Datenexport/-import testen
+                - [ ] Offline-Funktionalität validieren
+                
+                ### 🔧 Developer Tasks
+                - [ ] Performance Optimierungen
+                - [ ] Bug Fixes aus Woche 1
+                - [ ] Enhanced Error Handling
+                - [ ] Mobile-specific Improvements
+                
+                ### 📊 Success Metrics
+                - Reflexions-Erstellung Rate > 95%
+                - Blockchain Transaction Success > 99%
+                - Data Sync Reliability > 99%
+                - User Retention > 70%
+                
+                ### 📅 Deadline: ${new Date(startDate.getTime() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString()}`,
+                labels: ['beta-testing', 'week-2', 'priority-high'],
+                milestone: 2
+              },
+              {
+                title: '⚡ Beta Week 3: Performance & Polish',
+                body: `## 🎯 Woche 3 - Performance & Polish (Tag 15-21)
+                
+                ### 📋 Ziele
+                - [ ] Performance Optimierung
+                - [ ] UI/UX Verbesserungen
+                - [ ] Advanced Features testen
+                - [ ] Stress Testing
+                
+                ### 👥 Beta-Tester Tasks
+                - [ ] Stress Testing mit vielen Reflexionen
+                - [ ] Advanced Search & Filter Features
+                - [ ] Team Collaboration Features
+                - [ ] Integration mit externen Tools
+                
+                ### 🔧 Developer Tasks
+                - [ ] Code Splitting & Lazy Loading
+                - [ ] Database Query Optimization
+                - [ ] CDN Implementation
+                - [ ] Advanced Caching Strategies
+                
+                ### 📊 Success Metrics
+                - Page Load Time < 2s
+                - First Contentful Paint < 1s
+                - Bundle Size < 500KB gzipped
+                - 99% Uptime
+                
+                ### 📅 Deadline: ${new Date(startDate.getTime() + 21 * 24 * 60 * 60 * 1000).toLocaleDateString()}`,
+                labels: ['beta-testing', 'week-3', 'priority-medium'],
+                milestone: 3
+              },
+              {
+                title: '🚀 Beta Week 4: Release Preparation',
+                body: `## 🎯 Woche 4 - Release Preparation (Tag 22-30)
+                
+                ### 📋 Ziele
+                - [ ] Final Bug Fixes
+                - [ ] Documentation vervollständigen
+                - [ ] Production Deployment vorbereiten
+                - [ ] Marketing Materials erstellen
+                
+                ### 👥 Beta-Tester Tasks
+                - [ ] Final Acceptance Testing
+                - [ ] Testimonials & Case Studies
+                - [ ] Video Demos erstellen
+                - [ ] Release Notes Review
+                
+                ### 🔧 Developer Tasks
+                - [ ] Security Audit
+                - [ ] Production Environment Setup
+                - [ ] Monitoring & Alerting
+                - [ ] Rollback Strategies
+                
+                ### 📊 Success Metrics
+                - Zero Critical Bugs
+                - 100% Test Coverage
+                - Security Scan: 0 High/Critical Issues
+                - Beta Tester Satisfaction > 4.5/5
+                
+                ### 📅 Deadline: ${new Date(startDate.getTime() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                
+                ### 🎉 Release Checklist
+                - [ ] All beta feedback addressed
+                - [ ] Production deployment tested
+                - [ ] Marketing campaign ready
+                - [ ] Support documentation complete`,
+                labels: ['beta-testing', 'week-4', 'priority-medium'],
+                milestone: 4
+              },
+              {
+                title: '📊 Daily Beta Standup Template',
+                body: `## 📊 Daily Beta Standup - ${new Date().toLocaleDateString()}
+                
+                ### 🎯 Heute erreicht
+                - [ ] Task 1
+                - [ ] Task 2
+                - [ ] Task 3
+                
+                ### 🚧 Aktuell in Arbeit
+                - [ ] Task A
+                - [ ] Task B
+                
+                ### 🚨 Blocker & Issues
+                - [ ] Issue 1 - [Link]
+                - [ ] Issue 2 - [Link]
+                
+                ### 📈 Metriken (heute)
+                - **Unique Visitors:** [Zahl]
+                - **PWA Installations:** [Zahl]
+                - **New Reflections:** [Zahl]
+                - **Bug Reports:** [Zahl]
+                - **Feature Requests:** [Zahl]
+                
+                ### 🎯 Morgen geplant
+                - [ ] Task X
+                - [ ] Task Y
+                - [ ] Task Z
+                
+                ### 💬 Team Notes
+                [Freie Notizen, Erkenntnisse, Feedback]
+                
+                ---
+                **Template für tägliche Updates - kann kopiert und angepasst werden**`,
+                labels: ['beta-testing', 'daily-standup', 'template'],
+                assignees: ['swisscomfort']
+              }
+            ];
+            
+            for (const issue of issues) {
+              try {
+                const createdIssue = await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: issue.title,
+                  body: issue.body,
+                  labels: issue.labels,
+                  assignees: issue.assignees || ['swisscomfort']
+                });
+                
+                console.log(`✅ Issue erstellt: ${issue.title}`);
+              } catch (error) {
+                console.error(`❌ Fehler bei Issue "${issue.title}":`, error);
+              }
+            }
+
+      - name: Create Beta Labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = [
+              { name: 'beta-testing', color: 'FF6B6B', description: 'Beta testing related issues' },
+              { name: 'week-1', color: '4ECDC4', description: 'Beta week 1 tasks' },
+              { name: 'week-2', color: '45B7D1', description: 'Beta week 2 tasks' },
+              { name: 'week-3', color: '96CEB4', description: 'Beta week 3 tasks' },
+              { name: 'week-4', color: 'FECA57', description: 'Beta week 4 tasks' },
+              { name: 'priority-high', color: 'FF3838', description: 'High priority' },
+              { name: 'priority-medium', color: 'FF9F43', description: 'Medium priority' },
+              { name: 'priority-low', color: '00D2D3', description: 'Low priority' },
+              { name: 'mobile', color: '55A3FF', description: 'Mobile related' },
+              { name: 'desktop', color: '5F27CD', description: 'Desktop related' },
+              { name: 'pwa', color: '00D2D3', description: 'PWA related' },
+              { name: 'daily-standup', color: 'A55EEA', description: 'Daily standup updates' },
+              { name: 'template', color: 'C7ECEE', description: 'Template issues' },
+              { name: 'testing-needed', color: 'FD79A8', description: 'Needs testing' },
+              { name: 'feedback', color: '6C5CE7', description: 'User feedback' },
+              { name: 'analytics', color: '74B9FF', description: 'Analytics and metrics' },
+              { name: 'automated', color: '00B894', description: 'Automated issues' }
+            ];
+            
+            for (const label of labels) {
+              try {
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description
+                });
+                console.log(`✅ Label erstellt: ${label.name}`);
+              } catch (error) {
+                if (error.status === 422) {
+                  console.log(`ℹ️ Label existiert bereits: ${label.name}`);
+                } else {
+                  console.error(`❌ Fehler bei Label "${label.name}":`, error);
+                }
+              }
+            }
+
+      - name: Create Success Summary
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const summary = `## 🎉 Beta Testing Project Setup Complete!
+            
+            ### ✅ Was wurde erstellt:
+            
+            #### 📋 Issues
+            - 🚀 Beta Week 1: Setup & Onboarding
+            - 🧪 Beta Week 2: Core Feature Testing  
+            - ⚡ Beta Week 3: Performance & Polish
+            - 🚀 Beta Week 4: Release Preparation
+            - 📊 Daily Beta Standup Template
+            
+            #### 🏷️ Labels
+            - Beta Testing Labels (week-1 bis week-4)
+            - Priority Labels (high, medium, low)
+            - Platform Labels (mobile, desktop, pwa)
+            - Process Labels (daily-standup, template, testing-needed)
+            
+            #### 🔧 Workflows
+            - GitHub Pro Analytics (täglich)
+            - Docker Package Building
+            - Security Scanning
+            - Beta Deployment Automation
+            
+            ### 🎯 Nächste Schritte:
+            
+            1. **GitHub Project manuell erstellen** (falls automatisch fehlgeschlagen)
+            2. **Beta-Tester einladen** - Settings → Manage access
+            3. **GitHub Pages aktivieren** - Settings → Pages
+            4. **Erstes Daily Standup** starten
+            5. **Analytics Dashboard** überprüfen
+            
+            ### 📱 Beta Testing URLs:
+            - **Repository:** https://github.com/${context.repo.owner}/${context.repo.repo}
+            - **Issues:** https://github.com/${context.repo.owner}/${context.repo.repo}/issues
+            - **Projects:** https://github.com/${context.repo.owner}/${context.repo.repo}/projects
+            - **Actions:** https://github.com/${context.repo.owner}/${context.repo.repo}/actions
+            
+            ### 🚀 Quick Start Commands:
+            \`\`\`bash
+            # Beta-Tester Issue erstellen
+            gh issue create --template beta-feedback.yml
+            
+            # Daily Standup erstellen  
+            gh issue create --title "📊 Daily Standup - $(date +%Y-%m-%d)" --label daily-standup
+            
+            # Analytics überprüfen
+            gh run list --workflow github-pro-analytics.yml
+            \`\`\`
+            
+            **Ihre 30-Tage Beta Phase kann jetzt beginnen! 🎉**
+            
+            ---
+            *Automatisch generiert von GitHub Pro Beta Setup*`;
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🎉 Beta Testing Setup Complete - Nächste Schritte',
+              body: summary,
+              labels: ['beta-testing', 'setup-complete', 'priority-high'],
+              assignees: ['swisscomfort']
+            });
+            
+            console.log('✅ Setup Summary Issue erstellt');

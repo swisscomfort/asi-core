@@ -1,0 +1,122 @@
+name: 🧪 Beta Feedback
+description: Feedback von Beta-Testern für ASI-Core
+title: "[BETA] "
+labels: ["beta", "feedback", "30-day-testing"]
+assignees:
+  - swisscomfort
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Vielen Dank für Ihr Feedback zur ASI-Core Beta! 🚀
+        Ihre Rückmeldungen sind entscheidend für die Weiterentwicklung.
+
+  - type: dropdown
+    id: feature-area
+    attributes:
+      label: 📱 Feature-Bereich
+      description: Welcher Bereich des Systems betrifft Ihr Feedback?
+      options:
+        - PWA/Mobile Interface
+        - Blockchain Integration
+        - KI-Reflexionen & Insights
+        - Dezentrale Speicherung
+        - Performance & Geschwindigkeit
+        - Benutzerfreundlichkeit
+        - Sicherheit
+        - API & Integration
+        - Dokumentation
+        - Anderes
+    validations:
+      required: true
+
+  - type: dropdown
+    id: rating
+    attributes:
+      label: ⭐ Bewertung
+      description: Wie bewerten Sie diese Funktion?
+      options:
+        - "5 - Ausgezeichnet"
+        - "4 - Sehr gut"
+        - "3 - Gut"
+        - "2 - Verbesserungsbedarf"
+        - "1 - Problematisch"
+    validations:
+      required: true
+
+  - type: textarea
+    id: positive-feedback
+    attributes:
+      label: ✅ Was funktioniert gut?
+      description: Welche Aspekte haben Sie besonders überzeugt?
+      placeholder: "z.B. Schnelle Ladezeiten, intuitive Benutzerführung, innovative Features..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: improvement-feedback
+    attributes:
+      label: 🔧 Was könnte besser sein?
+      description: Wo sehen Sie Verbesserungspotential?
+      placeholder: "z.B. Langsamere Performance auf iPhone, unklare Navigation, fehlende Features..."
+
+  - type: textarea
+    id: bug-report
+    attributes:
+      label: 🐛 Fehler oder Probleme
+      description: Haben Sie Bugs oder technische Probleme festgestellt?
+      placeholder: "Beschreiben Sie den Fehler und die Schritte zur Reproduktion..."
+
+  - type: checkboxes
+    id: tested-devices
+    attributes:
+      label: 📱 Getestet auf
+      description: Auf welchen Geräten haben Sie ASI-Core getestet?
+      options:
+        - label: iPhone (Safari)
+        - label: iPhone (Chrome)
+        - label: iPhone (PWA installiert)
+        - label: Android (Chrome)
+        - label: Android (PWA installiert)
+        - label: Desktop (Chrome)
+        - label: Desktop (Firefox)
+        - label: Desktop (Safari)
+        - label: Desktop (Edge)
+
+  - type: checkboxes
+    id: features-tested
+    attributes:
+      label: 🧪 Getestete Features
+      description: Welche Features haben Sie ausprobiert?
+      options:
+        - label: PWA Installation
+        - label: Offline-Funktionalität
+        - label: KI-Reflexionen erstellen
+        - label: Blockchain-Transaktionen
+        - label: Dezentrale Speicherung
+        - label: Datenexport/Import
+        - label: Suchfunktionen
+        - label: Benutzer-Interface
+        - label: Performance-Tests
+
+  - type: input
+    id: os-version
+    attributes:
+      label: 💻 Betriebssystem & Version
+      placeholder: "z.B. iOS 17.1, Android 14, macOS 14.1, Windows 11"
+
+  - type: textarea
+    id: additional-comments
+    attributes:
+      label: 💬 Zusätzliche Kommentare
+      description: Weitere Gedanken, Ideen oder Vorschläge?
+      placeholder: "Ihre wertvollen Einsichten helfen uns, ASI-Core zu perfektionieren!"
+
+  - type: checkboxes
+    id: contact-permission
+    attributes:
+      label: 📞 Kontakt-Berechtigung
+      description: Dürfen wir Sie bei Rückfragen kontaktieren?
+      options:
+        - label: Ja, Sie können mich für Follow-up Fragen kontaktieren
+        - label: Ich möchte über Updates zu diesem Feedback informiert werden

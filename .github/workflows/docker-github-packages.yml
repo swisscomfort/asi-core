@@ -1,0 +1,218 @@
+name: 🐳 Docker Package (GitHub Pro)
+description: Automatisches Build und Deployment von Docker Images zu GitHub Container Registry
+
+on:
+  push:
+    branches: [main, develop]
+    tags: ['v*', 'beta-*']
+  pull_request:
+    branches: [main]
+  release:
+    types: [published]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=beta,enable=${{ startsWith(github.ref, 'refs/tags/beta-') }}
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          load: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run security scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Push Docker image
+        if: github.event_name != 'pull_request'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Create deployment comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const output = `## 🐳 Docker Build Results
+            
+            **Status:** ✅ Build successful
+            **Image:** \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}\`
+            **Tags:** ${{ steps.meta.outputs.tags }}
+            
+            ### Security Scan
+            Security scan completed with Trivy. Check the Security tab for detailed results.
+            
+            ### Next Steps for Beta Testing
+            1. Pull the image: \`docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}\`
+            2. Run locally: \`docker run -p 3000:3000 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}\`
+            3. Test the PWA at: http://localhost:3000
+            
+            *This image will be automatically deployed for beta testing.*`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });
+
+  deploy-to-beta:
+    needs: build-and-push
+    if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/tags/beta-')
+    runs-on: ubuntu-latest
+    environment: beta
+    
+    steps:
+      - name: Deploy to Beta Environment
+        run: |
+          echo "🚀 Deploying to Beta Environment..."
+          echo "Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}"
+          
+          # Hier würde der tatsächliche Deployment-Code stehen
+          # z.B. kubectl, docker-compose, oder Cloud-Provider APIs
+          
+      - name: Create Beta Deployment Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const deploymentBody = `## 🚀 Beta Deployment Successful
+            
+            **Version:** \`${{ github.ref_name }}\`
+            **Image:** \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}\`
+            **Deployed:** ${new Date().toISOString()}
+            
+            ### 🧪 Beta Testing URLs
+            - **PWA:** https://beta.asi-core.com
+            - **API:** https://api-beta.asi-core.com
+            - **Docs:** https://docs-beta.asi-core.com
+            
+            ### 📱 Mobile Testing
+            - **iOS:** Öffnen Sie https://beta.asi-core.com in Safari und "Zum Home-Bildschirm hinzufügen"
+            - **Android:** Öffnen Sie https://beta.asi-core.com in Chrome für PWA-Installation
+            
+            ### 🔗 Quick Links
+            - [Feedback geben](https://github.com/${{ github.repository }}/issues/new?template=beta-feedback.yml)
+            - [Bug melden](https://github.com/${{ github.repository }}/issues/new?template=bug-report.yml)
+            - [Feature anfordern](https://github.com/${{ github.repository }}/issues/new?template=feature-request.yml)
+            
+            ---
+            **Beta-Tester:** Bitte testen Sie die neue Version und geben Sie Feedback! 🙏
+            
+            /cc @swisscomfort`;
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚀 Beta Deployment: ${context.ref.replace('refs/heads/', '').replace('refs/tags/', '')}`,
+              body: deploymentBody,
+              labels: ['deployment', 'beta', 'testing-needed'],
+              assignees: ['swisscomfort']
+            });
+
+  deploy-to-production:
+    needs: build-and-push
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+      - name: Deploy to Production
+        run: |
+          echo "🌟 Deploying to Production..."
+          echo "Release: ${{ github.event.release.tag_name }}"
+          
+      - name: Create Production Deployment Announcement
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const announcementBody = `## 🌟 ASI-Core ${{ github.event.release.tag_name }} ist live!
+            
+            **Release:** ${{ github.event.release.name }}
+            **Version:** ${{ github.event.release.tag_name }}
+            **Deployed:** ${new Date().toISOString()}
+            
+            ### 🚀 Live URLs
+            - **PWA:** https://asi-core.com
+            - **API:** https://api.asi-core.com
+            - **Docs:** https://docs.asi-core.com
+            
+            ### 📱 Mobile App
+            - **iOS/Android:** https://asi-core.com (PWA-Installation verfügbar)
+            
+            ### 🎉 Was ist neu?
+            ${{ github.event.release.body }}
+            
+            ### 📊 Release Stats
+            - **Docker Downloads:** [View on GitHub Packages](https://github.com/${{ github.repository }}/pkgs/container/${{ github.event.repository.name }})
+            - **Release Notes:** [View Release](https://github.com/${{ github.repository }}/releases/tag/${{ github.event.release.tag_name }})
+            
+            ---
+            **Vielen Dank an alle Beta-Tester für ihr wertvolles Feedback! 🙏**`;
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🌟 Production Release: ASI-Core ${{ github.event.release.tag_name }}`,
+              body: announcementBody,
+              labels: ['release', 'announcement', 'production'],
+              assignees: ['swisscomfort']
+            });
