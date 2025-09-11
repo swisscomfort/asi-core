@@ -1,0 +1,80 @@
+# Security Scanning & Vulnerability Assessment
+# Comprehensive security checks for ASI-Core
+
+name: 🛡️ Security Scan
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 3 * * 1'  # Wöchentlich Montags um 3 Uhr
+
+permissions:
+  security-events: write
+  actions: read
+  contents: read
+
+jobs:
+  security_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        
+      - name: 🐍 Python Security Scan
+        uses: pypa/gh-action-pip-audit@v1.0.8
+        with:
+          inputs: requirements.txt
+          
+      - name: 📦 NPM Security Audit
+        run: |
+          cd web
+          npm audit --audit-level=high
+          
+      - name: 🔍 CodeQL Analysis
+        uses: github/codeql-action/init@v3
+        with:
+          languages: python, javascript
+          
+      - name: 🏗️ Autobuild
+        uses: github/codeql-action/autobuild@v3
+        
+      - name: 🔍 Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        
+      - name: 🐳 Docker Security Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'asi-core:latest'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          
+      - name: 📤 Upload Trivy Results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+          
+      - name: 🔐 Secret Scanning
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+          
+      - name: 🧪 SAST Scan
+        uses: securecodewarrior/github-action-add-sarif@v1
+        with:
+          sarif-file: 'security-results.sarif'
+          
+      - name: 📋 Security Report
+        run: |
+          echo "## 🛡️ Security Scan Results" > security_report.md
+          echo "- Python Dependencies: ✅ Scanned" >> security_report.md
+          echo "- NPM Dependencies: ✅ Scanned" >> security_report.md  
+          echo "- Code Analysis: ✅ CodeQL Complete" >> security_report.md
+          echo "- Docker Image: ✅ Trivy Scan" >> security_report.md
+          echo "- Secret Detection: ✅ TruffleHog" >> security_report.md
+          echo "Generated: $(date)" >> security_report.md

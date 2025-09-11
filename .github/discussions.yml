@@ -1,0 +1,111 @@
+# GitHub Discussions Configuration
+# Community-Hub für ASI-Core
+
+categories:
+  - name: "💡 Ideas & Suggestions"
+    description: "Teile deine Ideen für ASI-Core Features"
+    emoji: "💡"
+    discussion_format: "open"
+    
+  - name: "❓ Q&A"
+    description: "Fragen und Antworten zur Nutzung von ASI-Core"
+    emoji: "❓"
+    discussion_format: "question"
+    
+  - name: "🚀 Show and Tell"
+    description: "Zeige deine ASI-Core Projekte und Anwendungen"
+    emoji: "🚀"
+    discussion_format: "open"
+    
+  - name: "🐛 Bug Reports"
+    description: "Diskutiere Bugs bevor du ein Issue erstellst"
+    emoji: "🐛"
+    discussion_format: "open"
+    
+  - name: "📚 Studienführer Diskussion"
+    description: "Diskutiere über den ASI-Core Studienführer"
+    emoji: "📚"
+    discussion_format: "open"
+    
+  - name: "🧠 AI/ML Insights"
+    description: "Teile KI/ML-bezogene Erkenntnisse und Experimente"
+    emoji: "🧠"
+    discussion_format: "open"
+    
+  - name: "⛓️ Blockchain & Token"
+    description: "Diskussion über $MEM Token und Blockchain-Features"
+    emoji: "⛓️"
+    discussion_format: "open"
+    
+  - name: "🔒 Privacy & Security"
+    description: "Sicherheit und Datenschutz-Themen"
+    emoji: "🔒"
+    discussion_format: "open"
+
+# Welcome Message Template
+welcome_message: |
+  # 🎉 Willkommen bei ASI-Core Discussions!
+  
+  ## 🧠 Was ist ASI-Core?
+  ASI-Core ist ein **Artificial Self-Intelligence System** mit:
+  - 🏠 **Lokale KI-Verarbeitung** für Datenschutz
+  - 🔗 **Blockchain-Integration** mit $MEM Token
+  - 📊 **Semantic Search** und Muster-Erkennung
+  - 🌐 **Dezentrale Speicherung** (IPFS/Arweave)
+  
+  ## 💬 Community Guidelines
+  1. **Sei respektvoll** - Behandle andere so, wie du behandelt werden möchtest
+  2. **Bleibe beim Thema** - Halte Diskussionen relevant zu ASI-Core
+  3. **Teile Wissen** - Hilf anderen beim Lernen und Verstehen
+  4. **Konstruktives Feedback** - Kritik sollte aufbauend sein
+  5. **Keine Spam/Werbung** - Halte Beiträge wertvoll für die Community
+  
+  ## 🚀 Wie kannst du beitragen?
+  - **💡 Ideen teilen** - Schlage neue Features vor
+  - **❓ Fragen stellen** - Keine Frage ist zu klein
+  - **🐛 Bugs melden** - Hilf uns, ASI-Core zu verbessern
+  - **📚 Dokumentation** - Verbessere den Studienführer
+  - **🧪 Experimente** - Teile deine ASI-Core Anwendungen
+  
+  ## 📋 Bevor du postest:
+  1. 🔍 **Suche erst** - Vielleicht wurde deine Frage schon beantwortet
+  2. 🏷️ **Nutze Tags** - Hilf anderen, deine Beiträge zu finden
+  3. 📝 **Sei spezifisch** - Je detaillierter, desto besser können wir helfen
+  4. 📸 **Screenshots** - Ein Bild sagt mehr als tausend Worte
+  
+  ## 🔗 Nützliche Links
+  - 📖 [Studienführer](https://swisscomfort.github.io/asi-core/)
+  - 🐙 [GitHub Repository](https://github.com/swisscomfort/asi-core)
+  - 🚀 [Live Demo](https://asi-core-demo.vercel.app)
+  - 📊 [API Dokumentation](https://swisscomfort.github.io/asi-core/api/)
+  
+  ---
+  **Happy discussing! 🎉**
+
+# Auto-Reply Templates
+auto_replies:
+  question:
+    trigger: "new_discussion"
+    template: |
+      Vielen Dank für deine Frage! 🙋‍♂️
+      
+      Um dir bestmöglich zu helfen, füge bitte hinzu:
+      - 🖥️ **Betriebssystem** (Windows/Mac/Linux)
+      - 🐍 **Python Version** (`python --version`)
+      - 📦 **Installation Methode** (pip/docker/source)
+      - 🔍 **Fehlermeldungen** (falls vorhanden)
+      
+      Die Community wird dir gerne helfen! 🤗
+
+  idea:
+    trigger: "idea_label"
+    template: |
+      Großartige Idee! 💡
+      
+      Bevor wir weitermachen:
+      - 📋 Prüfe die [Roadmap](https://github.com/swisscomfort/asi-core/projects)
+      - 🔍 Suche in [Issues](https://github.com/swisscomfort/asi-core/issues)
+      - 📝 Beschreibe den **Use Case** detailliert
+      - 🎯 Erkläre den **Mehrwert** für die Community
+      
+      Lass uns diskutieren! 🚀

@@ -1,0 +1,65 @@
+# GitHub Projects Configuration for ASI-Core
+# Erstellt automatisierte Kanban-Boards für besseres Projektmanagement
+
+name: "ASI-Core Development Board"
+description: "Hauptentwicklungsboard für ASI-Core Features und Bug-Tracking"
+
+# Spalten definieren
+columns:
+  - name: "📋 Backlog"
+    automation: "incoming"
+  - name: "🔍 In Review" 
+    automation: "manual"
+  - name: "🚧 In Progress"
+    automation: "manual"
+  - name: "✅ Testing"
+    automation: "manual"
+  - name: "🎉 Done"
+    automation: "closed_issues"
+
+# Automatisierung
+automation:
+  # Neue Issues automatisch in Backlog
+  rules:
+    - if: "issue.created"
+      then: "move_to_column('📋 Backlog')"
+    
+    - if: "pull_request.opened"
+      then: "move_to_column('🔍 In Review')"
+    
+    - if: "issue.closed"
+      then: "move_to_column('🎉 Done')"
+
+# Labels für bessere Organisation
+labels:
+  - name: "🚀 feature"
+    color: "0052cc"
+    description: "Neue Funktionalität"
+  
+  - name: "🐛 bug"
+    color: "d73a4a"
+    description: "Fehler oder unerwartetes Verhalten"
+  
+  - name: "📚 documentation"
+    color: "0075ca"
+    description: "Dokumentation oder Studienführer"
+  
+  - name: "🔧 enhancement"
+    color: "a2eeef"
+    description: "Verbesserung existierender Features"
+  
+  - name: "🆘 help wanted"
+    color: "008672"
+    description: "Community-Hilfe erwünscht"
+  
+  - name: "⚡ priority-high"
+    color: "d93f0b"
+    description: "Hohe Priorität"
+  
+  - name: "🧠 ai-ml"
+    color: "5319e7"
+    description: "AI/ML-bezogene Features"
+  
+  - name: "⛓️ blockchain"
+    color: "fbca04"
+    description: "Blockchain-Integration"

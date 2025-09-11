@@ -1,0 +1,80 @@
+# Release Workflow für ASI-Core
+# Automatische Releases mit Semantic Versioning
+
+name: 🚀 Release
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔍 Analyze Commits
+        id: conventional_commits
+        uses: conventional-changelog/conventional-changelog-action@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          version-file: 'package.json,setup.py'
+          
+      - name: 🏷️ Create Release
+        if: steps.conventional_commits.outputs.skipped == 'false'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.conventional_commits.outputs.tag }}
+          release_name: 'ASI-Core v${{ steps.conventional_commits.outputs.version }}'
+          body: |
+            ## 🎉 ASI-Core Release v${{ steps.conventional_commits.outputs.version }}
+            
+            ### 📋 Changes in this Release:
+            ${{ steps.conventional_commits.outputs.changelog }}
+            
+            ### 🚀 Quick Start:
+            ```bash
+            git clone https://github.com/swisscomfort/asi-core.git
+            cd asi-core
+            git checkout v${{ steps.conventional_commits.outputs.version }}
+            ./setup.sh
+            ```
+            
+            ### 📊 Stats:
+            - **Docker Image**: `ghcr.io/swisscomfort/asi-core:v${{ steps.conventional_commits.outputs.version }}`
+            - **Documentation**: [GitHub Pages](https://swisscomfort.github.io/asi-core/)
+            - **Demo**: [Live Demo](https://asi-core-demo.vercel.app)
+            
+            ---
+            **Full Changelog**: https://github.com/swisscomfort/asi-core/compare/${{ steps.conventional_commits.outputs.last_tag }}...v${{ steps.conventional_commits.outputs.version }}
+          draft: false
+          prerelease: false
+
+      - name: 📦 Build Docker Image
+        if: steps.conventional_commits.outputs.skipped == 'false'
+        run: |
+          docker build -t ghcr.io/swisscomfort/asi-core:latest .
+          docker tag ghcr.io/swisscomfort/asi-core:latest ghcr.io/swisscomfort/asi-core:v${{ steps.conventional_commits.outputs.version }}
+          
+      - name: 🐳 Push to GitHub Packages
+        if: steps.conventional_commits.outputs.skipped == 'false'
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker push ghcr.io/swisscomfort/asi-core:latest
+          docker push ghcr.io/swisscomfort/asi-core:v${{ steps.conventional_commits.outputs.version }}
