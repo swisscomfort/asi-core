@@ -1,0 +1,23 @@
+{
+    "rpc_url": "https://rpc-mumbai.maticvigil.com/",
+    "task_registry_address": "",
+    "reward_vault_address": "",
+    "milestone_orchestrator_address": "",
+    "contributor_sbt_address": "",
+    "asi_token_address": "",
+    "usdc_token_address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+    "ipfs_api_url": "http://127.0.0.1:5001",
+    "use_pinata": false,
+    "pinata_api_key": "",
+    "pinata_secret_key": "",
+    "verifier_service_url": "http://localhost:8000",
+    "github_webhook_secret": "",
+    "maintainer_addresses": [
+        "0x742d35Cc6634C0532925a3b8d3fD419567cbc9be"
+    ],
+    "contributor_role_threshold": 1000,
+    "reviewer_role_threshold": 5000,
+    "min_claim_duration": 86400,
+    "max_claim_duration": 604800,
+    "evidence_grace_period": 172800
+}

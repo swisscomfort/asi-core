@@ -1,5 +1,5 @@
 {
-  "name": "ASI Core Development Environment",
+  "name": "ASI-Core Development & Presentation Environment",
   "image": "mcr.microsoft.com/devcontainers/python:3.12",
   "features": {
     "ghcr.io/devcontainers/features/git:1": {},
@@ -96,7 +96,8 @@
   "containerEnv": {
     "PYTHONPATH": "/workspaces/asi-core/src",
     "NODE_ENV": "development",
-    "FLASK_ENV": "development"
+    "FLASK_ENV": "development",
+    "ASI_PRESENTATION_MODE": "true"
   },
   "shutdownAction": "stopContainer"
 }

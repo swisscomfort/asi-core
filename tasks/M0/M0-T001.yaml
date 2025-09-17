@@ -1,0 +1,89 @@
+task_id: "M0-T001"
+title: "Org Setup + CI + Security Foundation"
+version: "1.0"
+status: "open"
+
+bounty:
+  token: "ASI"
+  amount: 1500
+  currency_equivalent: "~15 USD"
+
+created: "2025-09-16"
+deadline: "2025-10-01"
+estimated_hours: 6
+
+dependencies: []
+blocks: ["M0-T002", "M0-T003", "M1-T001"]
+
+deliverables:
+  - "GitHub Repository mit korrekter Ordnerstruktur"
+  - "CI/CD Pipeline (GitHub Actions) für Build+Test+Lint"
+  - "Security Policy (SECURITY.md) und Vulnerability Reporting"
+  - "Contributing Guidelines (CONTRIBUTING.md)"
+  - "Code of Conduct und LICENSE Dateien"
+
+definition_of_done:
+  - "CI: build+lint+test Pipeline läuft erfolgreich"
+  - "Dependabot aktiviert für automatische Dependency Updates"
+  - "Branch Protection Rules für main branch aktiviert"
+  - "Issue/PR Templates erstellt und funktional"
+  - "Security Scanning (CodeQL, Trivy) konfiguriert"
+
+reviewers:
+  - "0x742d35Cc6634C0532925a3b8D"
+  - "0x8ba1f109551bD432803012645Hcx"
+
+auto_verifier:
+  github:
+    repo: "swisscomfort/asi-core"
+    branch: "main"
+    required_checks: 
+      - "build"
+      - "test"
+      - "lint"
+  content_checks:
+    must_include:
+      - ".github/workflows/"
+      - "SECURITY.md"
+      - "CONTRIBUTING.md"
+      - "CODE_OF_CONDUCT.md"
+      - "LICENSE"
+    must_not_include:
+      - "hardcoded-api-keys"
+
+category: "infra"
+difficulty: "beginner"
+skills_required:
+  - "GitHub Actions"
+  - "DevOps Basics"
+  - "Security Best Practices"
+
+license: "AGPL-3.0"
+contributor_agreement: "required"
+privacy_impact: "low"
+
+evidence:
+  github_pr: ""
+  ipfs_cids: []
+  demo_url: ""
+  documentation: ""
+
+notes: |
+  **Foundation Task**: Dieses Task schafft die Basis für alle weiteren Entwicklungen.
+  
+  Wichtige Punkte:
+  - GitHub Pro Features nutzen (Security, Analytics, etc.)
+  - CI Pipeline muss robust und schnell sein
+  - Security-first Approach von Anfang an
+  
+  **Hilfreiche Resources**:
+  - GitHub Security Best Practices
+  - ASI Core existing CI als Referenz nutzen
+
+rewards:
+  referral_bonus: 5
+  early_completion_bonus: 10
+  quality_bonus: 15
+
+voting_required: false
+dispute_process: "standard"

@@ -1,0 +1,133 @@
+task_id: "M2-T004"
+title: "Verifier Service Production Setup"
+version: "1.0"
+status: "open"
+
+bounty:
+  token: "ASI"
+  amount: 2800
+  currency_equivalent: "~28 USD"
+
+created: "2025-09-16"
+deadline: "2025-11-25"
+estimated_hours: 12
+
+dependencies: ["M2-T001", "M2-T003"]
+blocks: ["M2-T005"]
+
+deliverables:
+  - "Production Verifier Service Deployment"
+  - "Automated GitHub Webhooks Integration"
+  - "IPFS Report Pinning mit Redundancy"
+  - "Contract Integration für Auto-Approval"
+  - "Monitoring + Alerting Setup"
+
+definition_of_done:
+  - "Service läuft 24/7 mit <99% uptime"
+  - "GitHub Webhooks trigger automatic verification"
+  - "Reports werden redundant auf IPFS gepinnt"
+  - "Contract Calls für approval fully automated"
+  - "Prometheus Metrics + Grafana Dashboard"
+
+reviewers:
+  - "0x742d35Cc6634C0532925a3b8D"
+  - "0xb8d1e4f7a0c3e6f9b2d5e8a1d"
+
+auto_verifier:
+  github:
+    repo: "swisscomfort/asi-core"
+    branch: "main"
+    required_checks: 
+      - "build"
+      - "test"
+      - "lint"
+      - "integration-test"
+      - "docker-build"
+  content_checks:
+    must_include:
+      - "task-system/verifier_service.py"
+      - "docker/verifier.Dockerfile"
+      - "k8s/verifier-deployment.yaml"
+      - "monitoring/"
+    must_not_include:
+      - "hardcoded-private-keys"
+      - "test-tokens"
+
+category: "infra"
+difficulty: "intermediate"
+skills_required:
+  - "DevOps/Infrastructure"
+  - "Docker/Kubernetes"
+  - "API Integration"
+  - "Monitoring/Observability"
+
+license: "AGPL-3.0"
+contributor_agreement: "required"
+privacy_impact: "low"
+
+evidence:
+  github_pr: ""
+  ipfs_cids: []
+  demo_url: ""
+  documentation: ""
+
+notes: |
+  **PRODUCTION AUTOMATION**: Der Verifier Service ist die kritische Brücke
+  zwischen GitHub-Arbeit und On-Chain Rewards.
+  
+  **Deployment Architecture**:
+  - Docker Container für portability
+  - Kubernetes für scaling/reliability
+  - GitHub Actions für CI/CD
+  - Secret Management für keys
+  
+  **GitHub Integration**:
+  - Webhook auf PR status changes
+  - Automatic task submission detection
+  - CI status monitoring
+  - File content validation
+  
+  **IPFS Redundancy**:
+  - Multiple IPFS nodes für pinning
+  - Pinata/Infura als backup services
+  - Content verification nach pinning
+  - Garbage collection management
+  
+  **Blockchain Integration**:
+  - Web3 wallet management
+  - Gas price optimization
+  - Transaction retry logic
+  - Event monitoring för confirmations
+  
+  **Monitoring Stack**:
+  - Prometheus für metrics collection
+  - Grafana für dashboards
+  - AlertManager für critical alerts
+  - Structured logging mit ELK stack
+  
+  **Key Metrics**:
+  - Verification latency (target: <5min)
+  - Success rate (target: >95%)
+  - IPFS pin success rate
+  - Contract call success rate
+  - GitHub API rate limit usage
+  
+  **Security Considerations**:
+  - Private keys in secure enclaves
+  - Rate limiting für API calls
+  - Input validation für all webhooks
+  - Audit logging für all operations
+  
+  **Scalability Design**:
+  - Horizontal scaling via replicas
+  - Queue-based processing för spikes
+  - Database für state persistence
+  - Load balancing für high availability
+
+rewards:
+  referral_bonus: 5
+  early_completion_bonus: 10
+  quality_bonus: 20
+
+voting_required: false
+dispute_process: "standard"

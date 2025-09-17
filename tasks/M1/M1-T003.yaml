@@ -1,0 +1,112 @@
+task_id: "M1-T003"
+title: "Offline Sync + Conflict Resolution"
+version: "1.0"
+status: "open"
+
+bounty:
+  token: "ASI"
+  amount: 2800
+  currency_equivalent: "~28 USD"
+
+created: "2025-09-16"
+deadline: "2025-10-25"
+estimated_hours: 12
+
+dependencies: ["M0-T002", "M1-T001"]
+blocks: ["M1-T005", "M2-T001"]
+
+deliverables:
+  - "Service Worker mit Background Sync Implementation"
+  - "IndexedDB Schema für lokale Datenpersistenz"
+  - "Conflict Resolution Engine für Multi-Device Sync"
+  - "Offline Queue mit Retry Logic"
+  - "Sync Status UI Components"
+
+definition_of_done:
+  - "Offline-first: App funktioniert ohne Internet"
+  - "Background Sync bei Netzwerk-Wiederherstellung"
+  - "Conflict Resolution für gleichzeitige Edits"
+  - "E2E Tests für Offline-Szenarien"
+  - "Sync Performance <5s für 1000 Nachrichten"
+
+reviewers:
+  - "0x742d35Cc6634C0532925a3b8D"
+  - "0xbcd7e3f9a1c5d8e2b4f6a8c0e"
+
+auto_verifier:
+  github:
+    repo: "swisscomfort/asi-core"
+    branch: "main"
+    required_checks: 
+      - "build"
+      - "test"
+      - "lint"
+      - "e2e-offline"
+  content_checks:
+    must_include:
+      - "sw.js"
+      - "src/sync/"
+      - "src/storage/indexeddb.js"
+      - "tests/offline/"
+    must_not_include:
+      - "localStorage"
+      - "sessionStorage"
+
+category: "frontend"
+difficulty: "advanced"
+skills_required:
+  - "Service Workers"
+  - "IndexedDB"
+  - "Offline-First Architecture"
+  - "Conflict Resolution Algorithms"
+
+license: "AGPL-3.0"
+contributor_agreement: "required"
+privacy_impact: "high"
+
+evidence:
+  github_pr: ""
+  ipfs_cids: []
+  demo_url: ""
+  documentation: ""
+
+notes: |
+  **OFFLINE-FIRST CORE**: Diese Implementierung macht ASI Core unabhängig von
+  ständiger Internet-Verbindung - ein entscheidender Vorteil für Nutzer weltweit.
+  
+  **Technical Architecture**:
+  - IndexedDB als primärer Storage (nicht localStorage)
+  - Service Worker für Network Interception
+  - Event-driven Sync Queue
+  - CRDT-inspired Conflict Resolution
+  
+  **Sync Strategy**:
+  - Last-Write-Wins für einfache Felder
+  - Operational Transform für kollaborative Inhalte
+  - Vector Clocks für Event Ordering
+  - Merkle Trees für Integrity Verification
+  
+  **Offline Capabilities**:
+  - Vollständige Chat-Funktionalität
+  - Datei-Upload Queue
+  - Search in lokalen Daten
+  - Background Sync für alle Operationen
+  
+  **Performance Requirements**:
+  - Startup-Zeit <2s auch mit 10.000+ Nachrichten
+  - Sync-Diff-Berechnung <1s für typische Workloads
+  - Memory Usage <50MB für normale Nutzung
+  
+  **UX Requirements**:
+  - Sync-Status immer sichtbar
+  - Conflict Resolution mit User-Choice
+  - Graceful Error Messages
+  - Progress Indicators für große Syncs
+
+rewards:
+  referral_bonus: 5
+  early_completion_bonus: 15
+  quality_bonus: 25
+
+voting_required: false
+dispute_process: "standard"

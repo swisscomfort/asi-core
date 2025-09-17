@@ -1,0 +1,144 @@
+name: Deploy ASI-Core Presentation
+
+on:
+  push:
+    paths:
+      - 'docs/presentation/**'
+      - 'web/**'
+    branches: [ main, 003-studienfuehrer-speicherstrategien ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy-presentation:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: web/package-lock.json
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Install Node dependencies
+      run: |
+        cd web
+        npm ci
+    
+    - name: Build PWA
+      run: |
+        cd web
+        npm run build
+    
+    - name: Prepare presentation assets
+      run: |
+        # Erstelle Deployment-Verzeichnis
+        mkdir -p deployment
+        
+        # Kopiere PWA Build
+        cp -r web/dist/* deployment/
+        
+        # Kopiere Präsentations-Assets
+        mkdir -p deployment/presentation
+        cp -r docs/presentation/* deployment/presentation/
+        
+        # Erstelle Presentations-Index
+        cat > deployment/presentation/index.html << 'EOF'
+        <!DOCTYPE html>
+        <html lang="de">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>ASI-Core Präsentation</title>
+            <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 40px; }
+                .container { max-width: 800px; margin: 0 auto; }
+                .demo-button { 
+                    background: #0366d6; color: white; padding: 12px 24px; 
+                    border: none; border-radius: 6px; margin: 10px 0; 
+                    text-decoration: none; display: inline-block; 
+                }
+                .demo-button:hover { background: #0256cc; }
+                .feature-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+                .feature-card { border: 1px solid #e1e4e8; padding: 20px; border-radius: 8px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>🧠 ASI-Core Präsentation</h1>
+                <p>Dezentrale KI-Reflexions-Architektur mit Enterprise-Features</p>
+                
+                <h2>🎬 Live-Demos</h2>
+                <a href="../" class="demo-button">🚀 PWA Demo</a>
+                <a href="https://github.com/swisscomfort/asi-core" class="demo-button">📂 Repository</a>
+                
+                <h2>🏗️ Architektur-Features</h2>
+                <div class="feature-list">
+                    <div class="feature-card">
+                        <h3>🔒 Privacy-First</h3>
+                        <p>Volltext bleibt lokal, nur anonyme Zustände dezentral</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>🌍 Dezentral</h3>
+                        <p>IPFS + Arweave für lebenslange Verfügbarkeit</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>🤖 KI-Integration</h3>
+                        <p>Semantische Suche mit Embeddings</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>🏢 Enterprise</h3>
+                        <p>GitHub Pro+, CodeQL, CI/CD</p>
+                    </div>
+                </div>
+                
+                <h2>📊 Demo-Kommandos</h2>
+                <pre><code># Python Demo
+python demo/demo_asi.py
+
+# Web-Entwicklung
+cd ../../web && npm run dev
+
+# PWA Build
+./start-pwa.sh</code></pre>
+            </div>
+        </body>
+        </html>
+        EOF
+    
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+    
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: './deployment'
+    
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4

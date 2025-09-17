@@ -1,0 +1,90 @@
+title: "Barrierefreies Ticket-Board implementieren"
+category: "ui"
+difficulty: 3
+credit_reward: 50
+reputation_weight: 6
+estimated_hours: 8
+skill_tags: ["react", "accessibility", "css", "a11y"]
+requires_one_human: false
+
+dod: |
+  - WCAG 2.1 Level AA Compliance erreicht
+  - Vollständige Keyboard-Navigation
+  - Screen-Reader-Kompatibilität (NVDA, JAWS, VoiceOver)
+  - Lighthouse Accessibility Score ≥ 95
+  - Semantic HTML mit ARIA-Labels
+  - High-Contrast-Modus unterstützt
+  - Focus-Management optimiert
+  - Automatisierte A11y-Tests implementiert
+
+description: |
+  Das Ticket-Board ist die zentrale Schnittstelle für Contributors in Oryn.
+  Es muss für alle Menschen zugänglich sein, unabhängig von Behinderungen
+  oder verwendeten Assistenztechnologien.
+  
+  Diese Aufgabe umfasst sowohl die technische Implementierung als auch
+  das Design einer inklusiven Benutzeroberfläche, die den Web Content
+  Accessibility Guidelines (WCAG) entspricht.
+
+acceptance_criteria:
+  - Alle Ticket-Aktionen per Tastatur bedienbar
+  - Aussagekräftige Alt-Texte für alle Bilder/Icons
+  - Kontrastverhältnis mindestens 4.5:1 für normalen Text
+  - Kontrastverhältnis mindestens 3:1 für große Texte
+  - Fokus-Indikatoren klar sichtbar und konsistent
+  - ARIA-Live-Regions für dynamische Inhalte
+  - Screen-Reader-Tests mit echten Benutzern
+
+evidence_requirements:
+  code_review: true
+  tests_passing: true
+  documentation: true
+  security_audit: false
+  accessibility_check: true
+
+bonus_criteria:
+  - "Reduced Motion Support für Animationen"
+  - "High Contrast Windows Mode Support"
+  - "Voice Control Navigation"
+  - "Multi-Language Screen Reader Tests"
+
+implementation_hints:
+  - Verwende semantic HTML als Basis
+  - React-Testing-Library für A11y-Tests
+  - axe-core für automatisierte Prüfungen
+  - Focus-Trap für Modals und Dropdowns
+
+accessibility_features:
+  keyboard_navigation:
+    - Tab-Reihenfolge logisch und vorhersagbar
+    - Arrow-Keys für Listen-Navigation
+    - Enter/Space für Aktivierung
+    - Escape für Modal-Schließung
+  
+  screen_reader:
+    - Heading-Struktur (h1-h6) semantisch korrekt
+    - ARIA-Labels für interaktive Elemente
+    - Live-Regions für Status-Updates
+    - Skip-Links zum Hauptinhalt
+  
+  visual:
+    - Zoom bis 200% ohne horizontales Scrolling
+    - Focus-Indikatoren mindestens 2px stark
+    - Farbe nicht als einziges Unterscheidungsmerkmal
+    - Error-Messages klar erkennbar
+
+testing_requirements:
+  - axe-core Automated Tests
+  - Manual Keyboard Testing
+  - Screen Reader Testing (mindestens 2 verschiedene)
+  - Color Contrast Verification
+  - Zoom/Magnification Testing
+
+files_to_modify:
+  - "src/components/TicketBoard/TicketBoard.jsx"
+  - "src/components/TicketCard/TicketCard.jsx"
+  - "src/components/FilterBar/FilterBar.jsx"
+  - "src/hooks/useKeyboardNavigation.js"
+  - "src/styles/accessibility.css"
+  - "tests/accessibility/ticketBoard.a11y.test.js"
+  - "docs/accessibility/ticket-board.md"

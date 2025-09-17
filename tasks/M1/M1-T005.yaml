@@ -1,0 +1,121 @@
+task_id: "M1-T005"
+title: "Privacy-First Telemetry System"
+version: "1.0"
+status: "open"
+
+bounty:
+  token: "ASI"
+  amount: 2000
+  currency_equivalent: "~20 USD"
+
+created: "2025-09-16"
+deadline: "2025-11-05"
+estimated_hours: 8
+
+dependencies: ["M1-T001", "M1-T003"]
+blocks: ["M2-T003"]
+
+deliverables:
+  - "Zero-Knowledge Telemetry Collection"
+  - "Local Analytics Dashboard"
+  - "Opt-in Privacy Controls"
+  - "Anonymous Usage Metrics"
+  - "Error Reporting ohne Personal Data"
+
+definition_of_done:
+  - "Keine IP-Adressen oder Identifikatoren übertragen"
+  - "User kann jederzeit opt-out"
+  - "Differential Privacy für Aggregated Data"
+  - "Local-first Analytics (nicht zu Google)"
+  - "GDPR/nDSG compliant by design"
+
+reviewers:
+  - "0x742d35Cc6634C0532925a3b8D"
+  - "0xd4e7f9c2a5b8e1d3f6a9c2e5d"
+
+auto_verifier:
+  github:
+    repo: "swisscomfort/asi-core"
+    branch: "main"
+    required_checks: 
+      - "build"
+      - "test"
+      - "lint"
+      - "privacy-audit"
+  content_checks:
+    must_include:
+      - "src/telemetry/"
+      - "src/privacy/"
+      - "privacy-policy.md"
+      - "tests/privacy/"
+    must_not_include:
+      - "google-analytics"
+      - "tracking-pixel"
+      - "fingerprinting"
+
+category: "backend"
+difficulty: "intermediate"
+skills_required:
+  - "Privacy Engineering"
+  - "Differential Privacy"
+  - "GDPR Compliance"
+  - "Anonymous Analytics"
+
+license: "AGPL-3.0"
+contributor_agreement: "required"
+privacy_impact: "high"
+
+evidence:
+  github_pr: ""
+  ipfs_cids: []
+  demo_url: ""
+  documentation: ""
+
+notes: |
+  **PRIVACY-BY-DESIGN**: ASI Core muss exemplarisch zeigen, wie Telemetrie
+  ohne Überwachung funktioniert.
+  
+  **Grundprinzipien**:
+  - Data Minimization: Nur sammeln was absolut nötig
+  - Local Processing: Analytics lokal, nicht in Cloud
+  - Anonymous Aggregation: Nur Trends, keine Individuals
+  - Transparent Consent: User weiß genau was passiert
+  
+  **Technical Implementation**:
+  - Local SQLite für Analytics Data
+  - Differential Privacy für Noise Injection
+  - Zero-Knowledge Proofs für Verification
+  - Hash-based Event IDs (keine Content)
+  
+  **Collected Metrics (Examples)**:
+  - App Performance (load times, errors)
+  - Feature Usage (button clicks, page views)
+  - Network Health (connection success rates)
+  - Crash Reports (stack traces ohne personal data)
+  
+  **NOT Collected**:
+  - IP Addresses
+  - Device Identifiers
+  - Message Content
+  - Personal Information
+  - Cross-session Tracking
+  
+  **User Controls**:
+  - Granular Opt-in/Opt-out
+  - Data Export (what was collected)
+  - Local Data Deletion
+  - Audit Log of all telemetry events
+  
+  **Compliance**:
+  - GDPR Article 25 (Privacy by Design)
+  - nDSG (neue Datenschutzgesetz Schweiz)
+  - CCPA Ready
+  - Privacy Impact Assessment documented
+
+rewards:
+  referral_bonus: 5
+  early_completion_bonus: 10
+  quality_bonus: 20
+
+voting_required: false
+dispute_process: "standard"

@@ -1,0 +1,119 @@
+task_id: "M1-T002"
+title: "Wallet Login (Passkeys + DID Support)"
+version: "1.0"
+status: "open"
+
+bounty:
+  token: "ASI"
+  amount: 2800
+  currency_equivalent: "~28 USD"
+
+created: "2025-09-16"
+deadline: "2025-10-20"
+estimated_hours: 14
+
+dependencies: ["M0-T002", "M1-T001"]
+blocks: ["M1-T003", "M1-T004"]
+
+deliverables:
+  - "Passkeys (WebAuthn) Integration für passwortlose Anmeldung"
+  - "Wallet-Connect Support (MetaMask, WalletConnect v2)"
+  - "DID (Decentralized Identity) Basis-Implementation"
+  - "Key-Management mit Secure Storage"
+  - "Biometric Authentication wo verfügbar"
+
+definition_of_done:
+  - "Passkeys funktionieren in Chrome, Firefox, Safari"
+  - "MetaMask Integration ohne Seed-Phrase-Exposure"
+  - "DID-Document Creation und Verification"
+  - "Key-Recovery Mechanism implementiert"
+  - "Security Audit für Authentication Flow"
+
+reviewers:
+  - "0x742d35Cc6634C0532925a3b8D"
+  - "0x5ef7a2c4b9d6e8f1a3c5b7d9e"
+
+auto_verifier:
+  github:
+    repo: "swisscomfort/asi-core"
+    branch: "main"
+    required_checks: 
+      - "build"
+      - "test"
+      - "lint"
+      - "security-scan"
+      - "auth-e2e"
+  content_checks:
+    must_include:
+      - "src/auth/"
+      - "src/wallet/"
+      - "src/did/"
+      - "tests/auth/"
+    must_not_include:
+      - "hardcoded-private-keys"
+      - "test-mnemonics"
+
+category: "frontend"
+difficulty: "advanced"
+skills_required:
+  - "WebAuthn/FIDO2"
+  - "Web3 Wallet Integration"
+  - "DID/SSI Standards"
+  - "Cryptographic Protocols"
+
+license: "AGPL-3.0"
+contributor_agreement: "required"
+privacy_impact: "high"
+
+evidence:
+  github_pr: ""
+  ipfs_cids: []
+  demo_url: ""
+  documentation: ""
+
+notes: |
+  **IDENTITY & SECURITY CORE**: Authentication ist der kritische Punkt für
+  User-Adoption und Sicherheit.
+  
+  **Authentication Methods (Priority Order)**:
+  1. **Passkeys** (WebAuthn) - Beste UX, höchste Sicherheit
+  2. **Wallet-Connect** - Für Crypto-User vertraut
+  3. **DID-Auth** - Vollständig dezentral, zukunftssicher
+  
+  **Passkeys Implementation**:
+  - FIDO2/WebAuthn Standard
+  - Platform Authenticators (Touch ID, Face ID, Windows Hello)
+  - Cross-device Authentication (QR Code Flow)
+  - Backup/Recovery über Multiple Devices
+  
+  **Wallet Integration**:
+  - WalletConnect v2 für Mobile Wallets
+  - MetaMask Browser Extension
+  - Coinbase Wallet, Rainbow, etc.
+  - NO private key exposure in browser
+  
+  **DID Integration**:
+  - did:key Method für einfachen Start
+  - Preparation für did:web, did:ethr
+  - DID-Document CRUD Operations
+  - Verifiable Credentials readiness
+  
+  **Security Considerations**:
+  - Key-in-Browser nur für Session-Keys
+  - Master Keys nur in Secure Enclaves
+  - Biometric Gating für sensitive Operations
+  - Anti-Phishing Measures
+  
+  **UX Requirements**:
+  - One-Click Login für Returning Users
+  - Progressive Onboarding (Start simple, add security later)
+  - Clear Security Explanations
+  - Fallback für Feature-Limited Devices
+
+rewards:
+  referral_bonus: 5
+  early_completion_bonus: 15
+  quality_bonus: 25
+
+voting_required: false
+dispute_process: "standard"

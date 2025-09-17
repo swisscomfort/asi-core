@@ -1,0 +1,103 @@
+title: "Comprehensive Contributor Guide erstellen"
+category: "docs"
+difficulty: 2
+credit_reward: 30
+reputation_weight: 4
+estimated_hours: 6
+skill_tags: ["documentation", "markdown", "community", "onboarding"]
+requires_one_human: false
+
+dod: |
+  - Vollständiger Contributor Guide in Markdown
+  - Step-by-Step Onboarding für neue Contributors
+  - Code-Style-Guidelines dokumentiert
+  - Pull-Request-Prozess erklärt
+  - Ticket-System-Nutzung beschrieben
+  - Community-Verhaltenskodex integriert
+  - Troubleshooting-Sektion
+  - Mindestens 3 Peer-Reviews durch Contributors
+
+description: |
+  Ein umfassender Contributor Guide ist essentiell für das Wachstum der 
+  Oryn-Community. Er soll neuen Contributors einen reibungslosen Einstieg
+  ermöglichen und erfahrenen Contributors als Nachschlagewerk dienen.
+  
+  Der Guide soll motivierend und einladend geschrieben sein, dabei aber
+  alle technischen Details abdecken, die für erfolgreiche Beiträge 
+  erforderlich sind.
+
+acceptance_criteria:
+  - Onboarding für absolute Programmier-Anfänger
+  - Technische Setup-Anleitung für alle Betriebssysteme
+  - Klare Erklärung der Oryn-Philosophie und -Werte
+  - Beispiele für typische erste Tickets
+  - Links zu weiteren Lernressourcen
+  - FAQ-Sektion für häufige Fragen
+  - Kontaktmöglichkeiten für Hilfe und Mentoring
+
+evidence_requirements:
+  code_review: true
+  tests_passing: false
+  documentation: true
+  security_audit: false
+  accessibility_check: false
+
+bonus_criteria:
+  - "Video-Tutorials für Setup-Prozess"
+  - "Interactive Code-Beispiele"
+  - "Mehrsprachige Version (Deutsch/Englisch)"
+  - "Community-Stories von erfolgreichen Contributors"
+
+content_structure:
+  introduction:
+    - Willkommen bei Oryn
+    - Unsere Mission und Werte
+    - Wie jeder beitragen kann
+  
+  getting_started:
+    - Entwicklungsumgebung Setup
+    - Erstes Ticket finden und claimen
+    - Code-Änderungen vornehmen
+    - Tests ausführen
+    - Pull Request erstellen
+  
+  guidelines:
+    - Code Style Guide
+    - Commit Message Format
+    - Testing Requirements
+    - Documentation Standards
+  
+  community:
+    - Verhaltenskodex
+    - Kommunikationskanäle
+    - Mentoring-Programm
+    - Konfliktlösung
+  
+  advanced:
+    - Ticket-Erstellung
+    - Architecture Decisions
+    - Security Considerations
+    - Performance Guidelines
+
+quality_standards:
+  - Klare, verständliche Sprache
+  - Logische Struktur und Navigation
+  - Aktuelle Code-Beispiele
+  - Screenshots für UI-relevante Schritte
+  - Links zu externen Ressourcen aktuell
+  - Regelmäßige Updates geplant
+
+accessibility_requirements:
+  - Markdown semantisch korrekt strukturiert
+  - Alt-Texte für alle Bilder
+  - Klare Überschriften-Hierarchie
+  - Einfache, inklusive Sprache
+
+files_to_create:
+  - "docs/contributors/README.md"
+  - "docs/contributors/getting-started.md"
+  - "docs/contributors/code-guidelines.md"
+  - "docs/contributors/testing-guide.md"
+  - "docs/contributors/troubleshooting.md"
+  - "docs/contributors/faq.md"
+  - "docs/contributors/mentoring.md"

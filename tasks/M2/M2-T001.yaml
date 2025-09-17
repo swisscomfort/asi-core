@@ -1,0 +1,122 @@
+task_id: "M2-T001"
+title: "TaskRegistry Smart Contract Deployment"
+version: "1.0"
+status: "open"
+
+bounty:
+  token: "ASI"
+  amount: 3000
+  currency_equivalent: "~30 USD"
+
+created: "2025-09-16"
+deadline: "2025-11-10"
+estimated_hours: 12
+
+dependencies: ["M1-T001", "M1-T003"]
+blocks: ["M2-T002", "M2-T003"]
+
+deliverables:
+  - "TaskRegistry.sol deployed auf Polygon Mumbai"
+  - "Hardhat Deployment Scripts"
+  - "Contract Verification auf PolygonScan"
+  - "ABI Export für Frontend Integration"
+  - "Gas-optimierte Implementation"
+
+definition_of_done:
+  - "Contract deployed und verified"
+  - "All tests passing (100% coverage für kritische functions)"
+  - "Gas Usage <200k für typische Operations"
+  - "Security Audit checklist abgearbeitet"
+  - "Integration Tests mit Testnet"
+
+reviewers:
+  - "0x742d35Cc6634C0532925a3b8D"
+  - "0xe5f8a3c6d9b2e4f7a0c3d6e9b"
+
+auto_verifier:
+  github:
+    repo: "swisscomfort/asi-core"
+    branch: "main"
+    required_checks: 
+      - "build"
+      - "test"
+      - "lint"
+      - "contract-tests"
+      - "security-scan"
+  content_checks:
+    must_include:
+      - "contracts/task-system/"
+      - "scripts/deploy-task-registry.js"
+      - "test/TaskRegistry.test.js"
+      - "deployments/mumbai/"
+    must_not_include:
+      - "hardhat-console"
+      - "test-private-keys"
+
+category: "contracts"
+difficulty: "advanced"
+skills_required:
+  - "Solidity Development"
+  - "Hardhat/Truffle"
+  - "Gas Optimization"
+  - "Security Best Practices"
+
+license: "AGPL-3.0"
+contributor_agreement: "required"
+privacy_impact: "medium"
+
+evidence:
+  github_pr: ""
+  ipfs_cids: []
+  demo_url: ""
+  documentation: ""
+
+notes: |
+  **SMART CONTRACT FOUNDATION**: TaskRegistry ist das Herzstück des dezentralen
+  Task-Systems - es muss bullet-proof und gas-effizient sein.
+  
+  **Deployment Requirements**:
+  - Polygon Mumbai Testnet zuerst
+  - Constructor Parameter dokumentiert
+  - Upgradeability durch Proxy Pattern (optional)
+  - Role-based Access Control konfiguriert
+  
+  **Gas Optimization**:
+  - Packed Structs für Storage Efficiency
+  - Events statt Storage wo möglich
+  - Batch Operations für Multiple Tasks
+  - Optimized Loops und Conditionals
+  
+  **Security Checklist**:
+  - Reentrancy Guards on state-changing functions
+  - Overflow/Underflow Protection (Solidity ^0.8)
+  - Access Control für alle admin functions
+  - Input Validation für alle parameters
+  - Emergency Pause Mechanism
+  
+  **Testing Requirements**:
+  - Unit Tests für alle public functions
+  - Integration Tests mit RewardVault
+  - Fuzz Testing für edge cases
+  - Gas Usage Tests für optimization
+  - Upgrade Tests wenn applicable
+  
+  **Monitoring & Observability**:
+  - Comprehensive Event Emission
+  - Error Messages mit Context
+  - Admin Dashboard Integration
+  - Metrics Collection für Analytics
+  
+  **Future-Proofing**:
+  - Modular Design für easy extensions
+  - Version Management für contract upgrades
+  - Migration Scripts für data transfer
+  - Backward Compatibility considerations
+
+rewards:
+  referral_bonus: 5
+  early_completion_bonus: 15
+  quality_bonus: 25
+
+voting_required: false
+dispute_process: "standard"

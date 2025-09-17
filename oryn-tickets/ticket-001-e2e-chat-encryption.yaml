@@ -1,0 +1,69 @@
+title: "Chat-Funktion E2E-Verschlüsselung implementieren"
+category: "security"
+difficulty: 4
+credit_reward: 75
+reputation_weight: 8
+estimated_hours: 12
+skill_tags: ["javascript", "cryptography", "webapi", "security"]
+requires_one_human: true
+
+dod: |
+  - WebCrypto API für E2E-Verschlüsselung implementiert
+  - Schlüsselaustausch über Signal-Protokoll oder ähnlich
+  - Nachrichten werden lokal ver-/entschlüsselt
+  - Schlüssel niemals an Server übertragen
+  - Unit-Tests für alle Krypto-Funktionen
+  - Integration-Tests für Chat-Flow
+  - Sicherheits-Dokumentation erstellt
+  - Code-Review durch Security-Experten
+
+description: |
+  Die Chat-Funktion von Oryn benötigt Ende-zu-Ende-Verschlüsselung, um sicherzustellen, 
+  dass nur die Kommunikationspartner Nachrichten lesen können. Dies ist ein 
+  Grundpfeiler für die Privatsphäre im Oryn-Ökosystem.
+  
+  Die Implementierung soll moderne Web-Standards nutzen (WebCrypto API) und 
+  bewährte kryptographische Protokolle einsetzen. Besonderer Fokus liegt auf 
+  der Benutzerfreundlichkeit - Verschlüsselung soll transparent funktionieren.
+
+acceptance_criteria:
+  - Automatischer Schlüsselaustausch bei neuen Chats
+  - Nachrichten sind im Transit und at-rest verschlüsselt
+  - Forward Secrecy durch regelmäßige Schlüssel-Rotation
+  - Schlüssel-Backup und Recovery-Mechanismus
+  - Performance: Verschlüsselung <100ms für normale Nachrichten
+  - Browser-Kompatibilität: Chrome 90+, Firefox 88+, Safari 14+
+  - Keine Abhängigkeiten zu proprietären Bibliotheken
+
+evidence_requirements:
+  code_review: true
+  tests_passing: true
+  documentation: true
+  security_audit: true
+  accessibility_check: false
+
+bonus_criteria:
+  - "Perfect Forward Secrecy implementiert"
+  - "Key-Verification durch QR-Codes"
+  - "Offline-Message-Queue mit Verschlüsselung"
+  - "Cross-Device-Synchronisation der Schlüssel"
+
+implementation_hints:
+  - Verwende WebCrypto API für AES-GCM und ECDH
+  - Speichere Schlüssel in IndexedDB (verschlüsselt)
+  - Signal-Protokoll als Referenz für Key-Exchange
+  - Considere Double-Ratchet für Forward Secrecy
+
+security_requirements:
+  - Kein Plaintext-Storage von Schlüsseln
+  - Sichere Zufallszahlen für Key-Generation
+  - Protection gegen Timing-Attacks
+  - Memory-Clear nach Verwendung sensibler Daten
+
+files_to_modify:
+  - "src/chat/encryption.js"
+  - "src/chat/keyExchange.js" 
+  - "src/chat/chatManager.js"
+  - "src/storage/secureStorage.js"
+  - "tests/chat/encryption.test.js"
+  - "docs/security/e2e-encryption.md"
