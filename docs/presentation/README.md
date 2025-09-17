@@ -12,11 +12,22 @@ Diese Präsentation demonstriert die Kernkonzepte von ASI-Core durch **interakti
 
 ### 🚀 Schnellstart für Demo
 
+**WICHTIG**: Laden Sie zuerst Ihre PDF-Präsentation hoch!
+
 ```bash
-# Präsentations-Umgebung Setup
+# 1. PDF Upload Status prüfen
+./docs/presentation/setup_assistant.sh
+
+# 2. PDF hochladen (falls leer)
+# - Drag & Drop in VS Code Explorer: docs/presentation/
+# - Dateiname MUSS sein: ASI-Core_Presentation.pdf
+
+# 3. Upload verifizieren
+./docs/presentation/verify_pdf_upload.sh
+
+# 4. Demo starten
 cd docs/presentation
-chmod +x setup-presentation.sh
-./setup-presentation.sh
+python demo.py
 
 # Interaktive Python-Demo starten
 python demo/demo_asi.py
