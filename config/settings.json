@@ -1,19 +1,47 @@
 {
-  "asi_version": "0.1.0",
+  "asi_version": "2.0.0",
   "environment": "development",
   "features": {
     "local_storage": true,
     "ipfs_enabled": false,
     "arweave_enabled": false,
-    "blockchain_enabled": false
+    "blockchain_enabled": false,
+    "enable_hrm": true,
+    "enable_state_management": true,
+    "cache_embeddings": true
   },
   "privacy": {
     "anonymize_content": true,
     "local_encryption": true,
-    "no_personal_data": true
+    "no_personal_data": true,
+    "default_level": "private",
+    "anonymization_enabled": true,
+    "share_patterns_anonymously": false
   },
   "storage": {
     "local_path": "./data/reflections",
-    "backup_path": "./data/backups"
+    "backup_path": "./data/backups",
+    "database_path": "data/asi_local.db",
+    "ipfs_api_url": "http://localhost:5001",
+    "arweave_gateway": "https://arweave.net",
+    "max_embedding_cache": 10000,
+    "backup_interval_hours": 24
+  },
+  "ai": {
+    "embedding_dimension": 384,
+    "similarity_threshold": 0.7,
+    "max_search_results": 20,
+    "pattern_recognition_min_data": 5
+  },
+  "state_management": {
+    "default_state": 0,
+    "state_history_limit": 1000,
+    "auto_detect_state": true,
+    "state_transition_analysis": true
+  },
+  "ui": {
+    "theme": "auto",
+    "language": "de",
+    "show_debug_panel": false
   }
 }

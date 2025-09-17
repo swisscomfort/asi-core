@@ -49,6 +49,38 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 
+# ASI-Core Environment & Secrets
+.env
+.env.local
+.env.production
+config/secrets.json
+config/local.json
+data/local/wallet.json
+data/local/private_keys.json
+
+# ASI-Core Data (optional - comment out if you want to track)
+# data/reflections/
+# data/backups/
+# data/states/
+# data/search/
+
+# ASI-Core Logs
+logs/
+*.log
+
+# ASI-Core Cache
+data/embedding_cache.pkl
+data/search_cache.pkl
+*.cache
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# IDE
+.vscode/settings.json
+.idea/
+
 # Translations
 *.mo
 *.pot

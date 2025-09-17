@@ -1,0 +1,131 @@
+name: 🐛 Bug Report
+description: Melden Sie einen Fehler in ASI-Core
+title: "[BUG] "
+labels: ["bug", "needs-triage"]
+assignees:
+  - swisscomfort
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke, dass Sie einen Bug melden! 🐛 Je detaillierter Ihre Beschreibung, desto schneller können wir helfen.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: 🚨 Schweregrad
+      description: Wie schwerwiegend ist der Bug?
+      options:
+        - "🔴 Kritisch - System funktioniert nicht"
+        - "🟠 Hoch - Wichtige Funktionen betroffen"
+        - "🟡 Mittel - Eingeschränkte Funktionalität"
+        - "🟢 Niedrig - Kosmetischer Fehler"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: 🔧 Betroffene Komponente
+      description: Welcher Teil von ASI-Core ist betroffen?
+      options:
+        - PWA/Frontend
+        - Backend/API
+        - Blockchain Integration
+        - KI/ML Module
+        - Datenbank/Storage
+        - Authentication
+        - Mobile App
+        - Build/Deployment
+        - Documentation
+        - Unbekannt
+    validations:
+      required: true
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: 📝 Bug-Beschreibung
+      description: Was ist das Problem?
+      placeholder: "Beschreiben Sie den Fehler so detailliert wie möglich..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: 🔄 Schritte zur Reproduktion
+      description: Wie kann der Bug reproduziert werden?
+      placeholder: |
+        1. Gehe zu '...'
+        2. Klicke auf '...'
+        3. Scrolle nach unten zu '...'
+        4. Siehe Fehler
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: ✅ Erwartetes Verhalten
+      description: Was sollte stattdessen passieren?
+      placeholder: "Beschreiben Sie das erwartete Verhalten..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: ❌ Tatsächliches Verhalten
+      description: Was passiert stattdessen?
+      placeholder: "Beschreiben Sie das tatsächliche Verhalten..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 🖥️ Umgebung
+      description: In welcher Umgebung tritt der Bug auf?
+      placeholder: |
+        - OS: [z.B. iOS 17.1, Android 14, macOS 14.1]
+        - Browser: [z.B. Chrome 118, Safari 17, Firefox 119]
+        - ASI-Core Version: [z.B. v2.0.0-beta.1]
+        - Device: [z.B. iPhone 15 Pro, Samsung Galaxy S24]
+    validations:
+      required: true
+
+  - type: textarea
+    id: console-logs
+    attributes:
+      label: 📋 Console Logs / Error Messages
+      description: Relevante Log-Ausgaben oder Fehlermeldungen
+      placeholder: "Fügen Sie Console-Logs, Fehlermeldungen oder Stack Traces ein..."
+      render: shell
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: 📸 Screenshots
+      description: Screenshots können sehr hilfreich sein
+      placeholder: "Ziehen Sie Screenshots hier hinein oder fügen Sie Links ein..."
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 💬 Zusätzlicher Kontext
+      description: Weitere Informationen zum Bug
+      placeholder: "Weitere Details, Workarounds, verwandte Issues..."
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: ✅ Checklist
+      description: Vor dem Absenden prüfen
+      options:
+        - label: Ich habe nach ähnlichen Issues gesucht
+          required: true
+        - label: Ich habe die neueste Version getestet
+          required: true
+        - label: Ich habe alle relevanten Informationen bereitgestellt
+          required: true

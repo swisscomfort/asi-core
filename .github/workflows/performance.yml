@@ -1,0 +1,94 @@
+# Performance Monitoring & Analytics
+# Überwacht Performance-Metriken und erstellt Reports
+
+name: 📊 Performance Analytics
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Täglich um 2 Uhr
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['src/**', 'web/**']
+
+jobs:
+  performance_audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        
+      - name: 🔧 Setup Environment
+        uses: ./.github/actions/setup-environment
+        
+      - name: 🚀 Start ASI-Core
+        run: |
+          docker-compose up -d
+          sleep 30  # Wait for services
+          
+      - name: 🔍 Lighthouse Audit
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: |
+            http://localhost:5173
+            http://localhost:5173/dashboard
+            http://localhost:5173/admin
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+          
+      - name: 📈 Load Testing
+        run: |
+          npm install -g autocannon
+          
+          # API Load Tests
+          autocannon -c 10 -d 30 http://localhost:8000/api/health
+          autocannon -c 5 -d 20 http://localhost:8000/api/stats
+          
+          # Frontend Load Tests  
+          autocannon -c 10 -d 30 http://localhost:5173
+          
+      - name: 💾 Memory Profiling
+        run: |
+          # Python Memory Profiling
+          pip install memory-profiler
+          python -m memory_profiler src/asi_core.py
+          
+          # Node Memory Analysis
+          cd web && npm run build:analyze
+          
+      - name: 📊 Generate Report
+        run: |
+          cat > performance_report.md << 'EOF'
+          # ASI-Core Performance Report
+          
+          ## 🔍 Lighthouse Scores
+          - Performance: [See Artifacts]
+          - Accessibility: [See Artifacts]
+          - Best Practices: [See Artifacts]
+          - SEO: [See Artifacts]
+          
+          ## 📈 Load Test Results
+          - API Throughput: [Results from autocannon]
+          - Frontend Response Time: [Results from autocannon]
+          
+          ## 💾 Memory Usage
+          - Python Backend: [Memory profiler results]
+          - Frontend Bundle: [Webpack analyzer results]
+          
+          Generated: $(date)
+          EOF
+          
+      - name: 💬 Comment PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('performance_report.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 📊 Performance Report\n\n${report}`
+            });

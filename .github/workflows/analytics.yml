@@ -1,0 +1,123 @@
+# Repository Analytics & Insights
+# Sammelt und analysiert Repository-Metriken
+
+name: 📊 Repository Analytics
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Wöchentlich Sonntags
+  workflow_dispatch:
+
+jobs:
+  analytics:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Komplette History
+          
+      - name: 📊 Code Statistics
+        run: |
+          # Code-Zeilen zählen
+          echo "## 📏 Code Statistics" > analytics_report.md
+          echo "| Language | Files | Lines | Blank | Comment |" >> analytics_report.md
+          echo "|----------|--------|--------|--------|----------|" >> analytics_report.md
+          
+          # Python Stats
+          python_files=$(find . -name "*.py" | wc -l)
+          python_lines=$(find . -name "*.py" -exec wc -l {} + | tail -1 | awk '{print $1}')
+          echo "| Python | $python_files | $python_lines | - | - |" >> analytics_report.md
+          
+          # JavaScript Stats  
+          js_files=$(find . -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" | wc -l)
+          js_lines=$(find . -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" -exec wc -l {} + | tail -1 | awk '{print $1}')
+          echo "| JavaScript/TS | $js_files | $js_lines | - | - |" >> analytics_report.md
+          
+          # Markdown Stats
+          md_files=$(find . -name "*.md" | wc -l)  
+          md_lines=$(find . -name "*.md" -exec wc -l {} + | tail -1 | awk '{print $1}')
+          echo "| Markdown | $md_files | $md_lines | - | - |" >> analytics_report.md
+          
+          echo "" >> analytics_report.md
+          
+      - name: 📈 Git Statistics
+        run: |
+          echo "## 📈 Git Statistics" >> analytics_report.md
+          echo "- **Total Commits**: $(git rev-list --all --count)" >> analytics_report.md
+          echo "- **Contributors**: $(git log --format='%an' | sort -u | wc -l)" >> analytics_report.md
+          echo "- **Branches**: $(git branch -r | wc -l)" >> analytics_report.md
+          echo "- **Tags**: $(git tag | wc -l)" >> analytics_report.md
+          echo "" >> analytics_report.md
+          
+          # Top Contributors
+          echo "## 👥 Top Contributors" >> analytics_report.md
+          git log --format='%an' | sort | uniq -c | sort -nr | head -10 | while read count name; do
+            echo "- **$name**: $count commits" >> analytics_report.md
+          done
+          echo "" >> analytics_report.md
+          
+      - name: 📁 Repository Structure
+        run: |
+          echo "## 📁 Repository Structure" >> analytics_report.md
+          echo "\`\`\`" >> analytics_report.md
+          tree -I 'node_modules|.git|__pycache__|*.pyc|dist|build' -L 3 >> analytics_report.md
+          echo "\`\`\`" >> analytics_report.md
+          echo "" >> analytics_report.md
+          
+      - name: 🔍 Dependencies Analysis
+        run: |
+          echo "## 🔍 Dependencies" >> analytics_report.md
+          
+          # Python Dependencies
+          if [ -f requirements.txt ]; then
+            echo "### Python Dependencies" >> analytics_report.md
+            echo "- **Count**: $(cat requirements.txt | grep -v '^#' | grep -v '^$' | wc -l)" >> analytics_report.md
+            echo "- **Latest**: $(head -5 requirements.txt | grep -v '^#')" >> analytics_report.md
+          fi
+          
+          # NPM Dependencies
+          if [ -f web/package.json ]; then
+            echo "### NPM Dependencies" >> analytics_report.md
+            cd web
+            echo "- **Production**: $(jq '.dependencies | keys | length' package.json)" >> ../analytics_report.md
+            echo "- **Development**: $(jq '.devDependencies | keys | length' package.json)" >> ../analytics_report.md
+            cd ..
+          fi
+          
+      - name: 📊 Create Analytics Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('analytics_report.md', 'utf8');
+            
+            // Suche nach existierendem Analytics Issue
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['📊 analytics'],
+              state: 'open'
+            });
+            
+            const title = `📊 Weekly Repository Analytics - ${new Date().toISOString().split('T')[0]}`;
+            
+            if (issues.data.length > 0) {
+              // Update existierendes Issue
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issues.data[0].number,
+                title: title,
+                body: report
+              });
+            } else {
+              // Erstelle neues Issue
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: report,
+                labels: ['📊 analytics', '📋 documentation']
+              });
+            }

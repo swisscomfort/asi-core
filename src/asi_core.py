@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ASI-Core: Artificial Self-Intelligence System
-Erweiterte Version mit Hybrid-Modell und State Management
+Erweiterte Version mit Hybrid-Modell, State Management und Agent-Integration
 """
 
 import json
@@ -13,13 +13,27 @@ from typing import Dict, List, Optional
 
 # ASI Core Module importieren
 sys.path.append(str(Path(__file__).parent.parent))
-from asi_core.blockchain import ASIBlockchainClient, ASIBlockchainError
-from asi_core.state_management import ASIStateManager, suggest_state_from_text
+
+try:
+    from asi_core.blockchain import ASIBlockchainClient, ASIBlockchainError
+    from asi_core.state_management import ASIStateManager, suggest_state_from_text
+    from asi_core.agent_manager import ASIAgentManager, create_agent_manager_from_config
+except ImportError as e:
+    print(f"⚠️ Import-Fehler: {e}")
+    print("Versuche lokale Imports...")
+    
+    # Fallback: Direkte Pfad-Imports
+    asi_core_path = Path(__file__).parent.parent / "asi_core"
+    sys.path.insert(0, str(asi_core_path.parent))
+    
+    from asi_core.blockchain import ASIBlockchainClient, ASIBlockchainError
+    from asi_core.state_management import ASIStateManager, suggest_state_from_text
+    from asi_core.agent_manager import ASIAgentManager, create_agent_manager_from_config
 
 
 class ASICore:
     """
-    Hauptklasse für das ASI System mit Hybrid-Modell Support
+    Hauptklasse für das ASI System mit Hybrid-Modell, State Management und Agent-Integration
     """
 
     def __init__(self, config_path="config/settings.json"):
@@ -32,6 +46,10 @@ class ASICore:
         # Blockchain Client (optional)
         self.blockchain_client = None
         self._initialize_blockchain()
+
+        # Agent Manager initialisieren
+        self.agent_manager = None
+        self._initialize_agent_system()
 
         # Reflexionshistorie
         self.reflections = []
@@ -84,9 +102,43 @@ class ASICore:
         except Exception as e:
             print(f"⚠️ Blockchain-Verbindung fehlgeschlagen: {e}")
 
+    def _initialize_agent_system(self):
+        """Initialisiert das Agent-System mit Blockchain-Integration"""
+        try:
+            self.agent_manager = ASIAgentManager(
+                data_dir="data/agents",
+                blockchain_client=self.blockchain_client
+            )
+            
+            # Haupt-ASI-Agent registrieren falls noch nicht vorhanden
+            asi_agents = [agent for agent in self.agent_manager.list_agents() if agent.name == "ASI-Core"]
+            
+            if not asi_agents:
+                agent_id = self.agent_manager.register_agent(
+                    name="ASI-Core",
+                    capabilities=[
+                        "reflection", "state_management", "blockchain_integration",
+                        "semantic_search", "pattern_recognition", "self_improvement"
+                    ],
+                    learning_goals=[
+                        "improve_reflection_quality", "optimize_state_transitions",
+                        "enhance_pattern_detection", "increase_prediction_accuracy"
+                    ]
+                )
+                self.main_agent_id = agent_id
+                print(f"🤖 Haupt-ASI-Agent registriert: {agent_id}")
+            else:
+                self.main_agent_id = asi_agents[0].agent_id
+                print(f"🤖 Haupt-ASI-Agent geladen: {self.main_agent_id}")
+                
+        except Exception as e:
+            print(f"⚠️ Agent-System-Initialisierung fehlgeschlagen: {e}")
+            self.agent_manager = None
+            self.main_agent_id = None
+
     def add_reflection(self, content, tags=None, auto_detect_state=True):
         """
-        Fügt eine neue Reflexion hinzu (Legacy-Funktion mit Standardzustand)
+        Fügt eine neue Reflexion hinzu mit automatischer Zustandserkennung
 
         Args:
             content: Reflexionsinhalt
@@ -103,82 +155,79 @@ class ASICore:
 
         return self.add_state_reflection(content, suggested_state, tags)
 
-    async def add_state_reflection(
+    def add_state_reflection(
         self, reflection_text: str, state_value: int, tags: Optional[List[str]] = None
     ):
         """
-        Fügt eine zustandsbasierte Reflexion hinzu (Hybrid-Modell)
+        Fügt eine Reflexion mit spezifischem Zustandswert hinzu (Agent-integriert).
 
         Args:
-            reflection_text: Der Reflexionstext
-            state_value: Zustandswert (0-255)
-            tags: Liste von Tags
-
-        Returns:
-            Dictionary mit Reflexionsdaten
+            reflection_text (str): Der Reflexionstext.
+            state_value (int): Der Zustandswert (0-100).
+            tags (Optional[List[str]]): Optionale Tags für die Reflexion.
         """
-        try:
-            if tags is None:
-                tags = []
+        timestamp = datetime.now().isoformat()
+        reflection_id = f"refl_{len(self.reflections) + 1}"
 
-            # Zustandsreflexion erstellen
-            reflection_data = self.state_manager.create_state_reflection(
-                reflection_text, state_value, tags
-            )
+        # Dummy-Embedding erstellen
+        embedding_bytes = self._create_dummy_embedding(reflection_text)
 
-            # Lokale Speicherung
-            timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"data/reflections/state_{timestamp_str}.json"
+        reflection = {
+            "id": reflection_id,
+            "text": reflection_text,
+            "state_value": state_value,
+            "tags": tags or [],
+            "timestamp": timestamp,
+            "embedding": embedding_bytes,
+        }
 
-            with open(filename, "w", encoding="utf-8") as f:
-                json.dump(reflection_data, f, indent=2, ensure_ascii=False)
+        self.reflections.append(reflection)
+        print(f"� Reflexion hinzugefügt (Zustand: {state_value}): {reflection_text[:50]}...")
 
-            print(f"💾 Zustandsreflexion lokal gespeichert: {filename}")
+        # Agent-Aktion protokollieren
+        if self.agent_manager and self.main_agent_id:
+            try:
+                confidence = min(0.8 + (state_value / 1000), 1.0)  # Höhere States = höhere Confidence
+                action_data = {
+                    "reflection_length": len(reflection_text),
+                    "state_value": state_value,
+                    "tags_count": len(tags) if tags else 0,
+                    "has_embedding": bool(embedding_bytes)
+                }
+                
+                self.agent_manager.record_agent_action(
+                    agent_id=self.main_agent_id,
+                    action_type="state_reflection",
+                    result_data=action_data,
+                    confidence=confidence
+                )
+                print(f"🤖 Agent-Aktion protokolliert: state_reflection (Confidence: {confidence:.3f})")
+                
+            except Exception as e:
+                print(f"⚠️ Agent-Protokollierung fehlgeschlagen: {e}")
 
-            # Zur internen Historie hinzufügen
-            self.reflections.append(reflection_data)
+        # Hybrid-Modell: Blockchain-Registrierung bei hohen Zustandswerten
+        if (
+            self.blockchain_client
+            and self.blockchain_client.is_connected()
+            and state_value >= 70  # Nur wichtige Reflexionen on-chain
+        ):
+            try:
+                tx_hash = self.blockchain_client.register_hybrid_entry_on_chain(
+                    cid=f"state_reflection_{reflection_id}",
+                    tags=tags or [f"state:{state_value}"],
+                    embedding=embedding_bytes,
+                    state_value=state_value,
+                    timestamp=int(datetime.now().timestamp()),
+                )
+                print(f"🔗 Blockchain-Eintrag erstellt: {tx_hash}")
+                reflection["blockchain_tx"] = tx_hash
+                
+            except ASIBlockchainError as e:
+                print(f"⚠️ Blockchain-Registrierung fehlgeschlagen: {e}")
 
-            # Blockchain-Registrierung (falls verfügbar)
-            if self.blockchain_client:
-                try:
-                    # Dummy-Embedding für Demo (in Produktion würde hier echtes Embedding generiert)
-                    embedding = self._create_dummy_embedding(reflection_text)
-
-                    # CID für Demo (in Produktion würde hier IPFS/Arweave verwendet)
-                    cid = f"demo-{timestamp_str}-{hash(reflection_text) % 10000}"
-
-                    tx_hash = self.blockchain_client.register_hybrid_entry_on_chain(
-                        cid=cid,
-                        tags=tags,
-                        embedding=embedding,
-                        state_value=state_value,
-                        timestamp=reflection_data["unix_timestamp"],
-                    )
-
-                    reflection_data["blockchain"] = {
-                        "tx_hash": tx_hash,
-                        "cid": cid,
-                        "registered": True,
-                    }
-
-                    print(f"⛓️ Blockchain-Registrierung erfolgreich: {tx_hash[:10]}...")
-
-                except ASIBlockchainError as e:
-                    print(f"⚠️ Blockchain-Registrierung fehlgeschlagen: {e}")
-                    reflection_data["blockchain"] = {
-                        "registered": False,
-                        "error": str(e),
-                    }
-
-            print(
-                f"✅ Zustandsreflexion hinzugefügt: Zustand {state_value} ({self.state_manager.get_state_name(state_value)})"
-            )
-
-            return reflection_data
-
-        except Exception as e:
-            print(f"❌ Fehler beim Hinzufügen der Zustandsreflexion: {e}")
-            raise
+        # State Management aktualisieren
+        self.state_manager.update_statistics(state_value)
 
     def _create_dummy_embedding(self, text: str, size: int = 128) -> bytes:
         """Erstellt ein Dummy-Embedding für Demo-Zwecke"""
@@ -282,6 +331,139 @@ class ASICore:
     def get_available_states(self):
         """Gibt verfügbare Zustandsdefinitionen zurück"""
         return self.state_manager.STATE_DEFINITIONS
+
+    # =============================================================================
+    # Agent-spezifische Methoden
+    # =============================================================================
+
+    def get_agent_stats(self) -> Dict:
+        """Ruft Statistiken über das Agent-System ab."""
+        if not self.agent_manager:
+            return {"error": "Agent-System nicht initialisiert"}
+        
+        return self.agent_manager.get_agent_statistics()
+
+    def trigger_agent_learning(self, topic: str, learning_data: Dict = None) -> Optional[str]:
+        """
+        Löst einen Lernprozess für den Haupt-ASI-Agent aus.
+        
+        Args:
+            topic (str): Lernthema.
+            learning_data (Dict, optional): Zusätzliche Lerndaten.
+        
+        Returns:
+            Optional[str]: Blockchain-Transaction-Hash oder None.
+        """
+        if not self.agent_manager or not self.main_agent_id:
+            print("⚠️ Agent-System nicht verfügbar")
+            return None
+        
+        # Lernfortschritt basierend auf aktuellen Reflexionen berechnen
+        recent_reflections = self.reflections[-10:]  # Letzte 10 Reflexionen
+        avg_state = sum(r.get("state_value", 50) for r in recent_reflections) / max(len(recent_reflections), 1)
+        
+        # Improvement Score basierend auf State-Trend
+        improvement_score = min(avg_state / 100.0, 1.0)
+        
+        learning_data = learning_data or {}
+        learning_data.update({
+            "recent_reflections": len(recent_reflections),
+            "avg_state_value": avg_state,
+            "total_reflections": len(self.reflections)
+        })
+        
+        return self.agent_manager.record_agent_learning(
+            agent_id=self.main_agent_id,
+            topic=topic,
+            improvement_score=improvement_score,
+            learning_data=learning_data
+        )
+
+    def create_sub_agent(self, name: str, specialization: List[str]) -> Optional[str]:
+        """
+        Erstellt einen spezialisierten Sub-Agenten.
+        
+        Args:
+            name (str): Name des Sub-Agenten.
+            specialization (List[str]): Spezialisierungsbereiche.
+        
+        Returns:
+            Optional[str]: Agent-ID oder None bei Fehler.
+        """
+        if not self.agent_manager:
+            print("⚠️ Agent-System nicht verfügbar")
+            return None
+        
+        try:
+            agent_id = self.agent_manager.register_agent(
+                name=f"ASI-{name}",
+                capabilities=specialization + ["asi_integration"],
+                learning_goals=[f"improve_{spec}" for spec in specialization],
+                collaboration_preferences={"parent_agent": self.main_agent_id}
+            )
+            
+            print(f"🤖 Sub-Agent erstellt: {name} (ID: {agent_id})")
+            return agent_id
+            
+        except Exception as e:
+            print(f"⚠️ Sub-Agent-Erstellung fehlgeschlagen: {e}")
+            return None
+
+    def initiate_agent_collaboration(self, agents: List[str], task: str) -> Optional[str]:
+        """
+        Startet eine Kollaboration zwischen Agenten.
+        
+        Args:
+            agents (List[str]): Liste der Agent-IDs.
+            task (str): Kollaborationsaufgabe.
+        
+        Returns:
+            Optional[str]: Kollaborations-ID oder None.
+        """
+        if not self.agent_manager:
+            print("⚠️ Agent-System nicht verfügbar")
+            return None
+        
+        # Haupt-Agent zur Kollaboration hinzufügen falls nicht enthalten
+        if self.main_agent_id and self.main_agent_id not in agents:
+            agents = [self.main_agent_id] + agents
+        
+        try:
+            collab_id = self.agent_manager.initiate_collaboration(
+                agent_ids=agents,
+                collaboration_type=task,
+                goals=[f"complete_{task}", "improve_collaboration", "share_knowledge"]
+            )
+            
+            print(f"🤝 Kollaboration gestartet: {task} (ID: {collab_id})")
+            return collab_id
+            
+        except Exception as e:
+            print(f"⚠️ Kollaboration fehlgeschlagen: {e}")
+            return None
+
+    def show_agent_network(self):
+        """Zeigt das gesamte Agent-Netzwerk an."""
+        if not self.agent_manager:
+            print("⚠️ Agent-System nicht verfügbar")
+            return
+        
+        print("\n🕸️ Agent-Netzwerk:")
+        print("=" * 18)
+        
+        agents = self.agent_manager.list_agents()
+        
+        for agent in agents:
+            status = "🟢" if agent.agent_id == self.main_agent_id else "🔵"
+            role = "MAIN" if agent.agent_id == self.main_agent_id else "SUB"
+            
+            print(f"{status} {agent.name} ({role})")
+            print(f"   📋 {', '.join(agent.capabilities[:3])}{'...' if len(agent.capabilities) > 3 else ''}")
+            print(f"   ⚡ {agent.total_actions} Aktionen, 💯 {agent.avg_confidence:.3f} Confidence")
+        
+        # Netzwerk-Statistiken
+        stats = self.agent_manager.get_agent_statistics()
+        print(f"\n📊 Netzwerk: {stats['total_agents']} Agenten, {stats['total_actions']} Aktionen, {stats['active_collaborations']} Kollaborationen")
 
 
 def main():

@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  asi-core:
+    build: .
+    container_name: asi-core
+    ports:
+      - "5000:5000"  # API
+      - "8000:8000"  # Web Interface
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+      - ./logs:/app/logs
+    environment:
+      - ASI_DEBUG=${ASI_DEBUG:-false}
+      - ENABLE_BLOCKCHAIN=${ENABLE_BLOCKCHAIN:-false}
+      - MUMBAI_RPC_URL=${MUMBAI_RPC_URL}
+      - PRIVATE_KEY=${PRIVATE_KEY}
+      - ASI_CONTRACT_ADDRESS=${ASI_CONTRACT_ADDRESS}
+    restart: unless-stopped
+    networks:
+      - asi-network
+
+  ipfs:
+    image: ipfs/go-ipfs:latest
+    container_name: asi-ipfs
+    ports:
+      - "5001:5001"  # API
+      - "8080:8080"  # Gateway
+    volumes:
+      - ./data/ipfs:/data/ipfs
+    networks:
+      - asi-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: asi-postgres
+    environment:
+      POSTGRES_DB: asi_core
+      POSTGRES_USER: asi_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-asi_secure_pass}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - asi-network
+
+networks:
+  asi-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

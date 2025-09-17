@@ -1,0 +1,307 @@
+name: 📊 GitHub Pro Analytics & Insights
+description: Automatisierte Sammlung von GitHub Pro Analytics für ASI-Core
+
+on:
+  schedule:
+    # Täglich um 9:00 UTC (10:00 CET)
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+  actions: read
+
+jobs:
+  collect-analytics:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install requests python-dateutil matplotlib seaborn pandas
+
+      - name: Collect GitHub Analytics
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          python - << 'EOF'
+          import requests
+          import json
+          import os
+          from datetime import datetime, timedelta
+          import matplotlib.pyplot as plt
+          import pandas as pd
+
+          # GitHub API Setup
+          token = os.environ['GITHUB_TOKEN']
+          owner = os.environ['REPO_OWNER'] 
+          repo = os.environ['REPO_NAME']
+          
+          headers = {
+              'Authorization': f'token {token}',
+              'Accept': 'application/vnd.github.v3+json'
+          }
+
+          def get_traffic_data():
+              """GitHub Pro Feature: Traffic Analytics"""
+              try:
+                  # Views
+                  views_url = f'https://api.github.com/repos/{owner}/{repo}/traffic/views'
+                  views_response = requests.get(views_url, headers=headers)
+                  
+                  # Clones
+                  clones_url = f'https://api.github.com/repos/{owner}/{repo}/traffic/clones'
+                  clones_response = requests.get(clones_url, headers=headers)
+                  
+                  # Referrers
+                  referrers_url = f'https://api.github.com/repos/{owner}/{repo}/traffic/popular/referrers'
+                  referrers_response = requests.get(referrers_url, headers=headers)
+                  
+                  # Paths
+                  paths_url = f'https://api.github.com/repos/{owner}/{repo}/traffic/popular/paths'
+                  paths_response = requests.get(paths_url, headers=headers)
+                  
+                  return {
+                      'views': views_response.json() if views_response.status_code == 200 else {},
+                      'clones': clones_response.json() if clones_response.status_code == 200 else {},
+                      'referrers': referrers_response.json() if referrers_response.status_code == 200 else [],
+                      'paths': paths_response.json() if paths_response.status_code == 200 else []
+                  }
+              except Exception as e:
+                  print(f"Traffic data error: {e}")
+                  return {}
+
+          def get_repository_stats():
+              """Allgemeine Repository-Statistiken"""
+              try:
+                  repo_url = f'https://api.github.com/repos/{owner}/{repo}'
+                  response = requests.get(repo_url, headers=headers)
+                  
+                  if response.status_code == 200:
+                      data = response.json()
+                      return {
+                          'stars': data.get('stargazers_count', 0),
+                          'forks': data.get('forks_count', 0),
+                          'watchers': data.get('watchers_count', 0),
+                          'open_issues': data.get('open_issues_count', 0),
+                          'size': data.get('size', 0),
+                          'language': data.get('language', 'Unknown'),
+                          'created_at': data.get('created_at'),
+                          'updated_at': data.get('updated_at')
+                      }
+              except Exception as e:
+                  print(f"Repository stats error: {e}")
+                  return {}
+
+          def get_commit_activity():
+              """Commit-Aktivität der letzten Woche"""
+              try:
+                  commits_url = f'https://api.github.com/repos/{owner}/{repo}/stats/commit_activity'
+                  response = requests.get(commits_url, headers=headers)
+                  
+                  if response.status_code == 200:
+                      return response.json()
+                  return []
+              except Exception as e:
+                  print(f"Commit activity error: {e}")
+                  return []
+
+          def get_contributor_stats():
+              """Contributor-Statistiken"""
+              try:
+                  contributors_url = f'https://api.github.com/repos/{owner}/{repo}/stats/contributors'
+                  response = requests.get(contributors_url, headers=headers)
+                  
+                  if response.status_code == 200:
+                      return response.json()
+                  return []
+              except Exception as e:
+                  print(f"Contributor stats error: {e}")
+                  return []
+
+          def get_release_data():
+              """Release-Informationen"""
+              try:
+                  releases_url = f'https://api.github.com/repos/{owner}/{repo}/releases'
+                  response = requests.get(releases_url, headers=headers)
+                  
+                  if response.status_code == 200:
+                      return response.json()
+                  return []
+              except Exception as e:
+                  print(f"Release data error: {e}")
+                  return []
+
+          # Daten sammeln
+          print("🔍 Sammle GitHub Pro Analytics...")
+          
+          traffic_data = get_traffic_data()
+          repo_stats = get_repository_stats()
+          commit_activity = get_commit_activity()
+          contributor_stats = get_contributor_stats()
+          release_data = get_release_data()
+          
+          # Analytics zusammenfassen
+          analytics = {
+              'timestamp': datetime.now().isoformat(),
+              'repository': f'{owner}/{repo}',
+              'traffic': traffic_data,
+              'stats': repo_stats,
+              'commit_activity': commit_activity,
+              'contributors': contributor_stats,
+              'releases': release_data
+          }
+          
+          # JSON-Report speichern
+          with open('analytics_report.json', 'w') as f:
+              json.dump(analytics, f, indent=2)
+          
+          # Markdown-Report erstellen
+          report_content = f"""# 📊 ASI-Core Analytics Report
+          
+          **Generiert:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}
+          
+          ## 📈 Traffic Analytics (GitHub Pro)
+          """
+          
+          if traffic_data.get('views'):
+              views = traffic_data['views']
+              report_content += f"""
+          ### 👀 Repository Views (14 Tage)
+          - **Unique Visitors:** {views.get('uniques', 0)}
+          - **Total Views:** {views.get('count', 0)}
+          
+          #### Tägliche Aufschlüsselung:
+          """
+              for view in views.get('views', [])[-7:]:  # Letzte 7 Tage
+                  date = view['timestamp'][:10]
+                  report_content += f"- **{date}:** {view['uniques']} unique visitors, {view['count']} total views\n"
+          
+          if traffic_data.get('clones'):
+              clones = traffic_data['clones']
+              report_content += f"""
+          ### 📦 Repository Clones (14 Tage)
+          - **Unique Clones:** {clones.get('uniques', 0)}
+          - **Total Clones:** {clones.get('count', 0)}
+          """
+          
+          if traffic_data.get('referrers'):
+              report_content += f"""
+          ### 🔗 Top Referrers
+          """
+              for ref in traffic_data['referrers'][:5]:
+                  report_content += f"- **{ref['referrer']}:** {ref['count']} views, {ref['uniques']} unique\n"
+          
+          if traffic_data.get('paths'):
+              report_content += f"""
+          ### 📁 Popular Paths
+          """
+              for path in traffic_data['paths'][:5]:
+                  report_content += f"- **{path['path']}:** {path['count']} views, {path['uniques']} unique\n"
+          
+          # Repository Stats
+          if repo_stats:
+              report_content += f"""
+          ## ⭐ Repository Statistics
+          - **Stars:** {repo_stats.get('stars', 0)}
+          - **Forks:** {repo_stats.get('forks', 0)}
+          - **Watchers:** {repo_stats.get('watchers', 0)}
+          - **Open Issues:** {repo_stats.get('open_issues', 0)}
+          - **Size:** {repo_stats.get('size', 0)} KB
+          - **Primary Language:** {repo_stats.get('language', 'Unknown')}
+          """
+          
+          # Commit Activity
+          if commit_activity:
+              total_commits = sum(week['total'] for week in commit_activity[-4:])  # Letzte 4 Wochen
+              report_content += f"""
+          ## 💻 Development Activity
+          - **Commits (letzte 4 Wochen):** {total_commits}
+          """
+          
+          # Contributors
+          if contributor_stats:
+              report_content += f"""
+          ## 👥 Contributors
+          - **Aktive Contributors:** {len(contributor_stats)}
+          """
+              for contributor in contributor_stats[:3]:  # Top 3
+                  total_commits = contributor.get('total', 0)
+                  login = contributor.get('author', {}).get('login', 'Unknown')
+                  report_content += f"- **{login}:** {total_commits} commits\n"
+          
+          # Releases
+          if release_data:
+              latest_release = release_data[0] if release_data else None
+              if latest_release:
+                  report_content += f"""
+          ## 🚀 Latest Release
+          - **Version:** {latest_release.get('tag_name', 'Unknown')}
+          - **Name:** {latest_release.get('name', 'Unnamed')}
+          - **Published:** {latest_release.get('published_at', 'Unknown')}
+          - **Downloads:** {sum(asset.get('download_count', 0) for asset in latest_release.get('assets', []))}
+          """
+          
+          report_content += f"""
+          
+          ## 🎯 Beta Testing Progress
+          
+          Dieser automatisierte Report wird täglich generiert, um den Fortschritt der 30-Tage Beta-Phase zu verfolgen.
+          
+          ---
+          *Powered by GitHub Pro Analytics & ASI-Core Automation*
+          """
+          
+          # Markdown-Report speichern
+          with open('daily_analytics_report.md', 'w') as f:
+              f.write(report_content)
+          
+          print("✅ Analytics Report erstellt!")
+          print(f"📊 Unique Visitors: {traffic_data.get('views', {}).get('uniques', 'N/A')}")
+          print(f"⭐ Stars: {repo_stats.get('stars', 'N/A')}")
+          print(f"🍴 Forks: {repo_stats.get('forks', 'N/A')}")
+          
+          EOF
+
+      - name: Upload Analytics Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: analytics-report-${{ github.run_number }}
+          path: |
+            analytics_report.json
+            daily_analytics_report.md
+          retention-days: 30
+
+      - name: Create Analytics Issue (Weekly)
+        if: github.event.schedule == '0 9 * * 1'  # Nur montags
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            try {
+              const reportContent = fs.readFileSync('daily_analytics_report.md', 'utf8');
+              
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `📊 Wöchentlicher Analytics Report - ${new Date().toISOString().split('T')[0]}`,
+                body: reportContent,
+                labels: ['analytics', 'automated', 'weekly-report']
+              });
+              
+              console.log('✅ Weekly Analytics Issue erstellt');
+            } catch (error) {
+              console.error('❌ Fehler beim Erstellen des Issues:', error);
+            }

@@ -1,0 +1,179 @@
+# GitHub Labels für ASI-Core
+# Definiert einheitliche Labels für bessere Organisation
+
+labels:
+  # Prioritäten
+  - name: "🔥 priority-critical"
+    color: "d73a4a"
+    description: "Kritische Priorität - sofortige Aufmerksamkeit erforderlich"
+  
+  - name: "⚡ priority-high"
+    color: "d93f0b"
+    description: "Hohe Priorität"
+  
+  - name: "🔶 priority-medium"
+    color: "fbca04"
+    description: "Mittlere Priorität"
+  
+  - name: "🔹 priority-low"
+    color: "0075ca"
+    description: "Niedrige Priorität"
+
+  # Typ von Issues/PRs
+  - name: "🐛 bug"
+    color: "d73a4a"
+    description: "Fehler oder unerwartetes Verhalten"
+  
+  - name: "✨ feature"
+    color: "0052cc"
+    description: "Neue Funktionalität"
+  
+  - name: "🔧 enhancement"
+    color: "a2eeef"
+    description: "Verbesserung existierender Features"
+  
+  - name: "📚 documentation"
+    color: "0075ca"
+    description: "Dokumentation oder Studienführer"
+  
+  - name: "🎨 design"
+    color: "e4e669"
+    description: "UI/UX Design und Frontend"
+  
+  - name: "⚡ performance"
+    color: "f9d0c4"
+    description: "Performance-Optimierungen"
+  
+  - name: "🛡️ security"
+    color: "ee0701"
+    description: "Sicherheits-bezogene Issues"
+  
+  - name: "🧪 testing"
+    color: "d876e3"
+    description: "Test-bezogene Änderungen"
+
+  # Technologie-spezifisch
+  - name: "🐍 python"
+    color: "3572A5"
+    description: "Python Backend"
+  
+  - name: "⚛️ react"
+    color: "61dafb"
+    description: "React Frontend"
+  
+  - name: "🧠 ai-ml"
+    color: "5319e7"
+    description: "AI/ML-bezogene Features"
+  
+  - name: "⛓️ blockchain"
+    color: "fbca04"
+    description: "Blockchain-Integration"
+  
+  - name: "🪙 token"
+    color: "ffd700"
+    description: "$MEM Token-System"
+  
+  - name: "📦 storage"
+    color: "0e8a16"
+    description: "Speicherung (IPFS/Arweave/Storacha)"
+  
+  - name: "🔍 search"
+    color: "5319e7"
+    description: "Semantic Search & Embeddings"
+  
+  - name: "🐳 docker"
+    color: "2496ed"
+    description: "Docker/Containerisierung"
+
+  # Status
+  - name: "🚧 work-in-progress"
+    color: "fbca04"
+    description: "Aktuell in Bearbeitung"
+  
+  - name: "🔍 needs-investigation"
+    color: "d876e3"
+    description: "Benötigt weitere Untersuchung"
+  
+  - name: "💬 needs-discussion"
+    color: "d876e3"
+    description: "Benötigt Community-Diskussion"
+  
+  - name: "✅ ready-for-review"
+    color: "0e8a16"
+    description: "Bereit für Code Review"
+  
+  - name: "🚀 ready-to-deploy"
+    color: "0e8a16"
+    description: "Bereit für Deployment"
+  
+  - name: "❌ blocked"
+    color: "d73a4a"
+    description: "Blockiert durch andere Issues/Dependencies"
+  
+  - name: "📋 backlog"
+    color: "ffffff"
+    description: "Im Backlog für zukünftige Entwicklung"
+
+  # Community
+  - name: "🆘 help-wanted"
+    color: "008672"
+    description: "Community-Hilfe erwünscht"
+  
+  - name: "🎓 good-first-issue"
+    color: "7057ff"
+    description: "Gut für Erst-Beitragende"
+  
+  - name: "🎉 hacktoberfest"
+    color: "ff8c00"
+    description: "Hacktoberfest-taugliche Issues"
+
+  # Automatisierung
+  - name: "🤖 dependencies"
+    color: "0366d6"
+    description: "Automatische Dependency-Updates"
+  
+  - name: "📊 analytics"
+    color: "0e8a16"
+    description: "Analytics und Metriken"
+  
+  - name: "🔄 ci-cd"
+    color: "0366d6"
+    description: "CI/CD Pipeline"
+
+  # Studienführer-spezifisch
+  - name: "📖 sektion-i"
+    color: "b60205"
+    description: "Studienführer Sektion I - Übersicht"
+  
+  - name: "📖 sektion-ii"
+    color: "d93f0b"
+    description: "Studienführer Sektion II - Architektur"
+  
+  - name: "📖 sektion-iii"
+    color: "fbca04"
+    description: "Studienführer Sektion III - Token-Ökonomie"
+  
+  - name: "📖 sektion-iv"
+    color: "0e8a16"
+    description: "Studienführer Sektion IV - Datenschutz"
+  
+  - name: "📖 sektion-v"
+    color: "0052cc"
+    description: "Studienführer Sektion V - Speicherstrategien"
+
+  # Deployment
+  - name: "🌐 deployment"
+    color: "0e8a16"
+    description: "Deployment-bezogene Issues"
+  
+  - name: "☁️ vercel"
+    color: "000000"
+    description: "Vercel Deployment"
+  
+  - name: "🌊 netlify"
+    color: "00c7b7"
+    description: "Netlify Deployment"
+  
+  - name: "📄 github-pages"
+    color: "f1e05a"
+    description: "GitHub Pages Deployment"

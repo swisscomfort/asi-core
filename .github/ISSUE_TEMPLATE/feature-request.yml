@@ -1,0 +1,97 @@
+name: 🚀 Feature Request
+description: Neue Feature-Ideen für ASI-Core
+title: "[FEATURE] "
+labels: ["enhancement", "feature-request"]
+assignees:
+  - swisscomfort
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Haben Sie eine großartige Idee für ASI-Core? Lassen Sie uns davon hören! 💡
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 🎯 Priorität
+      description: Wie wichtig ist dieses Feature?
+      options:
+        - "🔥 Kritisch - Blockiert wichtige Workflows"
+        - "⚡ Hoch - Würde Produktivität deutlich steigern"
+        - "📈 Mittel - Nützliche Verbesserung"
+        - "💡 Niedrig - Nice-to-have"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: 📂 Kategorie
+      description: In welchen Bereich gehört das Feature?
+      options:
+        - PWA/Mobile
+        - Blockchain/Web3
+        - KI/Machine Learning
+        - Benutzer-Interface
+        - API/Integration
+        - Performance
+        - Sicherheit
+        - Analytics/Reporting
+        - Collaboration
+        - Developer Experience
+    validations:
+      required: true
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: 📝 Feature-Beschreibung
+      description: Beschreiben Sie das gewünschte Feature detailliert
+      placeholder: "Was soll das Feature können? Wie soll es funktionieren?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-story
+    attributes:
+      label: 👤 User Story
+      description: Beschreiben Sie das Feature aus Nutzersicht
+      placeholder: "Als [Nutzertyp] möchte ich [Funktionalität], damit [Nutzen/Ziel]"
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-workaround
+    attributes:
+      label: 🔧 Aktueller Workaround
+      description: Wie lösen Sie das Problem derzeit?
+      placeholder: "Welche Alternative nutzen Sie momentan? Was sind die Nachteile?"
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: ✅ Akzeptanzkriterien
+      description: Wann wäre das Feature aus Ihrer Sicht erfolgreich implementiert?
+      placeholder: |
+        - [ ] Kriterium 1
+        - [ ] Kriterium 2
+        - [ ] Kriterium 3
+
+  - type: textarea
+    id: technical-considerations
+    attributes:
+      label: ⚙️ Technische Überlegungen
+      description: Haben Sie technische Vorschläge oder Bedenken?
+      placeholder: "APIs, Frameworks, Performance-Aspekte, Kompatibilität..."
+
+  - type: checkboxes
+    id: implementation-help
+    attributes:
+      label: 🤝 Implementierung
+      description: Können Sie bei der Umsetzung helfen?
+      options:
+        - label: Ich kann bei der Spezifikation helfen
+        - label: Ich kann Code beitragen
+        - label: Ich kann beim Testing helfen
+        - label: Ich kann Feedback geben
+        - label: Ich kann Dokumentation schreiben

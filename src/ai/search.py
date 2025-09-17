@@ -21,6 +21,9 @@ class SearchResult:
     matching_themes: List[str]
     timestamp: datetime
     privacy_level: str
+    tags: List[str] = None
+    state_value: Optional[int] = None
+    state_name: Optional[str] = None
 
 
 class SemanticSearchEngine:
@@ -451,6 +454,158 @@ class SemanticSearchEngine:
         # Historie begrenzen
         if len(self.search_history) > 100:
             self.search_history = self.search_history[-100:]
+
+    def search_by_state(self, state_value: int, tolerance: int = 10) -> List[SearchResult]:
+        """
+        Sucht Reflexionen nach Zustandswert.
+        
+        Args:
+            state_value: Gesuchter Zustandswert (0-255)
+            tolerance: Toleranzbereich
+            
+        Returns:
+            Liste von SearchResult Objekten
+        """
+        print(f"🔍 Suche Reflexionen mit State {state_value} ±{tolerance}")
+        
+        db_reflections = self.local_db.get_reflections(limit=200)
+        results = []
+        
+        for db_ref in db_reflections:
+            reflection_data = self.local_db.get_reflection_by_hash(db_ref.hash)
+            if reflection_data and 'state_value' in reflection_data:
+                ref_state = reflection_data['state_value']
+                
+                # Prüfe ob im Toleranzbereich
+                if abs(ref_state - state_value) <= tolerance:
+                    # Ähnlichkeit basierend auf Abstand berechnen
+                    distance = abs(ref_state - state_value)
+                    similarity = 1.0 - (distance / max(tolerance, 1))
+                    
+                    content = reflection_data.get('content', '')
+                    preview = content[:200] + '...' if len(content) > 200 else content
+                    
+                    result = SearchResult(
+                        reflection_hash=db_ref.hash,
+                        content_preview=preview,
+                        similarity_score=similarity,
+                        matching_themes=db_ref.themes,
+                        timestamp=db_ref.timestamp,
+                        privacy_level=reflection_data.get('privacy_level', 'private'),
+                        tags=db_ref.tags,
+                        state_value=ref_state,
+                        state_name=reflection_data.get('state_name', f"State {ref_state}")
+                    )
+                    results.append(result)
+        
+        # Nach Ähnlichkeit sortieren
+        results.sort(key=lambda x: x.similarity_score, reverse=True)
+        
+        print(f"✅ Gefunden: {len(results)} Reflexionen im Zustandsbereich")
+        return results
+
+    def search_by_state_range(self, min_state: int, max_state: int) -> List[SearchResult]:
+        """
+        Sucht Reflexionen in einem Zustandsbereich.
+        
+        Args:
+            min_state: Minimaler Zustandswert
+            max_state: Maximaler Zustandswert
+            
+        Returns:
+            Liste von SearchResult Objekten
+        """
+        print(f"🔍 Suche Reflexionen zwischen State {min_state} und {max_state}")
+        
+        db_reflections = self.local_db.get_reflections(limit=200)
+        results = []
+        
+        for db_ref in db_reflections:
+            reflection_data = self.local_db.get_reflection_by_hash(db_ref.hash)
+            if reflection_data and 'state_value' in reflection_data:
+                ref_state = reflection_data['state_value']
+                
+                # Prüfe ob im Bereich
+                if min_state <= ref_state <= max_state:
+                    # Relative Position im Bereich als Score
+                    range_size = max_state - min_state
+                    if range_size > 0:
+                        position = (ref_state - min_state) / range_size
+                        similarity = 1.0 - abs(position - 0.5) * 2  # Höher in der Mitte
+                    else:
+                        similarity = 1.0
+                    
+                    content = reflection_data.get('content', '')
+                    preview = content[:200] + '...' if len(content) > 200 else content
+                    
+                    result = SearchResult(
+                        reflection_hash=db_ref.hash,
+                        content_preview=preview,
+                        similarity_score=similarity,
+                        matching_themes=db_ref.themes,
+                        timestamp=db_ref.timestamp,
+                        privacy_level=reflection_data.get('privacy_level', 'private'),
+                        tags=db_ref.tags,
+                        state_value=ref_state,
+                        state_name=reflection_data.get('state_name', f"State {ref_state}")
+                    )
+                    results.append(result)
+        
+        # Nach State-Wert sortieren
+        results.sort(key=lambda x: x.state_value)
+        
+        print(f"✅ Gefunden: {len(results)} Reflexionen im Bereich")
+        return results
+
+    def get_state_distribution(self) -> Dict:
+        """
+        Analysiert die Verteilung der Zustandswerte.
+        
+        Returns:
+            Dictionary mit Verteilungsstatistiken
+        """
+        db_reflections = self.local_db.get_reflections(limit=1000)
+        state_values = []
+        state_counts = {}
+        
+        for db_ref in db_reflections:
+            reflection_data = self.local_db.get_reflection_by_hash(db_ref.hash)
+            if reflection_data and 'state_value' in reflection_data:
+                state_value = reflection_data['state_value']
+                state_values.append(state_value)
+                state_counts[state_value] = state_counts.get(state_value, 0) + 1
+        
+        if not state_values:
+            return {"message": "Keine State-Daten verfügbar"}
+        
+        # Statistiken berechnen
+        mean_state = np.mean(state_values)
+        std_state = np.std(state_values)
+        min_state = min(state_values)
+        max_state = max(state_values)
+        
+        # Häufigste States
+        top_states = sorted(state_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+        
+        # Bereiche definieren
+        ranges = {
+            "Low (0-63)": sum(1 for s in state_values if 0 <= s <= 63),
+            "Medium-Low (64-127)": sum(1 for s in state_values if 64 <= s <= 127),
+            "Medium-High (128-191)": sum(1 for s in state_values if 128 <= s <= 191),
+            "High (192-255)": sum(1 for s in state_values if 192 <= s <= 255)
+        }
+        
+        return {
+            "total_reflections": len(state_values),
+            "mean_state": round(mean_state, 2),
+            "std_state": round(std_state, 2),
+            "min_state": min_state,
+            "max_state": max_state,
+            "unique_states": len(state_counts),
+            "top_states": top_states,
+            "range_distribution": ranges,
+            "state_counts": state_counts
+        }
 
     def get_search_analytics(self) -> Dict:
         """

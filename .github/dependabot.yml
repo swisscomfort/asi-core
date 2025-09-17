@@ -1,0 +1,66 @@
+# Dependabot Configuration für ASI-Core
+# Automatische Dependency-Updates für Sicherheit und Aktualität
+
+version: 2
+updates:
+  # Python Dependencies
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "🔧 dependencies"
+      - "🐍 python"
+    commit-message:
+      prefix: "deps(python):"
+      include: "scope"
+    reviewers:
+      - "swisscomfort"
+    
+  # JavaScript/Node Dependencies
+  - package-ecosystem: "npm"
+    directory: "/web"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "🔧 dependencies"
+      - "📦 npm"
+    commit-message:
+      prefix: "deps(npm):"
+      include: "scope"
+    reviewers:
+      - "swisscomfort"
+      
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "🔧 dependencies"
+      - "🤖 github-actions"
+    commit-message:
+      prefix: "deps(actions):"
+
+  # Docker Dependencies
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "🔧 dependencies"
+      - "🐳 docker"
+    commit-message:
+      prefix: "deps(docker):"
+
+# Security Policy
+enable-beta-ecosystems: true
+allow:
+  - dependency-type: "direct"
+  - dependency-type: "indirect"
