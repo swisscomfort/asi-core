@@ -1,0 +1,68 @@
+name: Deploy ASI-Core Presentation
+
+on:
+  push:
+    paths:
+      - 'docs/presentation/**'
+    branches: [ main ]
+
+jobs:
+  deploy-presentation:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install Marp CLI
+      run: npm install -g @marp-team/marp-cli
+
+    - name: Build Presentation
+      run: |
+        mkdir -p ./docs/presentation/dist
+        # Convert Markdown to HTML presentation
+        marp docs/presentation/ASI-Core_Presentation.md --output ./docs/presentation/dist/index.html
+        # Copy additional assets if they exist
+        if [ -d "docs/presentation/assets" ]; then
+          cp -r docs/presentation/assets ./docs/presentation/dist/
+        fi
+        # Create a simple index page with link to presentation
+        cat > ./docs/presentation/dist/README.html << 'EOF'
+        <!DOCTYPE html>
+        <html lang="de">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>ASI-Core Präsentation</title>
+            <style>
+                body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+                .hero { text-align: center; padding: 50px 0; }
+                .btn { display: inline-block; padding: 15px 30px; background: #007acc; color: white; text-decoration: none; border-radius: 5px; margin: 10px; }
+                .btn:hover { background: #005999; }
+            </style>
+        </head>
+        <body>
+            <div class="hero">
+                <h1>🧠 ASI-Core Präsentation</h1>
+                <p>Die Revolution der Datensouveränität</p>
+                <a href="index.html" class="btn">📊 Präsentation starten</a>
+                <a href="https://github.com/swisscomfort/asi-core" class="btn">🐙 Zum Repository</a>
+            </div>
+            <h2>🎯 Was ist ASI-Core?</h2>
+            <p>ASI-Core ist ein hybrides AI-Reflexionssystem, das lokale Datenschutz mit dezentraler Speicherung kombiniert.</p>
+            <h2>🚀 Live-Demo</h2>
+            <p>Testen Sie ASI-Core direkt im Browser:</p>
+            <a href="https://swisscomfort.github.io/asi-core/" class="btn">🌐 PWA starten</a>
+        </body>
+        </html>
+        EOF
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs/presentation/dist
+        destination_dir: presentation
