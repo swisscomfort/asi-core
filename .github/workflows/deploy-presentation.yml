@@ -3,7 +3,8 @@ name: Deploy ASI-Core Presentation
 on:
   push:
     paths:
-      - 'docs/presentation/**'
+      - 'docs/**'
+      - '.github/workflows/deploy-presentation.yml'
     branches: [ main ]
 
 jobs:
@@ -48,6 +49,25 @@ jobs:
             <div class="hero">
                 <h1>🧠 ASI-Core Präsentation</h1>
                 <p>Die Revolution der Datensouveränität</p>
+                <a href="index.html" class="btn">📊 Präsentation starten</a>
+                <a href="../" class="btn">🏠 Zur Hauptseite</a>
+                <a href="https://github.com/swisscomfort/asi-core" class="btn">🐙 Repository</a>
+            </div>
+            <h2>🎯 Was ist ASI-Core?</h2>
+            <p>ASI-Core ist ein hybrides AI-Reflexionssystem, das lokale Datenschutz mit dezentraler Speicherung kombiniert.</p>
+            <h2>🚀 Live-Demo</h2>
+            <p>Testen Sie ASI-Core direkt im Browser:</p>
+            <a href="../" class="btn">🌐 PWA starten</a>
+        </body>
+        </html>
+        EOF
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs
+        destination_dir: .
                 <a href="index.html" class="btn">📊 Präsentation starten</a>
                 <a href="https://github.com/swisscomfort/asi-core" class="btn">🐙 Zum Repository</a>
             </div>
