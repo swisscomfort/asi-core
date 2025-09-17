@@ -1,5 +1,5 @@
 // Simple localStorage wrapper for ASI-Core
-const storage = {
+export const localStorageService = {
   // Get all reflections from localStorage
   getReflections: () => {
     try {
@@ -14,7 +14,7 @@ const storage = {
   // Save a reflection to localStorage
   saveReflection: (reflection) => {
     try {
-      const reflections = storage.getReflections();
+      const reflections = localStorageService.getReflections();
       reflections.push({
         ...reflection,
         id: Date.now().toString(),
@@ -42,7 +42,7 @@ const storage = {
   // Save a todo to localStorage
   saveTodo: (todo) => {
     try {
-      const todos = storage.getTodos();
+      const todos = localStorageService.getTodos();
       todos.push({
         ...todo,
         id: Date.now().toString(),
@@ -71,8 +71,8 @@ const storage = {
 
   // Get storage stats
   getStats: () => {
-    const reflections = storage.getReflections();
-    const todos = storage.getTodos();
+    const reflections = localStorageService.getReflections();
+    const todos = localStorageService.getTodos();
 
     return {
       totalReflections: reflections.length,
@@ -84,21 +84,21 @@ const storage = {
 
   // Get offline stats (backward compatibility)
   getOfflineStats: () => {
-    return storage.getStats();
+    return localStorageService.getStats();
   },
 
   // Additional methods needed by components
   getAllReflections: () => {
-    return storage.getReflections();
+    return localStorageService.getReflections();
   },
 
   getAllTodos: () => {
-    return storage.getTodos();
+    return localStorageService.getTodos();
   },
 
   updateTodo: (updatedTodo) => {
     try {
-      const todos = storage.getTodos();
+      const todos = localStorageService.getTodos();
       const index = todos.findIndex(todo => todo.id === updatedTodo.id);
       if (index !== -1) {
         todos[index] = updatedTodo;
@@ -114,8 +114,8 @@ const storage = {
 };
 
 // Default export
-export default storage;
+export default localStorageService;
 
 // Named exports for compatibility
-export const localStorageService = storage;
-export const localStorage = storage;
+export const localStorage = localStorageService;
+export { localStorageService as localStorageService };
