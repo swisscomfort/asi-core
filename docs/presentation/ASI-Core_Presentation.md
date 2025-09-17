@@ -211,8 +211,6 @@ python src/asi_core.py
 
 - **📧 Email**: info@asi-core.org
 - **🐙 GitHub**: https://github.com/swisscomfort/asi-core
-- **📱 PWA**: https://swisscomfort.github.io/asi-core/
-- **📖 Docs**: https://asi-core.readthedocs.io/
 
 ---
 

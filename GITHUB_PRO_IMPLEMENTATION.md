@@ -50,7 +50,7 @@
 
 ### Sofort verfügbar:
 
-1. **PWA ist live**: https://swisscomfort.github.io/asi-core/
+1. **Repository verfügbar**: https://github.com/swisscomfort/asi-core (PWA folgt nach GitHub Pages Aktivierung)
 2. **Security Scans** laufen automatisch bei jedem Push
 3. **Issue Templates** sind aktiv für professionelle Bug Reports
 4. **Advanced CI/CD** testet jeden Pull Request
@@ -72,7 +72,7 @@
 
 ## 🔗 **Quick Links:**
 
-- 📱 **Live PWA**: https://swisscomfort.github.io/asi-core/
+- 📱 **Repository**: https://github.com/swisscomfort/asi-core
 - 🔍 **Security**: https://github.com/swisscomfort/asi-core/security
 - 📊 **Actions**: https://github.com/swisscomfort/asi-core/actions
 - 📋 **Issues**: https://github.com/swisscomfort/asi-core/issues

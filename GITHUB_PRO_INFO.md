@@ -42,8 +42,8 @@ Das ASI-Core Projekt ist **vollständig für GitHub Pages vorbereitet**, aber da
 
 2. **Automatisches Deployment:**
 
-   - PWA live unter: `https://swisscomfort.github.io/asi-core/`
-   - Updates bei jedem Push
+   - Repository verfügbar unter: `https://github.com/swisscomfort/asi-core`
+   - Lokale Entwicklung möglich
    - Tägliche Status-Checks
 
 3. **PWA Installation:**

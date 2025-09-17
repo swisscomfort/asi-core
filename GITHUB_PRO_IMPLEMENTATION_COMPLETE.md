@@ -153,7 +153,8 @@ gh workflow run docker-github-packages.yml
 ## 🎉 **Deployment Status**
 
 ### **Live URLs:**
-- 🌍 **PWA:** https://swisscomfort.github.io/asi-core/
+- 📱 **Repository:** https://github.com/swisscomfort/asi-core
+- 🌍 **PWA:** (wird aktiviert nach GitHub Pages Setup)
 - 📊 **Analytics:** https://insights.github.com/swisscomfort/asi-core
 - 🔒 **Security:** https://github.com/swisscomfort/asi-core/security
 - 🚀 **Actions:** https://github.com/swisscomfort/asi-core/actions

@@ -2,7 +2,7 @@
 
 ## ❌ **Problem:** GitHub Pages ist noch nicht aktiviert
 
-Obwohl alle Workflows erfolgreich laufen, ist GitHub Pages noch nicht konfiguriert. Deshalb erhalten Sie einen 404-Fehler bei https://swisscomfort.github.io/asi-core/
+Obwohl alle Workflows erfolgreich laufen, ist GitHub Pages noch nicht konfiguriert. Deshalb ist die PWA noch nicht live verfügbar. Repository: https://github.com/swisscomfort/asi-core
 
 ## ✅ **Lösung:** Manuelle Aktivierung in 3 einfachen Schritten
 
@@ -40,7 +40,7 @@ Falls die Settings-Methode nicht funktioniert:
 
 ## 🌐 **Erwartetes Ergebnis:**
 
-**Live PWA URL:** https://swisscomfort.github.io/asi-core/
+**Repository URL:** https://github.com/swisscomfort/asi-core
 
 ## 🆘 **Falls weiterhin 404:**
 

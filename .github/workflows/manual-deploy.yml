@@ -1,0 +1,71 @@
+name: "🚀 Manual GitHub Pages Deploy"
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_reason:
+        description: "Reason for manual deployment"
+        required: false
+        default: "Manual deployment"
+        type: string
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages-manual"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: web/package-lock.json
+
+      - name: 📦 Install Dependencies
+        run: |
+          cd web
+          npm ci --prefer-offline --no-audit
+
+      - name: 🏗️ Build PWA
+        run: |
+          cd web
+          npm run build
+          echo "🚀 PWA Build completed successfully!"
+
+      - name: 📋 Copy Build to Root
+        run: |
+          cp -r web/dist/* .
+          echo "✅ Build files copied to root"
+
+      - name: 📄 Create .nojekyll
+        run: |
+          touch .nojekyll
+          echo "✅ .nojekyll created for SPA routing"
+
+      - name: 🚀 Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: 🎉 Deployment Complete
+        run: |
+          echo "🌍 Live URL: ${{ steps.deployment.outputs.page_url }}"
+          echo "📊 Presentation: ${{ steps.deployment.outputs.page_url }}presentation/"
+          echo "✅ GitHub Pages deployment successful!"

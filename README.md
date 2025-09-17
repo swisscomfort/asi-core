@@ -1,12 +1,12 @@
-[🌍 Live PWA](https://swisscomfort.github.io/asi-core/) | [� Präsentation](https://swisscomfort.github.io/asi-core/presentation/) | [�📖 Dokumentation](./docs/) | [🔗 GitHub Project](https://github.com/users/swisscomfort/projects/1) | [📊 Pro Analytics](https://insights.github.com/swisscomfort/asi-core) | [🐳 Packages](https://github.com/swisscomfort/asi-core/pkgs/container/asi-core)
+[📱 PWA Repository](https://github.com/swisscomfort/asi-core) | [📖 Dokumentation](./docs/) | [🔗 GitHub Repository](https://github.com/swisscomfort/asi-core) | [📊 Repository Insights](https://github.com/swisscomfort/asi-core/graphs/traffic) | [🐳 Container Registry](https://github.com/swisscomfort/asi-core/pkgs/container/asi-core)
 
 [![GitHub Pro](https://img.shields.io/badge/GitHub-Pro%20User-orange?style=for-the-badge&logo=github)](https://github.com/swisscomfort)
 [![CI/CD Status](https://github.com/swisscomfort/asi-core/workflows/Advanced%20CI%2FCD%20Pipeline/badge.svg)](https://github.com/swisscomfort/asi-core/actions)
 [![Security Scan](https://github.com/swisscomfort/asi-core/workflows/Advanced%20Security%20Scan/badge.svg)](https://github.com/swisscomfort/asi-core/actions)
-[![CodeQL](https://github.com/swisscomfort/asi-core/workflows/CodeQL/badge.svg)](https://github.com/swisscomfort/asi-core/security/code-scanning)
+[![CodeQL](https://github.com/swisscomfort/asi-core/workflows/CodeQL/badge.svg)](https://github.com/swisscomfort/asi-core/security)
 [![Docker Packages](https://github.com/swisscomfort/asi-core/workflows/🐳%20Docker%20Package%20(GitHub%20Pro)/badge.svg)](https://github.com/swisscomfort/asi-core/actions)
 [![GitHub Pro Analytics](https://github.com/swisscomfort/asi-core/workflows/📊%20GitHub%20Pro%20Analytics%20&%20Insights/badge.svg)](https://github.com/swisscomfort/asi-core/actions)
-[![PWA Status](https://img.shields.io/badge/PWA-Ready-green)](https://swisscomfort.github.io/asi-core/)
+[![PWA Status](https://img.shields.io/badge/PWA-Development-green)](https://github.com/swisscomfort/asi-core)
 [![Beta Testing](https://img.shields.io/badge/Beta-30%20Days-blue)](https://github.com/swisscomfort/asi-core/issues?q=label%3Abeta-testing)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%203.0-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
@@ -29,7 +29,7 @@
 
 ## �🚀 Live System
 
-**[📱 ASI-Core PWA](https://swisscomfort.github.io/asi-core/)** - Bereit für Mobile Installation!
+**[📱 ASI-Core Repository](https://github.com/swisscomfort/asi-core)** - Quellcode und Entwicklung
 
 ### ✨ GitHub Pro Features:
 

@@ -8,7 +8,7 @@ Bei jedem Push auf den `main` Branch:
 
 1. **Build-Prozess:** Die PWA wird automatisch gebaut
 2. **Deployment:** Direkt zu GitHub Pages hochgeladen
-3. **Live-URL:** Verfügbar unter `https://swisscomfort.github.io/asi-core/`
+3. **Live-URL:** Nach Aktivierung verfügbar unter `https://swisscomfort.github.io/asi-core/` (Repository: https://github.com/swisscomfort/asi-core)
 
 ## 📋 Setup-Schritte für GitHub Pages
 
@@ -48,6 +48,6 @@ git push origin main
 
 ## 🌐 Live-Demo
 
-Nach dem ersten Push: **https://swisscomfort.github.io/asi-core/**
+Nach dem ersten Push: **Repository verfügbar unter https://github.com/swisscomfort/asi-core** (GitHub Pages Deployment folgt)
 
 Die PWA kann dann direkt im Browser installiert werden!

@@ -32,11 +32,13 @@
 
 ### 📱 **Nach der Aktivierung verfügbar:**
 
-**Live PWA URL:**
+**Repository URL:**
 
 ```
-https://swisscomfort.github.io/asi-core/
+https://github.com/swisscomfort/asi-core
 ```
+
+*(GitHub Pages wird nach Aktivierung verfügbar unter: https://swisscomfort.github.io/asi-core/)*
 
 ### 🛡️ **GitHub Pro+ Features aktiv:**
 
