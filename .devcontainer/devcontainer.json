@@ -52,7 +52,15 @@
       }
     }
   },
-  "postCreateCommand": "python3 -m venv .venv && source .venv/bin/activate && pip install --upgrade pip setuptools wheel && pip install -r requirements.txt && cd web && npm install",
+  "postCreateCommand": [
+    "echo 'Setting up ASI Core Development Environment...'",
+    "python3 -m venv .venv || echo 'Virtual environment creation failed, continuing...'",
+    "source .venv/bin/activate || echo 'Virtual environment activation failed, continuing...'",
+    "pip install --upgrade pip setuptools wheel || echo 'Pip upgrade failed, continuing...'",
+    "pip install -r requirements.txt || echo 'Requirements installation failed, continuing...'",
+    "cd web && npm install || echo 'NPM install failed, continuing...'",
+    "echo 'ASI Core setup completed (with possible warnings above)'"
+  ],
   "postStartCommand": "echo 'ASI Core Development Environment bereit!'",
   "forwardPorts": [
     8000,

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASI-Core Logo Generator</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            font-family: 'Arial', sans-serif;
+            color: white;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        #logoCanvas {
+            border: 2px solid #00D4AA;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f23 100%);
+            margin: 20px auto;
+            display: block;
+        }
+
+        .controls {
+            margin: 20px 0;
+        }
+
+        button {
+            background: #00D4AA;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #00b894;
+        }
+
+        .logo-info {
+            background: rgba(0, 212, 170, 0.1);
+            border: 1px solid #00D4AA;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        h1 {
+            color: #00D4AA;
+            margin-bottom: 10px;
+        }
+
+        .tech-stack {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .tech-tag {
+            background: #2C3E50;
+            border: 1px solid #00D4AA;
+            border-radius: 15px;
+            padding: 5px 15px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🧠 ASI-Core Logo Generator</h1>
+        <p>Professionelles Logo für das Hybrid AI Reflection System</p>
+
+        <canvas id="logoCanvas" width="1280" height="640"></canvas>
+
+        <div class="controls">
+            <button onclick="generateLogo()">🎨 Logo generieren</button>
+            <button onclick="downloadLogo()">💾 Logo downloaden (PNG)</button>
+            <button onclick="downloadLogoHiRes()">📸 High-Res downloaden</button>
+        </div>
+
+        <div class="logo-info">
+            <h3>📐 Logo-Spezifikationen:</h3>
+            <p><strong>Größe:</strong> 1280x640px (GitHub Social Media optimiert)</p>
+            <p><strong>Format:</strong> PNG mit transparentem Hintergrund</p>
+            <p><strong>Farben:</strong> Cyan (#00D4AA), Blau (#45B7D1), Rot (#FF6B6B)</p>
+            <p><strong>Verwendung:</strong> GitHub Repository Social Preview</p>
+        </div>
+
+        <div class="tech-stack">
+            <span class="tech-tag">Python</span>
+            <span class="tech-tag">Blockchain</span>
+            <span class="tech-tag">IPFS</span>
+            <span class="tech-tag">React</span>
+            <span class="tech-tag">PWA</span>
+            <span class="tech-tag">AI</span>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('logoCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function generateLogo() {
+            // Canvas leeren
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Hintergrund Gradient
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#0f0f23');
+            gradient.addColorStop(0.5, '#1a1a2e');
+            gradient.addColorStop(1, '#16213e');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Hauptkreis (Gehirn/Core)
+            const centerX = 300;
+            const centerY = 320;
+            const radius = 120;
+
+            ctx.strokeStyle = '#00D4AA';
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.stroke();
+
+            // Innere Verbindungen
+            ctx.strokeStyle = '#00D4AA';
+            ctx.lineWidth = 3;
+            for (let i = 0; i < 8; i++) {
+                const angle = (i * Math.PI) / 4;
+                const x1 = centerX + 60 * Math.cos(angle);
+                const y1 = centerY + 60 * Math.sin(angle);
+                const x2 = centerX + 100 * Math.cos(angle);
+                const y2 = centerY + 100 * Math.sin(angle);
+
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+
+                // Punkte an den Enden
+                ctx.fillStyle = '#00D4AA';
+                ctx.beginPath();
+                ctx.arc(x2, y2, 4, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+
+            // Blockchain-Blöcke
+            const blockColors = ['#FF6B6B', '#4ECDC4', '#45B7D1'];
+            const blockSize = 50;
+            let blockX = 550;
+
+            blockColors.forEach((color, i) => {
+                ctx.fillStyle = color;
+                ctx.fillRect(blockX, centerY - blockSize / 2, blockSize, blockSize);
+
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(blockX, centerY - blockSize / 2, blockSize, blockSize);
+
+                // Verbindungslinien
+                if (i < blockColors.length - 1) {
+                    ctx.strokeStyle = 'white';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(blockX + blockSize, centerY);
+                    ctx.lineTo(blockX + blockSize + 20, centerY);
+                    ctx.stroke();
+                }
+
+                blockX += 70;
+            });
+
+            // Titel: ASI-CORE
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 72px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('ASI-CORE', 900, 280);
+
+            // Untertitel
+            ctx.fillStyle = '#00D4AA';
+            ctx.font = 'italic 24px Arial';
+            ctx.fillText('Hybrid AI Reflection System', 900, 320);
+
+            // Technologie-Tags
+            const technologies = ['Python', 'Blockchain', 'IPFS', 'React', 'PWA'];
+            const tagY = 380;
+            const tagSpacing = 120;
+            const startX = 900 - (technologies.length - 1) * tagSpacing / 2;
+
+            technologies.forEach((tech, i) => {
+                const x = startX + i * tagSpacing;
+
+                // Tag-Hintergrund
+                ctx.fillStyle = '#2C3E50';
+                ctx.fillRect(x - 40, tagY - 15, 80, 30);
+
+                ctx.strokeStyle = '#00D4AA';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(x - 40, tagY - 15, 80, 30);
+
+                // Tag-Text
+                ctx.fillStyle = 'white';
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(tech, x, tagY + 5);
+            });
+
+            // GitHub URL
+            ctx.fillStyle = '#7F8C8D';
+            ctx.font = '18px Arial';
+            ctx.fillText('github.com/swisscomfort/asi-core', 900, 450);
+
+            // Dezentrale Knoten
+            const nodePositions = [
+                {x: 150, y: 150},
+                {x: 200, y: 120},
+                {x: 100, y: 180}
+            ];
+
+            ctx.fillStyle = '#FFD93D';
+            nodePositions.forEach(pos => {
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, 8, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // Verbindung zum Core
+                ctx.strokeStyle = '#FFD93D';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+                ctx.lineTo(centerX, centerY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            });
+
+            // Partikel-Effekt
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            for (let i = 0; i < 100; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const size = Math.random() * 2 + 1;
+
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+
+            console.log('✅ Logo generiert!');
+        }
+
+        function downloadLogo() {
+            const link = document.createElement('a');
+            link.download = 'ASI-Core-Logo.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        function downloadLogoHiRes() {
+            // Erstelle High-Res Version
+            const hiResCanvas = document.createElement('canvas');
+            hiResCanvas.width = 2560;
+            hiResCanvas.height = 1280;
+            const hiResCtx = hiResCanvas.getContext('2d');
+
+            // Skaliere das aktuelle Logo hoch
+            hiResCtx.scale(2, 2);
+            hiResCtx.drawImage(canvas, 0, 0);
+
+            const link = document.createElement('a');
+            link.download = 'ASI-Core-Logo-HiRes.png';
+            link.href = hiResCanvas.toDataURL();
+            link.click();
+        }
+
+        // Logo automatisch beim Laden generieren
+        window.onload = function () {
+            generateLogo();
+        };
+    </script>
+</body>
+
+</html>
