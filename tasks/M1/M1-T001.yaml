@@ -1,0 +1,114 @@
+task_id: "M1-T001"
+title: "PWA Skeleton (Chat+Storage Views)"
+version: "1.0"
+status: "open"
+
+bounty:
+  token: "ASI"
+  amount: 3000
+  currency_equivalent: "~30 USD"
+
+created: "2025-09-16"
+deadline: "2025-10-15"
+estimated_hours: 12
+
+dependencies: ["M0-T001", "M0-T003"]
+blocks: ["M1-T002", "M1-T003", "M1-T004"]
+
+deliverables:
+  - "Next.js PWA mit Offline-Funktionalität"
+  - "Chat-Interface (WhatsApp-ähnlich, minimal)"
+  - "Storage-Interface (Google Drive-ähnlich)"
+  - "Service Worker für Offline-Sync"
+  - "E2E-Encryption Shell (UI-Integration)"
+
+definition_of_done:
+  - "Lighthouse PWA Score ≥ 95"
+  - "Offline-Installation funktioniert auf Mobile"
+  - "UI responsive für Desktop + Mobile"
+  - "Initial Load <3s auf 3G-Verbindung"
+  - "E2E-Tests für Basis-Navigation"
+
+reviewers:
+  - "0x742d35Cc6634C0532925a3b8D"
+  - "0xdef3c9a8b7e1d5f2a4c6b8e9d"
+
+auto_verifier:
+  github:
+    repo: "swisscomfort/asi-core"
+    branch: "main"
+    required_checks: 
+      - "build"
+      - "test"
+      - "lint"
+      - "lighthouse"
+      - "e2e"
+  content_checks:
+    must_include:
+      - "pages/"
+      - "components/"
+      - "public/manifest.json"
+      - "sw.js"
+    must_not_include:
+      - "unused-dependencies"
+
+category: "frontend"
+difficulty: "intermediate"
+skills_required:
+  - "React/Next.js"
+  - "PWA Development"
+  - "Service Workers"
+  - "Mobile-First Design"
+
+license: "AGPL-3.0"
+contributor_agreement: "required"
+privacy_impact: "low"
+
+evidence:
+  github_pr: ""
+  ipfs_cids: []
+  demo_url: ""
+  documentation: ""
+
+notes: |
+  **USER EXPERIENCE FOUNDATION**: Diese PWA ist das erste was Nutzer sehen -
+  sie muss sofort verständlich und nutzerfreundlich sein.
+  
+  **Design Philosophy**:
+  - "Invisible Decentralization" - User merkt nicht dass es dezentral ist
+  - WhatsApp-Level UX für Chat
+  - Google Drive-Level UX für Storage
+  - Zero-Learning-Curve für Mainstream-User
+  
+  **Technical Requirements**:
+  - Next.js 14+ mit App Router
+  - TailwindCSS für schnelle, konsistente Styles
+  - Service Worker mit Background Sync
+  - IndexedDB für lokale Datenpersistenz
+  - Web Crypto API Integration (prepared for M0-T002)
+  
+  **Performance Targets**:
+  - First Contentful Paint <1.5s
+  - Largest Contentful Paint <2.5s
+  - Cumulative Layout Shift <0.1
+  - First Input Delay <100ms
+  
+  **Accessibility**:
+  - WCAG 2.1 AA Compliance
+  - Keyboard Navigation
+  - Screen Reader Support
+  - High Contrast Mode
+  
+  **Mobile-First**:
+  - Touch-friendly Interface (44px min touch targets)
+  - Swipe Gestures wo sinnvoll
+  - Native-ähnliche Transitions
+  - Offline-Banner/Status
+
+rewards:
+  referral_bonus: 5
+  early_completion_bonus: 10
+  quality_bonus: 20
+
+voting_required: false
+dispute_process: "standard"

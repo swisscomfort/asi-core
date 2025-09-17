@@ -1,0 +1,19 @@
+{
+    "local_ipfs_url": "http://127.0.0.1:5001",
+    "use_pinata": false,
+    "pinata_api_key": "",
+    "pinata_secret_key": "",
+    "use_infura": false,
+    "infura_project_id": "",
+    "infura_project_secret": "",
+    "default_service": "local",
+    "redundancy_services": [
+        "local",
+        "pinata"
+    ],
+    "max_file_size": 104857600,
+    "auto_pin_evidence": true,
+    "auto_pin_task_sheets": true,
+    "pin_cache_enabled": true,
+    "pin_cache_ttl": 86400
+}

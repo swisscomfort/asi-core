@@ -1,0 +1,100 @@
+task_id: "M0-T002"
+title: "Local Crypto Library (AES+HKDF+Tests)"
+version: "1.0"
+status: "open"
+
+bounty:
+  token: "ASI"
+  amount: 2000
+  currency_equivalent: "~20 USD"
+
+created: "2025-09-16"
+deadline: "2025-10-05"
+estimated_hours: 8
+
+dependencies: ["M0-T001"]
+blocks: ["M1-T002", "M1-T003"]
+
+deliverables:
+  - "TypeScript/JavaScript Crypto-Modul mit AES-256-GCM"
+  - "HKDF für Key-Derivation implementiert"
+  - "Comprehensive Test Suite mit Testvektoren"
+  - "Browser + Node.js Kompatibilität"
+  - "Zero external crypto dependencies (nur Web Crypto API)"
+
+definition_of_done:
+  - "Tests mit 100% Coverage für Crypto-Funktionen"
+  - "Cross-Browser Testing (Chrome, Firefox, Safari)"
+  - "Performance Tests für Encrypt/Decrypt Operationen"
+  - "Memory Leak Tests für sensitive Operations"
+  - "JSDoc Dokumentation für alle Public APIs"
+
+reviewers:
+  - "0x742d35Cc6634C0532925a3b8D"
+  - "0x9fa2d84401a3c2bd4533c911b"
+
+auto_verifier:
+  github:
+    repo: "swisscomfort/asi-core"
+    branch: "main"
+    required_checks: 
+      - "build"
+      - "test"
+      - "lint"
+      - "security-scan"
+  content_checks:
+    must_include:
+      - "src/crypto/"
+      - "tests/crypto/"
+      - "README.md"
+    must_not_include:
+      - "hardcoded-keys"
+      - "test-vectors-production"
+
+category: "backend"
+difficulty: "advanced"
+skills_required:
+  - "Cryptography Fundamentals"
+  - "TypeScript/JavaScript"
+  - "Web Crypto API"
+  - "Security Testing"
+
+license: "AGPL-3.0"
+contributor_agreement: "required"
+privacy_impact: "high"
+
+evidence:
+  github_pr: ""
+  ipfs_cids: []
+  demo_url: ""
+  documentation: ""
+
+notes: |
+  **CRITICAL SECURITY TASK**: Die Crypto-Bibliothek ist das Fundament für alle
+  Datenschutz-Features in ASI Core.
+  
+  **Sicherheitsanforderungen**:
+  - Nur bewährte, standardisierte Algorithmen (AES-256-GCM, HKDF-SHA256)
+  - Secure Random Number Generation
+  - Constant-time Operations wo möglich
+  - Comprehensive Input Validation
+  - No hardcoded keys or test data in production code
+  
+  **Test-Anforderungen**:
+  - NIST test vectors wo verfügbar
+  - Edge cases und Error conditions
+  - Timing attack resistance tests
+  - Memory wipe nach key operations
+  
+  **Performance-Ziele**:
+  - Encrypt/Decrypt <100ms für 1MB Daten
+  - Key-derivation <50ms
+  - Startup-time <10ms
+
+rewards:
+  referral_bonus: 5
+  early_completion_bonus: 15
+  quality_bonus: 20
+
+voting_required: false
+dispute_process: "standard"

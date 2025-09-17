@@ -1,0 +1,122 @@
+title: "PWA Security Hardening implementieren"
+category: "security"
+difficulty: 4
+credit_reward: 70
+reputation_weight: 7
+estimated_hours: 10
+skill_tags: ["pwa", "security", "csp", "webapi"]
+requires_one_human: true
+
+dod: |
+  - Content Security Policy (CSP) konfiguriert
+  - Subresource Integrity (SRI) für alle externen Assets
+  - Secure Headers konfiguriert (HSTS, X-Frame-Options, etc.)
+  - Service Worker Security-Best-Practices
+  - Input-Validation und Output-Encoding
+  - XSS-Schutz implementiert
+  - CSRF-Protection für State-Changes
+  - Security.txt erstellt
+  - Penetration-Test durchgeführt
+
+description: |
+  Progressive Web Apps haben einzigartige Security-Herausforderungen durch
+  ihre erweiterten Capabilities. Oryn muss höchste Sicherheitsstandards
+  erfüllen, da es sensible Benutzerdaten und Krypto-Funktionen verwaltet.
+  
+  Diese Aufgabe umfasst sowohl Client-seitige als auch Server-seitige
+  Sicherheitsmaßnahmen für eine umfassende Defense-in-Depth-Strategie.
+
+acceptance_criteria:
+  - Mozilla Observatory Score A+ erreicht
+  - OWASP PWA Top 10 Risiken mitigiert
+  - Alle externen Dependencies auf Vulnerabilities geprüft
+  - CSP ohne 'unsafe-inline' oder 'unsafe-eval'
+  - Alle Forms protected gegen CSRF
+  - Input-Sanitization für User-Generated-Content
+  - Secure Cookie-Settings
+  - Rate-Limiting für sensitive Actions
+
+evidence_requirements:
+  code_review: true
+  tests_passing: true
+  documentation: true
+  security_audit: true
+  accessibility_check: false
+
+bonus_criteria:
+  - "Certificate Transparency Monitoring"
+  - "Security Response Plan dokumentiert"
+  - "Bug Bounty Program Vorbereitung"
+  - "Security Metrics Dashboard"
+
+security_measures:
+  csp_policy:
+    default_src: "'self'"
+    script_src: "'self' 'wasm-unsafe-eval'"
+    style_src: "'self' 'unsafe-inline'"
+    img_src: "'self' data: https:"
+    connect_src: "'self' wss: https:"
+    worker_src: "'self'"
+    frame_ancestors: "'none'"
+  
+  secure_headers:
+    - "Strict-Transport-Security: max-age=31536000; includeSubDomains"
+    - "X-Content-Type-Options: nosniff"
+    - "X-Frame-Options: DENY"
+    - "X-XSS-Protection: 1; mode=block"
+    - "Referrer-Policy: strict-origin-when-cross-origin"
+    - "Permissions-Policy: geolocation=(), microphone=(), camera=()"
+  
+  input_validation:
+    - All user inputs validated and sanitized
+    - SQL injection prevention
+    - XSS prevention with DOMPurify
+    - File upload restrictions
+    - Email/URL validation
+  
+  service_worker_security:
+    - No caching of sensitive data
+    - Secure communication with main thread
+    - Proper error handling
+    - Regular cache cleanup
+
+vulnerability_scans:
+  tools:
+    - npm audit for dependencies
+    - Snyk for vulnerability detection
+    - ESLint security rules
+    - Mozilla Observatory
+    - OWASP ZAP basic scan
+  
+  manual_testing:
+    - XSS injection attempts
+    - CSRF token validation
+    - Authentication bypass attempts
+    - File upload security
+    - Client-side security controls bypass
+
+compliance_checks:
+  - GDPR data protection requirements
+  - Accessibility security (screen reader safety)
+  - Mobile security best practices
+  - Browser compatibility security
+  - Third-party integration security
+
+monitoring_setup:
+  - CSP violation reporting
+  - Failed authentication tracking
+  - Unusual activity detection
+  - Error logging with security context
+  - Performance impact of security measures
+
+files_to_modify:
+  - "public/index.html" # CSP meta tags
+  - "src/security/csp.js"
+  - "src/security/inputValidation.js"
+  - "src/security/csrfProtection.js"
+  - "src/serviceWorker.js"
+  - "server/middleware/security.js"
+  - "webpack.config.js" # SRI hashes
+  - "public/.well-known/security.txt"
+  - "tests/security/penetration.test.js"
+  - "docs/security/hardening.md"

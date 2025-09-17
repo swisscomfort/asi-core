@@ -1,0 +1,139 @@
+task_id: "M2-T005"
+title: "End-to-End Task System Demo"
+version: "1.0"
+status: "open"
+
+bounty:
+  token: "ASI"
+  amount: 2000
+  currency_equivalent: "~20 USD"
+
+created: "2025-09-16"
+deadline: "2025-11-30"
+estimated_hours: 8
+
+dependencies: ["M2-T001", "M2-T002", "M2-T003", "M2-T004"]
+blocks: []
+
+deliverables:
+  - "Complete Workflow Demo Video (10-15 min)"
+  - "Interactive Tutorial für New Contributors"
+  - "Performance Benchmarks + Metrics"
+  - "Documentation für Task System Usage"
+  - "Onboarding Guide für Maintainers"
+
+definition_of_done:
+  - "Demo shows: Task Creation → Claim → Work → Verification → Payout"
+  - "Tutorial enables new contributor onboarding <30min"
+  - "Benchmarks prove system scales to 100+ concurrent tasks"
+  - "Documentation covers all user roles"
+  - "System ready für real contributor onboarding"
+
+reviewers:
+  - "0x742d35Cc6634C0532925a3b8D"
+  - "0xc9f2e5a8d1c4e7b0d3f6e9c2f"
+
+auto_verifier:
+  github:
+    repo: "swisscomfort/asi-core"
+    branch: "main"
+    required_checks: 
+      - "build"
+      - "test"
+      - "lint"
+      - "e2e-demo"
+  content_checks:
+    must_include:
+      - "docs/task-system/"
+      - "demo/e2e-workflow.md"
+      - "onboarding/contributor-guide.md"
+      - "benchmarks/"
+    must_not_include:
+      - "incomplete-documentation"
+
+category: "docs"
+difficulty: "beginner"
+skills_required:
+  - "Technical Writing"
+  - "Video Production"
+  - "User Experience"
+  - "Tutorial Design"
+
+license: "AGPL-3.0"
+contributor_agreement: "required"
+privacy_impact: "low"
+
+evidence:
+  github_pr: ""
+  ipfs_cids: []
+  demo_url: ""
+  documentation: ""
+
+notes: |
+  **SYSTEM VALIDATION + ONBOARDING**: Dieser Task beweist, dass das gesamte
+  Task-System funktioniert und macht es für neue Contributors zugänglich.
+  
+  **Demo Video Content**:
+  1. Task System Overview (2 min)
+  2. Maintainer: Create Task (2 min)
+  3. Contributor: Claim + Work (4 min)
+  4. Verifier: Automatic Validation (2 min)
+  5. Payout + SBT Minting (2 min)
+  6. Milestone Completion (2 min)
+  7. DAO Governance Demo (1 min)
+  
+  **Interactive Tutorial**:
+  - Step-by-step Task claiming
+  - GitHub PR creation
+  - Evidence submission
+  - Verification process
+  - Payout claiming
+  - SBT viewing
+  
+  **Performance Benchmarks**:
+  - Task creation latency
+  - Verification processing time
+  - Contract gas costs
+  - IPFS pinning speed
+  - System throughput (tasks/hour)
+  
+  **Documentation Structure**:
+  ```
+  docs/task-system/
+  ├── overview.md
+  ├── contributor-guide.md
+  ├── maintainer-guide.md
+  ├── verifier-setup.md
+  ├── smart-contracts.md
+  ├── api-reference.md
+  └── troubleshooting.md
+  ```
+  
+  **Onboarding Metrics**:
+  - Time from "git clone" to "first task claimed"
+  - Successful completion rate für tutorial
+  - Common failure points + solutions
+  - User feedback collection
+  
+  **Success Criteria**:
+  - 5 different people can complete tutorial
+  - System handles 10 concurrent task workflows
+  - All edge cases documented with solutions
+  - Clear escalation paths für problems
+  
+  **Launch Readiness Checklist**:
+  - [ ] All contracts deployed + verified
+  - [ ] Verifier service running stable
+  - [ ] Frontend integrated with contracts
+  - [ ] Documentation complete
+  - [ ] First milestone tasks defined
+  - [ ] Initial funding in RewardVault
+  - [ ] Community channels active
+
+rewards:
+  referral_bonus: 5
+  early_completion_bonus: 10
+  quality_bonus: 15
+
+voting_required: false
+dispute_process: "standard"

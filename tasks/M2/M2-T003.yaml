@@ -1,0 +1,131 @@
+task_id: "M2-T003"
+title: "MilestoneOrchestrator + DAO Integration"
+version: "1.0"
+status: "open"
+
+bounty:
+  token: "ASI"
+  amount: 3200
+  currency_equivalent: "~32 USD"
+
+created: "2025-09-16"
+deadline: "2025-11-20"
+estimated_hours: 14
+
+dependencies: ["M2-T001", "M2-T002"]
+blocks: ["M2-T004", "M2-T005"]
+
+deliverables:
+  - "MilestoneOrchestrator.sol für Task Wave Management"
+  - "DAO Voting Integration für Disputes"
+  - "Milestone Progress Tracking"
+  - "Automated Task Unlocking Logic"
+  - "Governance Parameter Controls"
+
+definition_of_done:
+  - "Milestone Completion triggers Next Wave unlock"
+  - "DAO kann Disputes resolven via Snapshot"
+  - "Progress Tracking für alle aktiven Milestones"
+  - "Gas-efficient Batch Milestone Operations"
+  - "Admin Controls für Emergency Situations"
+
+reviewers:
+  - "0x742d35Cc6634C0532925a3b8D"
+  - "0xa7c0d3f6e9b2d5a8e1c4d7a0e"
+
+auto_verifier:
+  github:
+    repo: "swisscomfort/asi-core"
+    branch: "main"
+    required_checks: 
+      - "build"
+      - "test"
+      - "lint"
+      - "governance-tests"
+  content_checks:
+    must_include:
+      - "contracts/task-system/MilestoneOrchestrator.sol"
+      - "contracts/governance/"
+      - "scripts/setup-milestones.js"
+      - "test/governance/"
+    must_not_include:
+      - "centralized-control"
+      - "admin-backdoor"
+
+category: "contracts"
+difficulty: "advanced"
+skills_required:
+  - "DAO Architecture"
+  - "Governance Mechanisms"
+  - "State Machine Design"
+  - "Automation Logic"
+
+license: "AGPL-3.0"
+contributor_agreement: "required"
+privacy_impact: "low"
+
+evidence:
+  github_pr: ""
+  ipfs_cids: []
+  demo_url: ""
+  documentation: ""
+
+notes: |
+  **ORCHESTRATION + GOVERNANCE**: Der Orchestrator steuert das Wachstum des
+  Systems und die DAO ermöglicht echte Community-Governance.
+  
+  **MilestoneOrchestrator Funktionen**:
+  - Milestone Definition (required tasks, unlocked tasks)
+  - Progress Monitoring via TaskRegistry integration
+  - Automatic Unlocking bei Completion
+  - Batch Operations für efficiency
+  - Milestone Metadata (description, manifests)
+  
+  **DAO Integration Components**:
+  - Snapshot.org Integration für off-chain voting
+  - On-chain Vote Execution
+  - Dispute Resolution Process
+  - Parameter Updates (timeouts, collateral, etc.)
+  - Emergency Governance Procedures
+  
+  **State Machine Design**:
+  ```
+  Milestone States:
+  CREATED → ACTIVE → COMPLETED
+                ↓
+              DISPUTED → DAO_RESOLVED
+  ```
+  
+  **Governance Powers**:
+  - Dispute Resolution (task approval/rejection)
+  - Parameter Updates (claim timeouts, bounty amounts)
+  - Emergency Pause/Unpause
+  - Verifier Role Management
+  - Milestone Schedule Adjustments
+  
+  **Automated Triggers**:
+  - checkMilestoneCompletion() → auto-unlock next wave
+  - Progress calculation via TaskRegistry queries
+  - Event emissions für UI updates
+  - Integration mit verifier service
+  
+  **Security & Decentralization**:
+  - No single admin key control
+  - Multi-sig for critical operations
+  - Time-locked parameter changes
+  - Community veto power für major decisions
+  
+  **Integration Architecture**:
+  - TaskRegistry ← queries task status
+  - RewardVault ← coordinate funding
+  - ContributorSBT ← milestone achievement badges
+  - External: Snapshot für voting
+  - External: IPFS für governance proposals
+
+rewards:
+  referral_bonus: 5
+  early_completion_bonus: 15
+  quality_bonus: 30
+
+voting_required: false
+dispute_process: "standard"

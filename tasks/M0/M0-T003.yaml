@@ -1,0 +1,106 @@
+task_id: "M0-T003"
+title: "IPFS/Arweave Adapter with Retry Logic"
+version: "1.0"
+status: "open"
+
+bounty:
+  token: "ASI"
+  amount: 2200
+  currency_equivalent: "~22 USD"
+
+created: "2025-09-16"
+deadline: "2025-10-07"
+estimated_hours: 10
+
+dependencies: ["M0-T001"]
+blocks: ["M1-T001", "M1-T004"]
+
+deliverables:
+  - "Unified Storage Adapter für IPFS und Arweave"
+  - "Intelligent Retry Logic mit Exponential Backoff"
+  - "Redundant Pinning Strategy (multiple nodes)"
+  - "Content Verification (Hash-checking)"
+  - "Comprehensive Error Handling und Logging"
+
+definition_of_done:
+  - "Tests mit Mock-Responses und Real Network Calls"
+  - "Retry Logic funktioniert bei Network Failures"
+  - "Content Integrity wird immer verifiziert"
+  - "Performance: <5s für 10MB Upload bei guter Verbindung"
+  - "Graceful Degradation bei Service-Ausfällen"
+
+reviewers:
+  - "0x742d35Cc6634C0532925a3b8D"
+  - "0xacb4d84e9c2a1f5d3b8e7c9a2"
+
+auto_verifier:
+  github:
+    repo: "swisscomfort/asi-core"
+    branch: "main"
+    required_checks: 
+      - "build"
+      - "test"
+      - "lint"
+      - "integration-test"
+  content_checks:
+    must_include:
+      - "src/storage/"
+      - "tests/storage/"
+      - "docs/storage-api.md"
+    must_not_include:
+      - "hardcoded-endpoints"
+      - "test-only-config"
+
+category: "backend"
+difficulty: "intermediate"
+skills_required:
+  - "IPFS API Knowledge"
+  - "Arweave Integration"
+  - "Network Programming"
+  - "Error Handling Patterns"
+
+license: "AGPL-3.0"
+contributor_agreement: "required"
+privacy_impact: "medium"
+
+evidence:
+  github_pr: ""
+  ipfs_cids: []
+  demo_url: ""
+  documentation: ""
+
+notes: |
+  **DECENTRALIZATION CORE**: Dieser Adapter ist entscheidend für die dezentrale
+  Speicher-Strategie von ASI Core.
+  
+  **Technical Requirements**:
+  - Support für lokale IPFS-Nodes und Remote-Gateways
+  - Arweave Bundlr Integration für Cost-Efficiency
+  - Fallback-Chain: lokaler IPFS → Gateway → Arweave
+  - Intelligent Caching mit TTL
+  
+  **Retry Strategy**:
+  - Exponential Backoff: 1s, 2s, 4s, 8s, 16s
+  - Maximum 5 Retries pro Operation
+  - Different strategies für Upload vs. Download
+  - Circuit Breaker Pattern bei dauerhaften Failures
+  
+  **Performance Optimization**:
+  - Connection Pooling
+  - Parallel Uploads wo möglich
+  - Compression vor Upload
+  - Progress Callbacks für UI
+  
+  **Monitoring & Observability**:
+  - Structured Logging mit Context
+  - Metrics für Success/Failure Rates
+  - Network Latency Tracking
+  - Storage Cost Tracking
+
+rewards:
+  referral_bonus: 5
+  early_completion_bonus: 10
+  quality_bonus: 15
+
+voting_required: false
+dispute_process: "standard"

@@ -1,0 +1,125 @@
+task_id: "M2-T002"
+title: "RewardVault + ContributorSBT Deployment"
+version: "1.0"
+status: "open"
+
+bounty:
+  token: "ASI"
+  amount: 2500
+  currency_equivalent: "~25 USD"
+
+created: "2025-09-16"
+deadline: "2025-11-15"
+estimated_hours: 10
+
+dependencies: ["M2-T001"]
+blocks: ["M2-T003", "M2-T004"]
+
+deliverables:
+  - "RewardVault.sol deployed mit Multi-Token Support"
+  - "ContributorSBT.sol als Non-Transferable NFT"
+  - "Integration mit TaskRegistry"
+  - "Initial Token Funding Mechanism"
+  - "SBT Metadata + IPFS Integration"
+
+definition_of_done:
+  - "RewardVault kann ERC20 Tokens verwalten"
+  - "SBT Minting bei Task Completion funktioniert"
+  - "Vault-Registry Integration tested"
+  - "Emergency Withdrawal Mechanisms functional"
+  - "SBT Metadata on IPFS mit rich attributes"
+
+reviewers:
+  - "0x742d35Cc6634C0532925a3b8D"
+  - "0xf6a9b4d7e0c3f5a8b1d4e7a0c"
+
+auto_verifier:
+  github:
+    repo: "swisscomfort/asi-core"
+    branch: "main"
+    required_checks: 
+      - "build"
+      - "test"
+      - "lint"
+      - "contract-integration"
+  content_checks:
+    must_include:
+      - "contracts/task-system/RewardVault.sol"
+      - "contracts/task-system/ContributorSBT.sol"
+      - "scripts/deploy-vault-sbt.js"
+      - "test/integration/"
+    must_not_include:
+      - "infinite-approval"
+      - "unchecked-transfers"
+
+category: "contracts"
+difficulty: "intermediate"
+skills_required:
+  - "ERC20 Token Integration"
+  - "ERC721 NFT Development"
+  - "Soulbound Token Standards"
+  - "Access Control Patterns"
+
+license: "AGPL-3.0"
+contributor_agreement: "required"
+privacy_impact: "low"
+
+evidence:
+  github_pr: ""
+  ipfs_cids: []
+  demo_url: ""
+  documentation: ""
+
+notes: |
+  **TOKEN ECONOMICS + REPUTATION**: Diese Contracts schaffen die ökonomischen
+  Anreize und das Reputation-System für Contributors.
+  
+  **RewardVault Features**:
+  - Multi-Token Support (ASI, USDC, MATIC, etc.)
+  - Role-based Payout Authorization (nur TaskRegistry)
+  - Emergency Withdrawal mit Timelock
+  - Deposit Tracking für Transparency
+  - Gas-efficient Batch Payouts
+  
+  **ContributorSBT (Soulbound Token)**:
+  - Non-transferable Achievement Tokens
+  - Rich Metadata (task completed, bounty earned, timestamp)
+  - IPFS-hosted JSON Metadata
+  - On-chain Reputation Scoring
+  - Badge Categories (Task, Milestone, Special Achievements)
+  
+  **Integration Architecture**:
+  - TaskRegistry → calls vault.payout() on approval
+  - TaskRegistry → calls sbt.mint() on payout
+  - SBT Metadata includes TaskRegistry reference
+  - Vault tracks per-user lifetime earnings
+  
+  **Security Considerations**:
+  - Vault: Only TaskRegistry can trigger payouts
+  - SBT: Only authorized contracts can mint
+  - Emergency Controls für beide contracts
+  - Comprehensive input validation
+  
+  **Metadata Schema (SBT)**:
+  ```json
+  {
+    "name": "Task Completion: M1-T001",
+    "description": "PWA Skeleton Implementation",
+    "image": "ipfs://QmBadgeImage...",
+    "attributes": [
+      {"trait_type": "Task ID", "value": "M1-T001"},
+      {"trait_type": "Bounty Earned", "value": "2500 ASI"},
+      {"trait_type": "Completion Date", "value": "2025-10-15"},
+      {"trait_type": "Category", "value": "Frontend"},
+      {"trait_type": "Difficulty", "value": "Intermediate"}
+    ]
+  }
+  ```
+
+rewards:
+  referral_bonus: 5
+  early_completion_bonus: 10
+  quality_bonus: 20
+
+voting_required: false
+dispute_process: "standard"

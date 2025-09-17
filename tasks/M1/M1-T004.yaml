@@ -1,0 +1,120 @@
+task_id: "M1-T004"
+title: "Minimal P2P Chat (LibP2P Integration)"
+version: "1.0"
+status: "open"
+
+bounty:
+  token: "ASI"
+  amount: 3500
+  currency_equivalent: "~35 USD"
+
+created: "2025-09-16"
+deadline: "2025-10-30"
+estimated_hours: 16
+
+dependencies: ["M0-T003", "M1-T001", "M1-T002"]
+blocks: ["M1-T005", "M2-T002"]
+
+deliverables:
+  - "LibP2P Node Implementation für Browser"
+  - "Peer Discovery über WebRTC + Relay Nodes"
+  - "End-to-End Encrypted Messaging"
+  - "Room/Group Chat Functionality"
+  - "Message History mit IPFS Backup"
+
+definition_of_done:
+  - "2 Browser Tabs können lokal chatten"
+  - "NAT-Traversal über WebRTC funktioniert"
+  - "Messages sind E2E encrypted (AES-256)"
+  - "Peer Discovery <10s in lokalen Netzwerken"
+  - "Message Delivery Confirmation"
+
+reviewers:
+  - "0x742d35Cc6634C0532925a3b8D"
+  - "0xc3f8a5e2d7b9f1c4e6a8d0c2f"
+
+auto_verifier:
+  github:
+    repo: "swisscomfort/asi-core"
+    branch: "main"
+    required_checks: 
+      - "build"
+      - "test"
+      - "lint"
+      - "p2p-integration"
+  content_checks:
+    must_include:
+      - "src/p2p/"
+      - "src/chat/"
+      - "tests/p2p/"
+      - "README-p2p.md"
+    must_not_include:
+      - "central-server"
+      - "websocket-server"
+
+category: "backend"
+difficulty: "advanced"
+skills_required:
+  - "LibP2P Protocol"
+  - "WebRTC"
+  - "P2P Networking"
+  - "NAT Traversal"
+
+license: "AGPL-3.0"
+contributor_agreement: "required"
+privacy_impact: "high"
+
+evidence:
+  github_pr: ""
+  ipfs_cids: []
+  demo_url: ""
+  documentation: ""
+
+notes: |
+  **P2P COMMUNICATION CORE**: Der entscheidende Schritt weg von zentralen Servern
+  hin zu echter Peer-to-Peer Kommunikation.
+  
+  **LibP2P Integration**:
+  - js-libp2p für Browser-Implementation
+  - WebRTC Transport für direkte Verbindungen
+  - Circuit Relay für NAT-Traversal
+  - mDNS für lokale Peer Discovery
+  
+  **Network Topology**:
+  - Mesh-Network zwischen verfügbaren Peers
+  - DHT für Peer Routing
+  - PubSub für Group Messaging
+  - Relay Nodes als Fallback
+  
+  **Security Implementation**:
+  - Noise Protocol für Secure Channels
+  - Identity via Ed25519 Keys
+  - Perfect Forward Secrecy
+  - Anti-Spam via Proof-of-Work
+  
+  **Message Flow**:
+  1. Peer Discovery (mDNS/DHT)
+  2. Secure Channel Establishment
+  3. Message Encryption (Double Ratchet-inspired)
+  4. Delivery via best available route
+  5. Acknowledgment + IPFS backup
+  
+  **Fallback Strategy**:
+  - Direct Connection → WebRTC
+  - NAT Issues → Circuit Relay
+  - All Peers Offline → IPFS Message Store
+  - Extreme Censorship → Tor Integration (future)
+  
+  **Performance Targets**:
+  - Message Latency <500ms in LAN
+  - Connection Establishment <5s
+  - Support für 100+ Peers in Group
+  - Memory Usage <100MB for typical usage
+
+rewards:
+  referral_bonus: 5
+  early_completion_bonus: 20
+  quality_bonus: 30
+
+voting_required: false
+dispute_process: "standard"

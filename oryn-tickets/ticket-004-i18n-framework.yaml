@@ -1,0 +1,122 @@
+title: "I18n-Framework für Mehrsprachigkeit einrichten"
+category: "translation"
+difficulty: 3
+credit_reward: 45
+reputation_weight: 5
+estimated_hours: 8
+skill_tags: ["react", "i18n", "javascript", "localization"]
+requires_one_human: false
+
+dod: |
+  - React-i18next oder ähnliches Framework integriert
+  - Sprachumschaltung in der UI implementiert
+  - Namespaces für verschiedene Bereiche definiert
+  - Pluralisierung und Interpolation unterstützt
+  - RTL (Right-to-Left) Support vorbereitet
+  - Lazy Loading für Übersetzungen
+  - Fallback-Mechanismus für fehlende Übersetzungen
+  - Build-Pipeline für Übersetzungsextraktion
+
+description: |
+  Um Oryn für eine globale Community zugänglich zu machen, benötigen wir
+  ein robustes Internationalisierungs-Framework. Es soll einfach zu verwenden
+  sein für Developer und Übersetzer, sowie performant und erweiterbar.
+  
+  Das Framework soll von Anfang an für Community-getriebene Übersetzungen
+  ausgelegt sein, wo Contributors neue Sprachen hinzufügen können.
+
+acceptance_criteria:
+  - Mindestens 2 Sprachen unterstützt (EN, DE)
+  - Sprachumschaltung persistiert im localStorage
+  - Alle UI-Texte sind übersetzbar
+  - Datum/Zeit-Formatierung lokalisiert
+  - Zahlen-Formatierung lokalisiert
+  - Übersetzungen werden nur bei Bedarf geladen
+  - Fehlende Übersetzungen fallen auf Englisch zurück
+  - Developer-freundliche API für neue Texte
+
+evidence_requirements:
+  code_review: true
+  tests_passing: true
+  documentation: true
+  security_audit: false
+  accessibility_check: false
+
+bonus_criteria:
+  - "Automatische Spracherkennung basierend auf Browser"
+  - "Contributor-Interface für Übersetzungen"
+  - "Translation Memory für Konsistenz"
+  - "Pseudo-Localization für Testing"
+
+technical_requirements:
+  framework: "react-i18next oder react-intl"
+  features:
+    - Namespace-basierte Organisation
+    - Interpolation und Variablen
+    - Pluralisierung
+    - Kontext-basierte Übersetzungen
+    - Lazy Loading
+    - Hot-Reloading in Development
+  
+  performance:
+    - Chunks nur bei Bedarf laden
+    - Caching von Übersetzungen
+    - Minimale Bundle-Size-Erhöhung
+  
+  developer_experience:
+    - TypeScript-Support für Übersetzungskeys
+    - ESLint-Regeln für i18n
+    - Extraktion-Tool für neue Texte
+
+language_support:
+  initial_languages:
+    - en (English) - Standard
+    - de (Deutsch) - Vollständig
+  
+  prepared_for:
+    - es (Español)
+    - fr (Français)
+    - zh (中文)
+    - ar (العربية) - RTL Support
+  
+  features_per_language:
+    - Datum/Zeit-Formate
+    - Zahlen-Formate
+    - Währungs-Formate
+    - Text-Richtung (LTR/RTL)
+
+folder_structure: |
+  public/
+    locales/
+      en/
+        common.json
+        ticket-board.json
+        chat.json
+        auth.json
+      de/
+        common.json
+        ticket-board.json
+        chat.json
+        auth.json
+  
+  src/
+    i18n/
+      index.js
+      resources.js
+      detector.js
+    hooks/
+      useTranslation.js
+    components/
+      LanguageSwitcher.jsx
+
+files_to_modify:
+  - "src/i18n/index.js"
+  - "src/components/LanguageSwitcher/LanguageSwitcher.jsx"
+  - "src/hooks/useTranslation.js"
+  - "public/locales/en/common.json"
+  - "public/locales/de/common.json"
+  - "src/utils/dateFormat.js"
+  - "webpack.config.js"
+  - "package.json"
+  - "tests/i18n/translation.test.js"
+  - "docs/translation/i18n-setup.md"

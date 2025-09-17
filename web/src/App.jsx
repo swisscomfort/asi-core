@@ -9,6 +9,8 @@ import { ConnectionStatus } from "./components/ConnectionStatus";
 import { OfflineStats } from "./components/OfflineStats";
 import { TodoList } from "./components/TodoList";
 import { TodoStats } from "./components/TodoStats";
+import ASIDashboard from "./components/ASIDashboard";
+import TicketBoard from "./components/TicketBoard";
 import { localStorageService } from "./services/localStorage";
 import { syncService } from "./services/syncService";
 import { NOTE_TYPES } from "./core/data-model";
@@ -17,7 +19,7 @@ export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchResults, setSearchResults] = useState(null);
   const [selectedReflection, setSelectedReflection] = useState(null);
-  const [activeTab, setActiveTab] = useState("search"); // 'search', 'insights', 'todos'
+  const [activeTab, setActiveTab] = useState("search"); // 'search', 'insights', 'todos', 'asi-core', 'tickets'
 
   useEffect(() => {
     localStorageService.init();
@@ -107,6 +109,26 @@ export default function App() {
                   >
                     🧠 KI-Insights
                   </button>
+                  <button
+                    onClick={() => setActiveTab("asi-core")}
+                    className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                      activeTab === "asi-core"
+                        ? "border-indigo-500 text-indigo-600"
+                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    }`}
+                  >
+                    🚀 ASI Core
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("tickets")}
+                    className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                      activeTab === "tickets"
+                        ? "border-indigo-500 text-indigo-600"
+                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    }`}
+                  >
+                    🎫 Oryn Tickets
+                  </button>
                 </nav>
               </div>
 
@@ -119,6 +141,9 @@ export default function App() {
                 )}
                 {activeTab === "todos" && (
                   <TodoList onTodoSelect={handleTodoSelect} />
+                )}
+                {activeTab === "tickets" && (
+                  <TicketBoard />
                 )}
                 {activeTab === "insights" && selectedReflection && (
                   <AIInsights currentReflection={selectedReflection} />
@@ -133,6 +158,11 @@ export default function App() {
                       Klicke auf eine Reflexion oder ein To-Do, um KI-Insights
                       und Mustererkennungen zu sehen.
                     </p>
+                  </div>
+                )}
+                {activeTab === "asi-core" && (
+                  <div className="bg-transparent">
+                    <ASIDashboard className="border-0 shadow-none" />
                   </div>
                 )}
               </div>
