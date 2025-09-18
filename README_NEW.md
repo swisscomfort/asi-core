@@ -12,12 +12,20 @@
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%203.0-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![CI/CD](https://github.com/swisscomfort/asi-core/workflows/CI/badge.svg)](https://github.com/swisscomfort/asi-core/actions)
 
-## ⚡ Try it NOW (2 minutes)
+## 🌐 Try it NOW - Live Demo!
+
+**🚀 LIVE PWA:** [**swisscomfort.github.io/asi-core**](https://swisscomfort.github.io/asi-core/)
+
+- 📱 **Installable PWA** - Add to home screen on mobile/desktop
+- 🔄 **Offline-capable** - Works without internet connection  
+- ⚡ **Instant loading** - Progressive Web App technology
+- 🎯 **2-minute demo** - See ASI-Core in action immediately
 
 ```bash
-git clone https://github.com/swisscomfort/asi-core
-cd asi-core && ./quick-demo.sh
-# 🎉 Interactive demo runs automatically!
+# Quick local setup (optional)
+git clone https://github.com/swisscomfort/asi-core.git
+cd asi-core
+./quick-demo.sh  # 2-minute interactive demo
 ```
 
 **Or use Gitpod for instant cloud environment:**  

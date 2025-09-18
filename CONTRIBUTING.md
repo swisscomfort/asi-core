@@ -6,25 +6,23 @@
 [![Good First Issues](https://img.shields.io/github/issues/swisscomfort/asi-core/good%20first%20issue)](https://github.com/swisscomfort/asi-core/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
 [![Help Wanted](https://img.shields.io/github/issues/swisscomfort/asi-core/help%20wanted)](https://github.com/swisscomfort/asi-core/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
 
-## 🚀 Quick Start für neue Contributors
+## 🚀 Quick Start - See it in Action!
 
-### ⚡ 15-Minuten Setup
+**🌐 LIVE DEMO:** [**swisscomfort.github.io/asi-core**](https://swisscomfort.github.io/asi-core/)
+
+Experience ASI-Core immediately in your browser! The PWA is fully functional, installable, and works offline.
+
+### Local Development Setup (15 minutes):
+
 ```bash
-# 1. Repository forken & klonen
-git clone https://github.com/YOUR_USERNAME/asi-core.git
+# 1. Clone & Demo
+git clone https://github.com/swisscomfort/asi-core.git
 cd asi-core
+./quick-demo.sh      # 2-minute interactive demo
 
-# 2. Development Environment starten
-./setup.sh  # Alles wird automatisch installiert ✨
-
-# 3. System testen 
-python main.py minimal  # Sollte funktionieren! 🎉
-```
-
-### 🎬 Live Demo sofort verfügbar
-```bash
-./quick-demo.sh  # Interactive Demo startet
-# 🌐 Öffnet automatisch http://localhost:3000
+# 2. Full Setup
+./setup.sh           # Installs dependencies, creates configs
+python main.py       # Start main system
 ```
 
 ---
