@@ -1,23 +1,39 @@
 # 🚀 ASI-Core Quick Start Guide
 
-Willkommen bei ASI-Core! Dieser Guide hilft Ihnen beim schnellen Einstieg.
+**Willkommen bei ASI-Core!** Der intelligenteste Weg zu starten ist mit unserer **Live PWA** ⚡
 
-## ⚡ Schnellstart (3 Schritte)
+## 🌐 **SOFORT LOSLEGEN - Kein Setup nötig!**
 
-### 1. Erstmalige Einrichtung
+### **🎯 Live PWA Demo (0 Minuten Setup):**
+**Direkt öffnen:** [**swisscomfort.github.io/asi-core**](https://swisscomfort.github.io/asi-core/)
+
+- 📱 **Installierbar** auf Mobile & Desktop
+- 🔄 **Offline-fähig** - funktioniert ohne Internet
+- ⚡ **Instant Loading** - Progressive Web App Technologie
+- 🎯 **Sofort nutzbar** - keine Registrierung erforderlich
+
+---
+
+## ⚡ **ENTWICKLER-QUICKSTART (2 Minuten):**
+
+### **1. Clone & Demo:**
 ```bash
-# Repository klonen (falls noch nicht geschehen)
 git clone https://github.com/swisscomfort/asi-core.git
 cd asi-core
-
-# Automatisches Setup ausführen
-./setup.sh
+./quick-demo.sh  # 🎯 Interaktive 2-Minuten Demo
 ```
 
-### 2. System starten
+### **2. Vollständiges Setup:**
 ```bash
-# Interaktives Starter-Menü
-./start.sh
+./setup.sh      # Automatische Konfiguration
+./start.sh      # Interaktives Starter-Menü
+```
+
+### **3. PWA Development:**
+```bash
+cd web
+npm install
+npm run dev     # Development Server (Port 5173)
 ```
 
 ### 3. PWA-Version (Optional)

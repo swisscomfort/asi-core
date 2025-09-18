@@ -12,17 +12,23 @@
 
 Experience ASI-Core immediately in your browser! The PWA is fully functional, installable, and works offline.
 
-### Local Development Setup (15 minutes):
+### 🎯 **Instant Experience (0 setup required):**
+1. **Visit PWA:** https://swisscomfort.github.io/asi-core/
+2. **Install on mobile:** Add to home screen
+3. **Test offline:** Disconnect internet, app still works
+4. **Ready to contribute:** See the real thing first!
+
+### 📱 **Local Development Setup (2 minutes):**
 
 ```bash
-# 1. Clone & Demo
+# 1. Clone & Interactive Demo
 git clone https://github.com/swisscomfort/asi-core.git
 cd asi-core
-./quick-demo.sh      # 2-minute interactive demo
+./quick-demo.sh      # 🎯 2-minute guided tour
 
-# 2. Full Setup
+# 2. Full Development Setup
 ./setup.sh           # Installs dependencies, creates configs
-python main.py       # Start main system
+python main.py       # Start main system (or python src/asi_core.py)
 ```
 
 ---
