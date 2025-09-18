@@ -43,5 +43,11 @@
     "theme": "auto",
     "language": "de",
     "show_debug_panel": false
+  },
+  "security": {
+    "enforce_https": true,
+    "require_secret_key": true,
+    "session_timeout": 3600,
+    "max_upload_size": "10MB"
   }
 }

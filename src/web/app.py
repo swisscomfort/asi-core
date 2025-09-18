@@ -37,11 +37,17 @@ _env_secret = os.getenv("ASI_SECRET_KEY")
 if _env_secret:
     app.secret_key = _env_secret
 else:
-    # Hinweis: Dieser temporäre Schlüssel ist nur für lokale Entwicklung geeignet
-    # In Produktion MUSS ASI_SECRET_KEY gesetzt sein (siehe README/.env.example)
+    # SECURITY ENFORCEMENT: Keine temporären Keys in Production!
+    if os.getenv("ASI_ENVIRONMENT", "development") == "production":
+        raise RuntimeError(
+            "🚨 KRITISCHER FEHLER: ASI_SECRET_KEY MUSS in Production gesetzt sein! "
+            "Siehe .env.example für Konfiguration."
+        )
+    
+    # Nur für lokale Entwicklung
     import secrets
-
     app.secret_key = secrets.token_hex(32)
+    print("⚠️ WARNUNG: Temporärer Secret Key für Entwicklung generiert!")
 
 # Sichere Cookie-Defaults (wirken nur, wenn Sessions/Cookies verwendet werden)
 app.config.update(

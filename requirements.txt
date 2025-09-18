@@ -39,3 +39,6 @@ eth-account>=0.9.0
 
 # Testing
 pytest>=8.0.0
+
+# Security Dependencies
+flask-limiter==3.5.0
