@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { localStorage } from "../services/localStorage";
+import { localStorageService } from "../services/localStorage";
 
 export const TodoStats = () => {
   const [stats, setStats] = useState({

@@ -7,7 +7,7 @@ import {
   ChatBubbleLeftIcon,
 } from "@heroicons/react/24/outline";
 import AIApiService from "../services/aiApiService";
-import { localStorage } from "../services/localStorage";
+import { localStorageService } from "../services/localStorage";
 
 const ReflectionsList = ({ searchResults, onReflectionSelect }) => {
   const [reflections, setReflections] = useState([]);

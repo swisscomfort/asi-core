@@ -4,7 +4,7 @@ import {
   ClockIcon,
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
-import { localStorage } from "../services/localStorage";
+import { localStorageService } from "../services/localStorage";
 import { updateTodoStatus, TODO_STATUSES } from "../core/data-model";
 
 export const TodoList = ({ onTodoSelect }) => {
